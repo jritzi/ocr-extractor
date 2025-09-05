@@ -1,0 +1,38 @@
+{
+  "name": "ocr-extractor",
+  "version": "1.0.0",
+  "description": "Obsidian plugin to extract text from documents, images, etc. and store it as Markdown in notes",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "version": "node version-bump.mjs && git add manifest.json versions.json",
+    "lint": "eslint"
+  },
+  "keywords": [],
+  "author": "Johnathan Ritzi",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@eslint/json": "^0.13.2",
+    "@eslint/markdown": "^7.2.0",
+    "@types/node": "^24.4.0",
+    "@typescript-eslint/eslint-plugin": "8.43.0",
+    "@typescript-eslint/parser": "8.43.0",
+    "builtin-modules": "5.0.0",
+    "esbuild": "0.25.9",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.4.0",
+    "jiti": "^2.5.1",
+    "obsidian": "latest",
+    "prettier": "3.6.2",
+    "tslib": "2.8.1",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.43.0"
+  },
+  "dependencies": {
+    "@mistralai/mistralai": "^1.10.0",
+    "file-type": "^21.0.0"
+  }
+}
