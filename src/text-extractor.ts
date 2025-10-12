@@ -196,7 +196,7 @@ export class TextExtractor {
 
     // Add existing prefix to all lines. This will properly format the new
     // Markdown, even when used within nested callouts.
-    return `${EOL}${withoutPrefix.replace(/^/gm, quotePrefix)}`;
+    return `${EOL}${withoutPrefix.replace(/^/gm, quotePrefix)}${EOL}${EOL}`;
   }
 
   private alreadyProcessed(embed: EmbedCache, content: string) {
