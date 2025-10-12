@@ -13,9 +13,13 @@ export class SettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    const description = this.createFragmentFromHtml(
-      `See the <a href="https://docs.mistral.ai/getting-started/quickstart/">Mistral AI documentation</a> for instructions`,
-    );
+    const description = document.createDocumentFragment();
+    description.appendText("See the ");
+    description.createEl("a", {
+      text: "Mistral AI documentation",
+      href: "https://docs.mistral.ai/getting-started/quickstart/",
+    });
+    description.appendText(" for instructions");
 
     new Setting(containerEl)
       .setName("Mistral API key")
@@ -25,14 +29,5 @@ export class SettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.mistralApiKey)
           .onChange((value) => this.plugin.saveSetting("mistralApiKey", value)),
       );
-  }
-
-  private createFragmentFromHtml(html: string) {
-    const fragment = new DocumentFragment();
-    fragment.createSpan({}, (span) => {
-      span.innerHTML = html;
-    });
-
-    return fragment;
   }
 }
