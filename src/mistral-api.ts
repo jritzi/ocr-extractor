@@ -5,6 +5,8 @@ import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { SDKError } from "@mistralai/mistralai/models/errors";
 import { OcrExtractorError } from "../main";
 
+const UNSUPPORTED_MIME_TYPES = ["application/xml"];
+
 export class MistralApi {
   private mistral: Mistral;
 
@@ -15,6 +17,11 @@ export class MistralApi {
   async processOcr(buffer: Buffer) {
     const fileType = await fileTypeFromBuffer(buffer);
     const mimeType = fileType?.mime;
+
+    if (!mimeType || UNSUPPORTED_MIME_TYPES.includes(mimeType)) {
+      console.warn("Skipping OCR for file with unsupported MIME type");
+      return null;
+    }
 
     const isImage = mimeType && mimeType.startsWith("image/");
     const url = `data:${mimeType};base64,` + buffer.toString("base64");
