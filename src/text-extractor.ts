@@ -2,7 +2,12 @@ import OcrExtractorPlugin, { OcrExtractorError } from "../main";
 import { EmbedCache, getLinkpath, MarkdownView, Notice, TFile } from "obsidian";
 import { MistralApi } from "./mistral-api";
 import { EOL } from "os";
-import { debugLog, insertAtPosition, withTimeout } from "./utils";
+import {
+  batchPromises,
+  debugLog,
+  insertAtPosition,
+  withCancellation,
+} from "./utils";
 import { ConfirmExtractAllModal } from "./confirm-extract-all-modal";
 
 const CALLOUT_HEADER = "[!summary]- Extracted text";
@@ -82,7 +87,7 @@ export class TextExtractor {
   }
 
   private async extractTextFromEmbeds(noteFile: TFile, fileContent: string) {
-    const promises = this.getSupportedEmbeds(noteFile).map(async (embed) => {
+    const tasks = this.getSupportedEmbeds(noteFile).map((embed) => async () => {
       const embedFile = this.getEmbedFile(embed, noteFile);
       let markdown = null;
 
@@ -90,7 +95,9 @@ export class TextExtractor {
         if (!this.alreadyProcessed(embed, fileContent)) {
           const binary = await this.app.vault.readBinary(embedFile);
           const buffer = Buffer.from(new Uint8Array(binary));
-          markdown = await withTimeout(this.api.processOcr(buffer), 120_000);
+          markdown = await withCancellation(this.api.processOcr(buffer), () =>
+            this.plugin.statusManager.isCanceling(),
+          );
         }
       } else {
         console.warn(`Couldn't find file for attachment ${embed.original}`);
@@ -99,7 +106,10 @@ export class TextExtractor {
       return [embed.original, markdown] as const;
     });
 
-    return new Map(await Promise.all(promises));
+    // Batch to avoid rate limiting
+    const results = await batchPromises(tasks, 5);
+
+    return new Map(await Promise.all(results));
   }
 
   private async insertCallouts(

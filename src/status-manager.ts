@@ -1,5 +1,6 @@
 import OcrExtractorPlugin from "../main";
 import { Menu, MenuItem, setIcon } from "obsidian";
+import { debugLog } from "./utils";
 
 export type Status = "idle" | "processing" | "canceling";
 
@@ -38,21 +39,25 @@ export class StatusManager {
     this.status = "idle";
     this.statusBarTextSpan.setText("");
     this.statusBarItem.hide();
+    debugLog("Status set to idle");
   }
 
   setProcessing() {
     this.status = "processing";
     this.statusBarTextSpan.setText("Extracting text");
     this.statusBarItem.show();
+    debugLog("Status set to processing");
   }
 
   updateMessage(message: string) {
     this.statusBarTextSpan.setText(message);
+    debugLog(`Status message set to ${message}`);
   }
 
   setCanceling() {
     this.status = "canceling";
     this.statusBarTextSpan.setText("Canceling");
     this.statusBarItem.show();
+    debugLog("Status set to canceling");
   }
 }

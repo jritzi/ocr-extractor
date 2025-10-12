@@ -4,6 +4,7 @@ import { fileTypeFromBuffer } from "file-type";
 import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { SDKError } from "@mistralai/mistralai/models/errors";
 import { OcrExtractorError } from "../main";
+import { withRetries } from "./utils";
 
 const UNSUPPORTED_MIME_TYPES = ["application/xml"];
 
@@ -34,26 +35,28 @@ export class MistralApi {
     }
 
     try {
-      const ocrResponse = await this.mistral.ocr.process({
-        model: "mistral-ocr-latest",
-        document,
-        // Do not extract images
-        imageLimit: 0,
-        imageMinSize: 0,
-        includeImageBase64: false,
-      });
+      const ocrResponse = await withRetries(() =>
+        this.mistral.ocr.process({
+          model: "mistral-ocr-latest",
+          document,
+          // Do not extract images
+          imageLimit: 0,
+          imageMinSize: 0,
+          includeImageBase64: false,
+        }),
+      );
 
       return ocrResponse.pages
         .map((page) => page.markdown)
         .join(`${EOL}${EOL}---${EOL}${EOL}`);
-    } catch (e: unknown) {
-      if (e instanceof SDKError && e.statusCode === 401) {
+    } catch (error: unknown) {
+      if (error instanceof SDKError && error.statusCode === 401) {
         throw new OcrExtractorError("Error: Unauthorized, check your API key", {
-          cause: e,
+          cause: error,
         });
       }
 
-      throw e;
+      throw error;
     }
   }
 }
