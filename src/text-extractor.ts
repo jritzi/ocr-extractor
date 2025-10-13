@@ -188,7 +188,7 @@ export class TextExtractor {
     // Find initial whitespace and `>` characters
     const quotePrefix = lineBeforeEmbed.match(/^[\s>]*/)?.[0] ?? "";
 
-    const withoutPrefix = [
+    let formatted = [
       "",
       `> ${CALLOUT_HEADER}`,
       markdown.replace(/^/gm, `> `),
@@ -196,7 +196,14 @@ export class TextExtractor {
 
     // Add existing prefix to all lines. This will properly format the new
     // Markdown, even when used within nested callouts.
-    return `${EOL}${withoutPrefix.replace(/^/gm, quotePrefix)}${EOL}${EOL}`;
+    formatted = formatted.replace(/^/gm, quotePrefix);
+
+    // Remove trailing whitespace
+    formatted = formatted.replace(/\s+$/gm, "");
+
+    // Place text on new line with blank line after (to avoid unintentionally
+    // joining with a following callout)
+    return `${EOL}${formatted}${EOL}${EOL}`;
   }
 
   private alreadyProcessed(embed: EmbedCache, content: string) {
