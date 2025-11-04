@@ -1,3 +1,5 @@
+import { Notice } from "obsidian";
+
 declare global {
   interface Window {
     ocrExtractorDebugLoggingEnabled?: boolean;
@@ -15,7 +17,8 @@ export function insertAtPosition(
 }
 
 /**
- * Split promises into batches to execute in parallel
+ * Split an array of tasks (functions returning a promise) into batches,
+ * executing tasks within each batch in parallel
  */
 export async function batchPromises<T>(
   tasks: Array<() => Promise<T>>,
@@ -94,4 +97,8 @@ export function debugLog(message: string) {
   if (window.ocrExtractorDebugLoggingEnabled) {
     console.debug(message);
   }
+}
+
+export function showErrorNotice(message: string) {
+  new Notice(`Error: ${message}`);
 }

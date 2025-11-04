@@ -51,7 +51,7 @@ export class MistralApi {
         .join(`${EOL}${EOL}---${EOL}${EOL}`);
     } catch (error: unknown) {
       if (error instanceof SDKError && error.statusCode === 401) {
-        throw new OcrExtractorError("Error: Unauthorized, check your API key", {
+        throw new OcrExtractorError("Unauthorized, check your API key", {
           cause: error,
         });
       }

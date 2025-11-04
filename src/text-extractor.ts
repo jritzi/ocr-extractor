@@ -6,6 +6,7 @@ import {
   batchPromises,
   debugLog,
   insertAtPosition,
+  showErrorNotice,
   withCancellation,
 } from "./utils";
 import { ConfirmExtractAllModal } from "./confirm-extract-all-modal";
@@ -28,7 +29,7 @@ export class TextExtractor {
   processActiveFile() {
     if (!this.canProcessActiveFile()) {
       // This should be impossible, since the command/option will be disabled
-      new Notice("Error: Can't process active note");
+      showErrorNotice("Can't process active note");
       return;
     }
 
@@ -43,7 +44,7 @@ export class TextExtractor {
   processAllFiles() {
     if (!this.canProcessAllFiles()) {
       // This should be impossible, since the command/option will be disabled
-      new Notice("Error: Can't process all notes");
+      showErrorNotice("Can't process all notes");
       return;
     }
 
@@ -78,7 +79,7 @@ export class TextExtractor {
       }
     } catch (e: unknown) {
       console.error(e);
-      new Notice(
+      showErrorNotice(
         e instanceof OcrExtractorError ? e.message : "Failed to extract text",
       );
     } finally {
@@ -107,9 +108,7 @@ export class TextExtractor {
     });
 
     // Batch to avoid rate limiting
-    const results = await batchPromises(tasks, 5);
-
-    return new Map(await Promise.all(results));
+    return new Map(await batchPromises(tasks, 5));
   }
 
   private async insertCallouts(
