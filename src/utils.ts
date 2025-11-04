@@ -100,5 +100,5 @@ export function debugLog(message: string) {
 }
 
 export function showErrorNotice(message: string) {
-  new Notice(`Error: ${message}`);
+  new Notice(message).containerEl.addClass("mod-warning");
 }
