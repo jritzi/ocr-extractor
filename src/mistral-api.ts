@@ -1,5 +1,4 @@
 import { Mistral } from "@mistralai/mistralai";
-import { EOL } from "os";
 import { fileTypeFromBuffer } from "file-type";
 import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { SDKError } from "@mistralai/mistralai/models/errors";
@@ -48,7 +47,7 @@ export class MistralApi {
 
       return ocrResponse.pages
         .map((page) => page.markdown)
-        .join(`${EOL}${EOL}---${EOL}${EOL}`);
+        .join("\n\n---\n\n");
     } catch (error: unknown) {
       if (error instanceof SDKError && error.statusCode === 401) {
         throw new OcrExtractorError("Unauthorized, check your API key", {

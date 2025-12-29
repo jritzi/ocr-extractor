@@ -1,7 +1,6 @@
 import OcrExtractorPlugin, { OcrExtractorError } from "../main";
 import { EmbedCache, getLinkpath, MarkdownView, Notice, TFile } from "obsidian";
 import { MistralApi } from "./mistral-api";
-import { EOL } from "os";
 import {
   batchPromises,
   debugLog,
@@ -34,7 +33,9 @@ export class TextExtractor {
     }
 
     const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
-    void this.processFiles([view.file!]);
+    const file = view.file!;
+    this.plugin.statusManager.setProcessingSingleNote(file.basename);
+    void this.processFiles([file]);
   }
 
   canProcessAllFiles() {
@@ -50,13 +51,12 @@ export class TextExtractor {
 
     new ConfirmExtractAllModal(this.app, () => {
       const markdownFiles = this.app.vault.getMarkdownFiles();
+      this.plugin.statusManager.setProcessingAllNotes(markdownFiles.length);
       void this.processFiles(markdownFiles);
     }).open();
   }
 
   private async processFiles(files: TFile[]) {
-    this.plugin.statusManager.setProcessing();
-
     try {
       for (const [index, file] of files.entries()) {
         if (this.plugin.statusManager.isCanceling()) {
@@ -64,18 +64,16 @@ export class TextExtractor {
         }
 
         debugLog(`Processing file ${file.path}`);
-        this.plugin.statusManager.updateMessage(
-          files.length === 1
-            ? "Extracting text for note"
-            : `Extracting text for note ${index + 1}/${files.length}`,
-        );
+        this.plugin.statusManager.updateProgress(index + 1, files.length);
 
         const content = await this.app.vault.cachedRead(file);
+        const embeds = this.getSupportedEmbeds(file);
         const embedsToMarkdown = await this.extractTextFromEmbeds(
           file,
           content,
+          embeds,
         );
-        await this.insertCallouts(embedsToMarkdown, content, file);
+        await this.insertCallouts(embedsToMarkdown, content, file, embeds);
       }
     } catch (e: unknown) {
       console.error(e);
@@ -87,8 +85,12 @@ export class TextExtractor {
     }
   }
 
-  private async extractTextFromEmbeds(noteFile: TFile, fileContent: string) {
-    const tasks = this.getSupportedEmbeds(noteFile).map((embed) => async () => {
+  private async extractTextFromEmbeds(
+    noteFile: TFile,
+    fileContent: string,
+    embeds: EmbedCache[],
+  ) {
+    const tasks = embeds.map((embed) => async () => {
       const embedFile = this.getEmbedFile(embed, noteFile);
       let markdown = null;
 
@@ -115,10 +117,13 @@ export class TextExtractor {
     embedsToMarkdown: Map<string, string | null>,
     originalFileContent: string,
     file: TFile,
+    embeds: EmbedCache[],
   ) {
-    const embeds = this.getSupportedEmbeds(file);
-
     await this.app.vault.process(file, (data) => {
+      if (this.plugin.statusManager.isCanceling()) {
+        return data;
+      }
+
       let newContent = data;
       if (data !== originalFileContent) {
         const warning = `File changed during processing, skipping (${file.path})`;
@@ -128,7 +133,7 @@ export class TextExtractor {
       }
 
       // Insert in reverse order to avoid position changes during edits
-      for (const embed of embeds.reverse()) {
+      for (const embed of [...embeds].reverse()) {
         const markdown = embedsToMarkdown.get(embed.original);
 
         if (!markdown) {
@@ -142,14 +147,12 @@ export class TextExtractor {
           continue;
         }
 
-        if (markdown) {
-          const newCallback = this.formatToInsert(markdown, embed, newContent);
-          newContent = insertAtPosition(
-            newContent,
-            newCallback,
-            embed.position.end.offset,
-          );
-        }
+        const newCallback = this.formatToInsert(markdown, embed, newContent);
+        newContent = insertAtPosition(
+          newContent,
+          newCallback,
+          embed.position.end.offset,
+        );
       }
 
       return newContent;
@@ -191,7 +194,7 @@ export class TextExtractor {
       "",
       `> ${CALLOUT_HEADER}`,
       markdown.replace(/^/gm, `> `),
-    ].join(EOL);
+    ].join("\n");
 
     // Add existing prefix to all lines. This will properly format the new
     // Markdown, even when used within nested callouts.
@@ -202,7 +205,7 @@ export class TextExtractor {
 
     // Place text on new line with blank line after (to avoid unintentionally
     // joining with a following callout)
-    return `${EOL}${formatted}${EOL}${EOL}`;
+    return `\n${formatted}\n\n`;
   }
 
   private alreadyProcessed(embed: EmbedCache, content: string) {
