@@ -6,5 +6,5 @@
   "description": "Extract text from documents, images, etc. and store it as Markdown in your notes.",
   "author": "Johnathan Ritzi",
   "authorUrl": "https://github.com/jritzi",
-  "isDesktopOnly": true
+  "isDesktopOnly": false
 }

@@ -3,7 +3,7 @@ import { fileTypeFromBuffer } from "file-type";
 import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { SDKError } from "@mistralai/mistralai/models/errors";
 import { OcrExtractorError } from "../main";
-import { withRetries } from "./utils";
+import { uint8ArrayToBase64, withRetries } from "./utils";
 
 const UNSUPPORTED_MIME_TYPES = ["application/xml"];
 
@@ -14,8 +14,8 @@ export class MistralApi {
     this.mistral = new Mistral({ apiKey });
   }
 
-  async processOcr(buffer: Buffer) {
-    const fileType = await fileTypeFromBuffer(buffer);
+  async processOcr(data: Uint8Array) {
+    const fileType = await fileTypeFromBuffer(data);
     const mimeType = fileType?.mime;
 
     if (!mimeType || UNSUPPORTED_MIME_TYPES.includes(mimeType)) {
@@ -24,7 +24,7 @@ export class MistralApi {
     }
 
     const isImage = mimeType && mimeType.startsWith("image/");
-    const url = `data:${mimeType};base64,` + buffer.toString("base64");
+    const url = `data:${mimeType};base64,` + uint8ArrayToBase64(data);
 
     let document: OCRRequest["document"];
     if (isImage) {

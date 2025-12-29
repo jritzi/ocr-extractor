@@ -97,8 +97,8 @@ export class TextExtractor {
       if (embedFile) {
         if (!this.alreadyProcessed(embed, fileContent)) {
           const binary = await this.app.vault.readBinary(embedFile);
-          const buffer = Buffer.from(new Uint8Array(binary));
-          markdown = await withCancellation(this.api.processOcr(buffer), () =>
+          const data = new Uint8Array(binary);
+          markdown = await withCancellation(this.api.processOcr(data), () =>
             this.plugin.statusManager.isCanceling(),
           );
         }
