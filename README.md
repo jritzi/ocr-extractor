@@ -9,11 +9,11 @@ OCR Extractor is a simple [Obsidian](https://obsidian.md/) plugin that uses [OCR
 
 Following Obsidian's philosophy of storing data in an open, future-proof file format, the extracted text is added below the embedded attachment as an expandable [callout](https://help.obsidian.md/callouts). This means that the text will be searchable via Obsidian's [built-in search](https://help.obsidian.md/plugins/search), other search plugins, and even your operating system's native file search.
 
-<img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/master/images/demo.gif" alt="Demo" width="600" />
+<img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/main/images/demo.gif" alt="Demo" width="600" />
 
 ## Mistral AI account
 
-First, you must create a Mistral AI account. Follow the steps in their [Quickstart guide](https://docs.mistral.ai/getting-started/quickstart/):
+First, you need to create a Mistral AI account. Follow the steps in their [Quickstart guide](https://docs.mistral.ai/getting-started/quickstart/):
 
 1. Create an account
 2. Add payment information
@@ -31,7 +31,7 @@ Click on the [ribbon](https://help.obsidian.md/ribbon) icon (or use the [command
 
 <img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/master/images/ribbon.png" alt="Ribbon menu options" width="600" />
 
-You can see the progress in the [status bar](https://help.obsidian.md/status-bar), or click it and select "Cancel" to cancel the operation.
+When extracting from all notes, you can see the progress in the [status bar](https://help.obsidian.md/status-bar), or click it and select "Cancel" to cancel the operation.
 
 <img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/master/images/status.png" alt="Status bar info" width="600" />
 
