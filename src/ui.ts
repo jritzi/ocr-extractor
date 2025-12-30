@@ -1,4 +1,4 @@
-import { Menu } from "obsidian";
+import { Menu, Notice } from "obsidian";
 import OcrExtractorPlugin, {
   EXTRACT_ALL_TEXT,
   EXTRACT_NOTE_TEXT,
@@ -29,4 +29,8 @@ export function addRibbonIcon(plugin: OcrExtractorPlugin) {
     const rect = event.currentTarget.getBoundingClientRect();
     menu.showAtPosition({ x: rect.right + 2, y: rect.top + 7 });
   });
+}
+
+export function showErrorNotice(message: string) {
+  new Notice(message).containerEl.addClass("mod-warning");
 }

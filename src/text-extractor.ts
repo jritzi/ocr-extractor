@@ -1,16 +1,22 @@
 import OcrExtractorPlugin, { OcrExtractorError } from "../main";
-import { EmbedCache, getLinkpath, MarkdownView, Notice, TFile } from "obsidian";
+import {
+  EmbedCache,
+  getLinkpath,
+  MarkdownView,
+  Notice,
+  Platform,
+  TFile,
+} from "obsidian";
+import { uniqBy } from "lodash-es";
 import { MistralApi } from "./mistral-api";
 import {
-  batchPromises,
-  debugLog,
-  insertAtPosition,
-  showErrorNotice,
-  withCancellation,
-} from "./utils";
+  CALLOUT_HEADER,
+  formatCalloutToInsert,
+  insertWithBlankLines,
+} from "./callout-utils";
+import { batchPromises, debugLog, withCancellation } from "./utils";
+import { showErrorNotice } from "./ui";
 import { ConfirmExtractAllModal } from "./confirm-extract-all-modal";
-
-const CALLOUT_HEADER = "[!summary]- Extracted text";
 
 const SUPPORTED_FILETYPE_REGEX = /\.(pdf|jpg|jpeg|png|avif|pptx|docx)(#.*)?$/i;
 
@@ -39,7 +45,7 @@ export class TextExtractor {
   }
 
   canProcessAllFiles() {
-    return this.plugin.statusManager.isIdle();
+    return Platform.isDesktop && this.plugin.statusManager.isIdle();
   }
 
   processAllFiles() {
@@ -90,18 +96,21 @@ export class TextExtractor {
     fileContent: string,
     embeds: EmbedCache[],
   ) {
-    const tasks = embeds.map((embed) => async () => {
+    const embedsToProcess = embeds.filter(
+      (embed) => !this.alreadyProcessed(embed, fileContent),
+    );
+    const uniqueEmbeds = uniqBy(embedsToProcess, (embed) => embed.original);
+
+    const tasks = uniqueEmbeds.map((embed) => async () => {
+      let markdown: string | null = null;
       const embedFile = this.getEmbedFile(embed, noteFile);
-      let markdown = null;
 
       if (embedFile) {
-        if (!this.alreadyProcessed(embed, fileContent)) {
-          const binary = await this.app.vault.readBinary(embedFile);
-          const data = new Uint8Array(binary);
-          markdown = await withCancellation(this.api.processOcr(data), () =>
-            this.plugin.statusManager.isCanceling(),
-          );
-        }
+        const binary = await this.app.vault.readBinary(embedFile);
+        const data = new Uint8Array(binary);
+        markdown = await withCancellation(this.api.processOcr(data), () =>
+          this.plugin.statusManager.isCanceling(),
+        );
       } else {
         console.warn(`Couldn't find file for attachment ${embed.original}`);
       }
@@ -140,6 +149,10 @@ export class TextExtractor {
           continue;
         }
 
+        if (this.alreadyProcessed(embed, originalFileContent)) {
+          continue;
+        }
+
         if (this.embedMoved(embed, newContent)) {
           console.warn(
             `Embed ${embed.original} moved during processing, skipping`,
@@ -147,11 +160,17 @@ export class TextExtractor {
           continue;
         }
 
-        const newCallback = this.formatToInsert(markdown, embed, newContent);
-        newContent = insertAtPosition(
+        const { text, linePrefix } = formatCalloutToInsert(
+          markdown,
           newContent,
-          newCallback,
+          embed.position.start.offset,
+        );
+
+        newContent = insertWithBlankLines(
+          newContent,
+          text,
           embed.position.end.offset,
+          linePrefix,
         );
       }
 
@@ -173,39 +192,6 @@ export class TextExtractor {
     )?.path;
 
     return path ? this.app.vault.getFileByPath(path) : null;
-  }
-
-  private formatToInsert(
-    markdown: string,
-    embed: EmbedCache,
-    fileContent: string,
-  ) {
-    const embedStart = embed.position.start.offset;
-
-    // Get contents of line before embed
-    const lastNewline = fileContent.lastIndexOf("\n", embedStart);
-    const startOfLine = lastNewline === -1 ? 0 : lastNewline + 1;
-    const lineBeforeEmbed = fileContent.slice(startOfLine, embedStart);
-
-    // Find initial whitespace and `>` characters
-    const quotePrefix = lineBeforeEmbed.match(/^[\s>]*/)?.[0] ?? "";
-
-    let formatted = [
-      "",
-      `> ${CALLOUT_HEADER}`,
-      markdown.replace(/^/gm, `> `),
-    ].join("\n");
-
-    // Add existing prefix to all lines. This will properly format the new
-    // Markdown, even when used within nested callouts.
-    formatted = formatted.replace(/^/gm, quotePrefix);
-
-    // Remove trailing whitespace
-    formatted = formatted.replace(/\s+$/gm, "");
-
-    // Place text on new line with blank line after (to avoid unintentionally
-    // joining with a following callout)
-    return `\n${formatted}\n\n`;
   }
 
   private alreadyProcessed(embed: EmbedCache, content: string) {

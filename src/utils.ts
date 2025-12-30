@@ -1,5 +1,3 @@
-import { Notice } from "obsidian";
-
 declare global {
   interface Window {
     ocrExtractorDebugLoggingEnabled?: boolean;
@@ -7,14 +5,6 @@ declare global {
 }
 
 export class CancelError extends Error {}
-
-export function insertAtPosition(
-  before: string,
-  toInsert: string,
-  position: number,
-) {
-  return before.slice(0, position) + toInsert + before.slice(position);
-}
 
 /**
  * Split an array of tasks (functions returning a promise) into batches,
@@ -97,10 +87,6 @@ export function debugLog(message: string) {
   if (window.ocrExtractorDebugLoggingEnabled) {
     console.debug(message);
   }
-}
-
-export function showErrorNotice(message: string) {
-  new Notice(message).containerEl.addClass("mod-warning");
 }
 
 /**
