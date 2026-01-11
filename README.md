@@ -3,7 +3,7 @@
 ## About
 
 > [!NOTE]
-> This plugin requires a paid Mistral AI account (at the time of writing, it costs $2 per 1000 pages processed).
+> This plugin requires a paid Mistral AI account (at the time of writing, it costs $2 per 1000 pages processed). Attachments are sent to Mistral's OCR service for text extraction. A free, local option will be added in an upcoming release.
 
 OCR Extractor is a simple [Obsidian](https://obsidian.md/) plugin that uses [OCR](https://en.wikipedia.org/wiki/Optical_character_recognition) to extract text from documents, images, etc. embedded in your notes. This is currently done using [Mistral OCR](https://mistral.ai/news/mistral-ocr-3), a powerful AI model for extracting text from complex documents and converting it to Markdown.
 
