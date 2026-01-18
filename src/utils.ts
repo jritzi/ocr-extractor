@@ -24,25 +24,29 @@ export async function batchPromises<T>(
 }
 
 /**
- * Retry a task with exponential backoff starting at 1 second
+ * Retry a task with exponential backoff starting at 1 second. Only retries if
+ * shouldRetry returns true (defaults to retrying all errors).
  */
-export async function withRetries<T>(task: () => Promise<T>, retryCount = 3) {
+export async function withRetries<T>(
+  task: () => Promise<T>,
+  shouldRetry: (error: unknown) => boolean = () => true,
+  retryCount = 3,
+) {
   let lastError: unknown;
 
-  try {
-    return await task();
-  } catch (error) {
-    lastError = error;
-  }
-
-  for (let i = 0; i < retryCount; i++) {
-    const delay = 1_000 * Math.pow(2, i);
-    await new Promise((resolve) => setTimeout(resolve, delay));
+  for (let attempt = 0; attempt <= retryCount; attempt++) {
+    if (attempt > 0) {
+      const delay = 1_000 * Math.pow(2, attempt - 1);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
 
     try {
       return await task();
     } catch (error) {
       lastError = error;
+      if (!shouldRetry(error)) {
+        throw error;
+      }
     }
   }
 
@@ -58,10 +62,10 @@ export async function withCancellation<T>(
   shouldCancel: () => boolean,
 ): Promise<T | null> {
   let intervalId: number | undefined;
-  let cancelResolve: ((value: null) => void) | undefined;
+  let resolveCleanup: ((value: null) => void) | undefined;
 
   const cancelPromise = new Promise<null>((resolve, reject) => {
-    cancelResolve = resolve;
+    resolveCleanup = resolve;
     intervalId = window.setInterval(() => {
       if (shouldCancel()) {
         reject(new CancelError());
@@ -79,7 +83,7 @@ export async function withCancellation<T>(
     }
   } finally {
     clearInterval(intervalId);
-    cancelResolve?.(null);
+    resolveCleanup?.(null);
   }
 }
 
@@ -87,6 +91,10 @@ export function debugLog(message: string) {
   if (window.ocrExtractorDebugLoggingEnabled) {
     console.debug(message);
   }
+}
+
+export function warnSkipped(filename: string, reason: string) {
+  console.warn(`Skipping ${filename}: ${reason}`);
 }
 
 /**

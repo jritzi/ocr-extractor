@@ -8,23 +8,30 @@ import {
   TFile,
 } from "obsidian";
 import { uniqBy } from "lodash-es";
-import { MistralApi } from "./mistral-api";
+import { OcrAdapter } from "./ocr-adapter";
+import { OCR_SERVICES } from "./setting-tab";
 import {
   CALLOUT_HEADER,
   formatCalloutToInsert,
   insertWithBlankLines,
 } from "./callout-utils";
-import { batchPromises, debugLog, withCancellation } from "./utils";
+import {
+  batchPromises,
+  debugLog,
+  warnSkipped,
+  withCancellation,
+} from "./utils";
 import { showErrorNotice } from "./ui";
 import { ConfirmExtractAllModal } from "./confirm-extract-all-modal";
 
-const SUPPORTED_FILETYPE_REGEX = /\.(pdf|jpg|jpeg|png|avif|pptx|docx)(#.*)?$/i;
-
 export class TextExtractor {
   private app = this.plugin.app;
-  private api = new MistralApi(this.plugin.settings.mistralApiKey);
+  private api: OcrAdapter;
 
-  constructor(private plugin: OcrExtractorPlugin) {}
+  constructor(private plugin: OcrExtractorPlugin) {
+    const AdapterClass = OCR_SERVICES[plugin.settings.ocrService];
+    this.api = new AdapterClass(plugin.settings);
+  }
 
   canProcessActiveFile() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -62,7 +69,14 @@ export class TextExtractor {
     }).open();
   }
 
+  cleanup() {
+    return this.api.terminate();
+  }
+
   private async processFiles(files: TFile[]) {
+    const allSkippedEmbeds: EmbedCache[] = [];
+    let totalExtracted = 0;
+
     try {
       for (const [index, file] of files.entries()) {
         if (this.plugin.statusManager.isCanceling()) {
@@ -73,21 +87,24 @@ export class TextExtractor {
         this.plugin.statusManager.updateProgress(index + 1, files.length);
 
         const content = await this.app.vault.cachedRead(file);
-        const embeds = this.getSupportedEmbeds(file);
-        const embedsToMarkdown = await this.extractTextFromEmbeds(
-          file,
-          content,
-          embeds,
-        );
+        const embeds = this.getEmbeds(file);
+        const { embedsToMarkdown, skippedEmbeds, extractedCount } =
+          await this.extractTextFromEmbeds(file, content, embeds);
+        allSkippedEmbeds.push(...skippedEmbeds);
+        totalExtracted += extractedCount;
         await this.insertCallouts(embedsToMarkdown, content, file, embeds);
+      }
+
+      if (this.plugin.statusManager.isCanceling()) {
+        this.plugin.statusManager.setCancelled();
+      } else {
+        this.plugin.statusManager.setComplete(totalExtracted, allSkippedEmbeds);
       }
     } catch (e: unknown) {
       console.error(e);
-      showErrorNotice(
-        e instanceof OcrExtractorError ? e.message : "Failed to extract text",
-      );
-    } finally {
-      this.plugin.statusManager.setIdle();
+      const message =
+        e instanceof OcrExtractorError ? e.message : "Failed to extract text";
+      this.plugin.statusManager.setError(message);
     }
   }
 
@@ -100,6 +117,8 @@ export class TextExtractor {
       (embed) => !this.alreadyProcessed(embed, fileContent),
     );
     const uniqueEmbeds = uniqBy(embedsToProcess, (embed) => embed.original);
+    const skippedEmbeds: EmbedCache[] = [];
+    let extractedCount = 0;
 
     const tasks = uniqueEmbeds.map((embed) => async () => {
       let markdown: string | null = null;
@@ -108,18 +127,26 @@ export class TextExtractor {
       if (embedFile) {
         const binary = await this.app.vault.readBinary(embedFile);
         const data = new Uint8Array(binary);
-        markdown = await withCancellation(this.api.processOcr(data), () =>
-          this.plugin.statusManager.isCanceling(),
+        markdown = await withCancellation(
+          this.api.processOcr(data, embedFile.name),
+          () => this.plugin.statusManager.isCanceling(),
         );
+        if (markdown === null) {
+          skippedEmbeds.push(embed);
+        } else {
+          extractedCount++;
+        }
       } else {
-        console.warn(`Couldn't find file for attachment ${embed.original}`);
+        warnSkipped(getLinkpath(embed.link), "file not found");
+        skippedEmbeds.push(embed);
       }
 
       return [embed.original, markdown] as const;
     });
 
     // Batch to avoid rate limiting
-    return new Map(await batchPromises(tasks, 5));
+    const embedsToMarkdown = new Map(await batchPromises(tasks, 5));
+    return { embedsToMarkdown, skippedEmbeds, extractedCount };
   }
 
   private async insertCallouts(
@@ -178,11 +205,9 @@ export class TextExtractor {
     });
   }
 
-  private getSupportedEmbeds(file: TFile) {
+  private getEmbeds(file: TFile) {
     const cache = this.app.metadataCache.getCache(file.path);
-    const embeds = cache?.embeds ?? [];
-
-    return embeds.filter((embed) => SUPPORTED_FILETYPE_REGEX.test(embed.link));
+    return cache?.embeds ?? [];
   }
 
   private getEmbedFile(embed: EmbedCache, file: TFile) {

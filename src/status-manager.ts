@@ -1,5 +1,5 @@
 import OcrExtractorPlugin from "../main";
-import { App, Menu, MenuItem, Notice, setIcon } from "obsidian";
+import { App, EmbedCache, Menu, MenuItem, Notice, setIcon } from "obsidian";
 import { debugLog } from "./utils";
 import { StatusModal } from "./status-modal";
 
@@ -40,28 +40,12 @@ export class StatusManager {
     return this.status === "canceling";
   }
 
-  setIdle() {
-    if (this.status === "canceling") {
-      new Notice("Canceled text extraction");
-    }
-
-    this.status = "idle";
-    this.statusBarTextSpan.setText("");
-    this.statusBarItem.hide();
-
-    if (this.statusModal) {
-      this.statusModal.close();
-      this.statusModal = null;
-    }
-
-    debugLog("Status set to idle");
-  }
-
   setProcessingSingleNote(noteName: string) {
     this.status = "processing";
-    this.statusModal = new StatusModal(this.app, noteName, () =>
-      this.setCanceling(),
-    );
+    this.statusModal = new StatusModal(this.app, noteName, () => {
+      this.statusModal = null;
+      this.setCanceling();
+    });
     this.statusModal.open();
     debugLog("Status set to processing (single note)");
   }
@@ -88,5 +72,64 @@ export class StatusManager {
     this.statusBarTextSpan.setText("Canceling");
     this.statusBarItem.show();
     debugLog("Status set to canceling");
+  }
+
+  setCancelled() {
+    this.status = "idle";
+    this.statusBarTextSpan.setText("");
+    this.statusBarItem.hide();
+
+    if (this.statusModal) {
+      this.statusModal.close();
+      this.statusModal = null;
+    }
+
+    new Notice("Cancelled text extraction");
+    debugLog("Status set to idle (cancelled)");
+  }
+
+  setComplete(extractedCount: number, skippedEmbeds: EmbedCache[]) {
+    this.status = "idle";
+    this.statusBarTextSpan.setText("");
+    this.statusBarItem.hide();
+
+    if (this.statusModal) {
+      if (skippedEmbeds.length > 0) {
+        this.statusModal.showWarning(extractedCount, skippedEmbeds);
+      } else {
+        this.statusModal.close();
+      }
+      this.statusModal = null;
+    } else {
+      const skippedCount = skippedEmbeds.length;
+      if (skippedCount > 0) {
+        new Notice(
+          `Text extraction complete. Extracted: ${extractedCount}, skipped: ${skippedCount}`,
+        );
+      } else if (extractedCount > 0) {
+        new Notice(`Text extraction complete. Extracted: ${extractedCount}`);
+      }
+    }
+
+    debugLog("Status set to idle (complete)");
+  }
+
+  setError(message: string) {
+    this.status = "idle";
+    this.statusBarTextSpan.setText("");
+    this.statusBarItem.hide();
+
+    if (this.statusModal) {
+      this.statusModal.showError(message);
+      this.statusModal = null;
+    } else {
+      new Notice(message);
+    }
+
+    debugLog("Status set to idle (error)");
+  }
+
+  cleanup() {
+    this.statusModal?.close();
   }
 }

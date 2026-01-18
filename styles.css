@@ -4,27 +4,7 @@
   }
 }
 
-.ocr-extractor-status-bar svg,
-.ocr-extractor-modal-content svg {
-  animation: ocr-extractor-spin 1s linear infinite;
-}
-
 .ocr-extractor-status-bar svg {
+  animation: ocr-extractor-spin 1s linear infinite;
   margin-right: 4px;
-}
-
-.ocr-extractor-modal-content svg {
-  width: 24px;
-  height: 24px;
-}
-
-.ocr-extractor-modal-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 0;
-}
-
-.ocr-extractor-modal-message {
-  flex: 1;
 }

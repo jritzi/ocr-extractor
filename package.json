@@ -37,6 +37,8 @@
   "dependencies": {
     "@mistralai/mistralai": "^1.10.0",
     "file-type": "^21.0.0",
-    "lodash-es": "^4.17.22"
+    "lodash-es": "^4.17.22",
+    "pdfjs-dist": "^5.4.530",
+    "tesseract.js": "^7.0.0"
   }
 }
