@@ -4,6 +4,7 @@
   "description": "Obsidian plugin to extract text from documents, images, etc. and store it as Markdown in notes",
   "main": "main.js",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "test": "vitest",
@@ -14,25 +15,26 @@
   "author": "Johnathan Ritzi",
   "license": "MIT",
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
-    "@types/node": "^24.4.0",
-    "esbuild": "0.25.9",
-    "eslint": "^9.35.0",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^24.10.13",
+    "esbuild": "0.27.3",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-obsidianmd": "^0.1.9",
-    "globals": "^16.4.0",
+    "globals": "^17.3.0",
     "jiti": "^2.5.1",
     "obsidian": "^1.11.4",
-    "prettier": "3.6.2",
+    "prettier": "3.8.1",
     "tslib": "2.8.1",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "typescript-eslint": "^8.43.0",
     "vitest": "^4.0.16"
   },
   "dependencies": {
     "@mistralai/mistralai": "^1.10.0",
     "file-type": "^21.0.0",
-    "pdfjs-dist": "^5.4.530",
+    "pdfjs-dist": "5.4.530",
     "tesseract.js": "^7.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc"
 }

@@ -1,0 +1,9 @@
+onlyBuiltDependencies:
+  - esbuild
+  - tesseract.js
+
+minimumReleaseAge: 2880
+
+peerDependencyRules:
+  allowedVersions:
+    eslint-plugin-obsidianmd>obsidian: ">=1.8.7"
