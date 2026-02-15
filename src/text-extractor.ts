@@ -1,36 +1,39 @@
-import OcrExtractorPlugin, { OcrExtractorError } from "../main";
+import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
 import {
   EmbedCache,
   getLinkpath,
   MarkdownView,
-  Notice,
   Platform,
   TFile,
 } from "obsidian";
 import { uniqBy } from "lodash-es";
-import { OcrAdapter } from "./ocr-adapter";
-import { OCR_SERVICES } from "./setting-tab";
+import { OcrService, UserFacingError } from "./services/ocr-service";
 import {
   CALLOUT_HEADER,
   formatCalloutToInsert,
   insertWithBlankLines,
-} from "./callout-utils";
-import {
-  batchPromises,
-  debugLog,
-  warnSkipped,
-  withCancellation,
-} from "./utils";
-import { showErrorNotice } from "./ui";
-import { ConfirmExtractAllModal } from "./confirm-extract-all-modal";
+} from "./utils/callout";
+import { batchPromises, withCancellation } from "./utils/async";
+import { assert } from "./utils/assert";
+import { debugLog, warnSkipped } from "./utils/logging";
+import { showErrorNotice, showNotice } from "./utils/notice";
+import { shouldUseMobileServiceFallback } from "./settings";
+import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 
 export class TextExtractor {
   private app = this.plugin.app;
-  private api: OcrAdapter;
+  private service: OcrService;
+  private readonly usingMobileServiceFallback: boolean = false;
 
   constructor(private plugin: OcrExtractorPlugin) {
-    const AdapterClass = OCR_SERVICES[plugin.settings.ocrService];
-    this.api = new AdapterClass(plugin.settings);
+    let serviceName = plugin.settings.ocrService;
+    if (shouldUseMobileServiceFallback(plugin.settings)) {
+      this.usingMobileServiceFallback = true;
+      serviceName = "tesseract";
+    }
+
+    const ServiceClass = OCR_SERVICES[serviceName];
+    this.service = new ServiceClass(plugin.settings);
   }
 
   canProcessActiveFile() {
@@ -39,15 +42,11 @@ export class TextExtractor {
   }
 
   processActiveFile() {
-    if (!this.canProcessActiveFile()) {
-      // This should be impossible, since the command/option will be disabled
-      showErrorNotice("Can't process active note");
-      return;
-    }
+    assert(this.canProcessActiveFile(), "Command disabled when can't process");
 
     const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
     const file = view.file!;
-    this.plugin.statusManager.setProcessingSingleNote(file.basename);
+    this.plugin.statusManager.setProcessingSingleNote();
     void this.processFiles([file]);
   }
 
@@ -56,11 +55,7 @@ export class TextExtractor {
   }
 
   processAllFiles() {
-    if (!this.canProcessAllFiles()) {
-      // This should be impossible, since the command/option will be disabled
-      showErrorNotice("Can't process all notes");
-      return;
-    }
+    assert(this.canProcessAllFiles(), "Command disabled when can't process");
 
     new ConfirmExtractAllModal(this.app, () => {
       const markdownFiles = this.app.vault.getMarkdownFiles();
@@ -70,10 +65,16 @@ export class TextExtractor {
   }
 
   cleanup() {
-    return this.api.terminate();
+    return this.service.terminate();
   }
 
   private async processFiles(files: TFile[]) {
+    if (this.usingMobileServiceFallback) {
+      showNotice(
+        "Custom commands are not available on mobile, using Tesseract",
+      );
+    }
+
     const allSkippedEmbeds: EmbedCache[] = [];
     let totalExtracted = 0;
 
@@ -101,9 +102,13 @@ export class TextExtractor {
         this.plugin.statusManager.setComplete(totalExtracted, allSkippedEmbeds);
       }
     } catch (e: unknown) {
-      console.error(e);
-      const message =
-        e instanceof OcrExtractorError ? e.message : "Failed to extract text";
+      let message: string;
+      if (e instanceof UserFacingError) {
+        message = e.message;
+      } else {
+        console.error(e);
+        message = "Failed to extract text";
+      }
       this.plugin.statusManager.setError(message);
     }
   }
@@ -128,7 +133,7 @@ export class TextExtractor {
         const binary = await this.app.vault.readBinary(embedFile);
         const data = new Uint8Array(binary);
         markdown = await withCancellation(
-          this.api.processOcr(data, embedFile.name),
+          this.service.processOcr(data, embedFile.name),
           () => this.plugin.statusManager.isCanceling(),
         );
         if (markdown === null) {
@@ -164,7 +169,7 @@ export class TextExtractor {
       if (data !== originalFileContent) {
         const warning = `File changed during processing, skipping (${file.path})`;
         console.warn(warning);
-        new Notice(warning);
+        showErrorNotice(warning);
         return data;
       }
 

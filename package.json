@@ -27,7 +27,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^16.4.0",
     "jiti": "^2.5.1",
-    "obsidian": "latest",
+    "obsidian": "^1.11.4",
     "prettier": "3.6.2",
     "tslib": "2.8.1",
     "typescript": "5.9.2",

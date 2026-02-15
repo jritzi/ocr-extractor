@@ -23,11 +23,11 @@ When extracting from all notes, you can see the progress in the [status bar](htt
 
 ## OCR services
 
-Depending on your needs, you can choose which OCR service to use. Follow the setup steps below, then select the service in the plugin settings.
+Depending on your needs, you can choose which OCR service to use. Select the service in the plugin settings and follow the setup steps below.
 
 ### Tesseract
 
-[Tesseract](https://tesseract.projectnaptha.com/) (the default option) is a popular open source OCR engine. It has some limitations (only supports English text, can only process PDFs and images, can be slower, and can be less accurate), but it's completely free and local (ensuring your data is never sent to a third-party provider).
+[Tesseract](https://tesseract.projectnaptha.com/) (the default option) is a popular open source OCR engine. It has some limitations (only supports English text, can only process PDFs and images, can be slower, and can be less accurate), but it's completely free and local (ensuring your data is never sent to a third-party provider). This option requires no additional setup.
 
 ### Mistral OCR
 
@@ -41,6 +41,20 @@ First, you need to create a Mistral AI account. Follow the steps in their [Quick
 4. Create an API key
 
 Then, enter your API key in the plugin settings.
+
+### Custom command
+
+For advanced use cases, you can provide a custom command that will be used to process attachments. This can be used, for example, to extract text with an OCR model running locally, a script that uses a third-party API (that isn't supported natively by the plugin), or Tesseract with a custom configuration.
+
+Enter your custom command in the plugin settings, where `{input}` is the path to the input attachment file and `{output}` is the path to the produced Markdown or text file containing the extracted text (or a blank file to skip the attachment). For example:
+
+```shell
+tesseract {input} - -l eng+spa > {output}
+```
+
+Click the "Test" button to run the command on a sample image and confirm it correctly returns exit code 0 and produces an output file. If the custom command only supports images, enable the setting to convert PDFs to PNGs before processing.
+
+Note that this option is not supported on mobile, so if a custom command is configured, Tesseract will be used instead if attempting to extract text with the mobile app.
 
 ## License
 

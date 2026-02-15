@@ -16,6 +16,7 @@ export default defineConfig([
   tseslint.configs.recommended,
   {
     rules: {
+      "@typescript-eslint/member-ordering": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_" },

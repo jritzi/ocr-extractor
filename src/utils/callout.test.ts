@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCalloutToInsert, insertWithBlankLines } from "./callout-utils";
+import { formatCalloutToInsert, insertWithBlankLines } from "./callout";
 
 describe("callout utils", () => {
   describe("insertWithBlankLines", () => {

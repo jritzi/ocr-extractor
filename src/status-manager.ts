@@ -1,7 +1,8 @@
 import OcrExtractorPlugin from "../main";
-import { App, EmbedCache, Menu, MenuItem, Notice, setIcon } from "obsidian";
-import { debugLog } from "./utils";
-import { StatusModal } from "./status-modal";
+import { App, EmbedCache, Menu, MenuItem, setIcon } from "obsidian";
+import { debugLog } from "./utils/logging";
+import { showErrorNotice, showNotice } from "./utils/notice";
+import { StatusModal } from "./ui/status-modal";
 
 export type Status = "idle" | "processing" | "canceling";
 
@@ -40,9 +41,9 @@ export class StatusManager {
     return this.status === "canceling";
   }
 
-  setProcessingSingleNote(noteName: string) {
+  setProcessingSingleNote() {
     this.status = "processing";
-    this.statusModal = new StatusModal(this.app, noteName, () => {
+    this.statusModal = new StatusModal(this.app, () => {
       this.statusModal = null;
       this.setCanceling();
     });
@@ -84,7 +85,7 @@ export class StatusManager {
       this.statusModal = null;
     }
 
-    new Notice("Cancelled text extraction");
+    showNotice("Cancelled text extraction");
     debugLog("Status set to idle (cancelled)");
   }
 
@@ -103,11 +104,11 @@ export class StatusManager {
     } else {
       const skippedCount = skippedEmbeds.length;
       if (skippedCount > 0) {
-        new Notice(
+        showNotice(
           `Text extraction complete. Extracted: ${extractedCount}, skipped: ${skippedCount}`,
         );
       } else if (extractedCount > 0) {
-        new Notice(`Text extraction complete. Extracted: ${extractedCount}`);
+        showNotice(`Text extraction complete. Extracted: ${extractedCount}`);
       }
     }
 
@@ -123,7 +124,7 @@ export class StatusManager {
       this.statusModal.showError(message);
       this.statusModal = null;
     } else {
-      new Notice(message);
+      showErrorNotice(message);
     }
 
     debugLog("Status set to idle (error)");

@@ -1,15 +1,34 @@
 import { fileTypeFromBuffer } from "file-type";
-import { uint8ArrayToBase64, warnSkipped } from "./utils";
-import { OcrExtractorPluginSettings } from "./setting-tab";
+import type { SettingGroup } from "obsidian";
+import type OcrExtractorPlugin from "../../main";
+import { PluginSettings } from "../settings";
+import { warnSkipped } from "../utils/logging";
+
+/**
+ * Errors with a message intended to be shown directly to the user (as opposed
+ * to other exceptions which will show a generic error message).
+ */
+export class UserFacingError extends Error {}
 
 const PAGE_SEPARATOR = "\n\n---\n\n";
 
-export abstract class OcrAdapter {
+export abstract class OcrService {
   /** The label shown on the setting tab */
   static readonly label: string;
 
-  constructor(protected settings: OcrExtractorPluginSettings) {}
+  constructor(protected settings: PluginSettings) {}
 
+  /** Add service-specific settings to the settings tab */
+  static addSettings(
+    _group: SettingGroup,
+    _settings: PluginSettings,
+    _saveSetting: OcrExtractorPlugin["saveSetting"],
+  ) {}
+
+  /**
+   * Main entry point called by the plugin to extract text. Subclasses should
+   * not override this (they should implement `extractPages()` instead).
+   */
   async processOcr(data: Uint8Array, filename: string): Promise<string | null> {
     const fileType = await fileTypeFromBuffer(data);
     const mimeType = fileType?.mime;
@@ -33,24 +52,22 @@ export abstract class OcrAdapter {
     return nonEmptyPages.join(PAGE_SEPARATOR);
   }
 
-  /**
-   * Clean up any resources held by this adapter.
-   */
+  /** Clean up any resources held by this service. */
   async terminate() {}
 
+  /**
+   * Whether this service can handle the given MIME type. If false, the file
+   * is skipped.
+   */
   protected abstract isMimeTypeSupported(mimeType: string): boolean;
 
   /**
    * Extract text from the document and return it as an array of strings
-   * (one per page).
+   * (one per page), or null to skip the file.
    */
   protected abstract extractPages(
     data: Uint8Array,
     mimeType: string,
     filename: string,
   ): Promise<string[] | null>;
-
-  protected toDataUrl(data: Uint8Array, mimeType: string) {
-    return `data:${mimeType};base64,${uint8ArrayToBase64(data)}`;
-  }
 }

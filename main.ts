@@ -1,25 +1,25 @@
 import { Plugin } from "obsidian";
-import {
-  DEFAULT_SETTINGS,
-  OcrExtractorPluginSettings,
-  SettingTab,
-} from "./src/setting-tab";
+import { SettingTab } from "./src/ui/setting-tab";
+import { DEFAULT_SETTINGS, PluginSettings } from "./src/settings";
+import { TesseractService } from "./src/services/tesseract-service";
+import { MistralService } from "./src/services/mistral-service";
+import { CustomCommandService } from "./src/services/custom-command-service";
 import { TextExtractor } from "./src/text-extractor";
-import {
-  addExtractAllNotesCommand,
-  addExtractCurrentNoteCommand,
-} from "./src/commands";
-import { addRibbonIcon } from "./src/ui";
+import { addCommands } from "./src/commands";
 import { StatusManager } from "./src/status-manager";
 
-export class OcrExtractorError extends Error {}
+export const OCR_SERVICES = {
+  tesseract: TesseractService,
+  mistral: MistralService,
+  customCommand: CustomCommandService,
+} as const;
 
 export const EXTRACT_ALL_TEXT = "Extract text from attachments in all notes";
 export const EXTRACT_NOTE_TEXT =
   "Extract text from attachments in current note";
 
 export default class OcrExtractorPlugin extends Plugin {
-  settings: OcrExtractorPluginSettings = DEFAULT_SETTINGS;
+  settings: PluginSettings = DEFAULT_SETTINGS;
 
   // Initialized in onload()
   extractor!: TextExtractor;
@@ -32,10 +32,7 @@ export default class OcrExtractorPlugin extends Plugin {
     this.statusManager = new StatusManager(this);
     this.extractor = new TextExtractor(this);
 
-    addRibbonIcon(this);
-
-    addExtractCurrentNoteCommand(this);
-    addExtractAllNotesCommand(this);
+    addCommands(this);
   }
 
   async onunload() {
@@ -43,9 +40,9 @@ export default class OcrExtractorPlugin extends Plugin {
     this.statusManager?.cleanup();
   }
 
-  async saveSetting<K extends keyof OcrExtractorPluginSettings>(
+  async saveSetting<K extends keyof PluginSettings>(
     name: K,
-    value: OcrExtractorPluginSettings[K],
+    value: PluginSettings[K],
   ) {
     this.settings[name] = value;
     await this.saveData(this.settings);

@@ -1,19 +1,38 @@
+import type { SettingGroup } from "obsidian";
 import { Mistral } from "@mistralai/mistralai";
 import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
-import { OcrExtractorError } from "../main";
-import { warnSkipped, withRetries } from "./utils";
-import { OcrAdapter } from "./ocr-adapter";
-import { OcrExtractorPluginSettings } from "./setting-tab";
+import { UserFacingError, OcrService } from "./ocr-service";
+import { withRetries } from "../utils/async";
+import { toDataUrl } from "../utils/encoding";
+import { warnSkipped } from "../utils/logging";
+import type OcrExtractorPlugin from "../../main";
+import { PluginSettings } from "../settings";
 
-export class MistralAdapter extends OcrAdapter {
+export class MistralService extends OcrService {
   static readonly label = "Mistral OCR";
 
   private mistral: Mistral;
 
-  constructor(settings: OcrExtractorPluginSettings) {
+  constructor(settings: PluginSettings) {
     super(settings);
     this.mistral = new Mistral({ apiKey: settings.mistralApiKey });
+  }
+
+  static addSettings(
+    group: SettingGroup,
+    settings: PluginSettings,
+    saveSetting: OcrExtractorPlugin["saveSetting"],
+  ) {
+    group.addSetting((setting) =>
+      setting
+        .setName("Mistral API key")
+        .addText((text) =>
+          text
+            .setValue(settings.mistralApiKey)
+            .onChange((value) => saveSetting("mistralApiKey", value)),
+        ),
+    );
   }
 
   protected isMimeTypeSupported(mimeType: string) {
@@ -26,7 +45,7 @@ export class MistralAdapter extends OcrAdapter {
     filename: string,
   ) {
     const isImage = mimeType.startsWith("image/");
-    const url = this.toDataUrl(data, mimeType);
+    const url = toDataUrl(data, mimeType);
 
     let document: OCRRequest["document"];
     if (isImage) {
@@ -54,7 +73,7 @@ export class MistralAdapter extends OcrAdapter {
     } catch (error: unknown) {
       if (error instanceof MistralError) {
         if (error.statusCode === 401) {
-          throw new OcrExtractorError("Unauthorized, check your API key", {
+          throw new UserFacingError("Unauthorized, check your API key", {
             cause: error,
           });
         }

@@ -13,15 +13,14 @@ export class StatusModal extends Modal {
 
   constructor(
     app: App,
-    noteName: string,
     private onModalClose: () => void,
   ) {
     super(app);
-    this.setTitle("Extracting text");
+    this.setTitle("OCR Extractor");
     this.modalEl.addClass("is-loading");
 
     this.messageEl = this.contentEl.createEl("p", {
-      text: `Extracting text from attachments in note: ${noteName}`,
+      text: "Extracting text from attachments...",
     });
 
     new Setting(this.contentEl).addButton((button) => {
@@ -31,7 +30,6 @@ export class StatusModal extends Modal {
   }
 
   showWarning(extractedCount: number, skippedEmbeds: EmbedCache[]) {
-    this.setTitle("Extraction complete");
     this.modalEl.removeClass("is-loading");
 
     this.messageEl.empty();
@@ -47,9 +45,8 @@ export class StatusModal extends Modal {
   }
 
   showError(message: string) {
-    this.setTitle("Error");
     this.modalEl.removeClass("is-loading");
-    this.messageEl.setText(message);
+    this.messageEl.setText(`Error: ${message}`);
     this.button.setButtonText("OK");
   }
 
