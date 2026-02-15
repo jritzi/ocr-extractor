@@ -35,8 +35,8 @@ export default class OcrExtractorPlugin extends Plugin {
     addCommands(this);
   }
 
-  async onunload() {
-    await this.extractor?.cleanup();
+  onunload() {
+    void this.extractor?.cleanup();
     this.statusManager?.cleanup();
   }
 
@@ -53,7 +53,7 @@ export default class OcrExtractorPlugin extends Plugin {
   }
 
   private async loadSettings() {
-    const settingsData = await this.loadData();
+    const settingsData = (await this.loadData()) as PluginSettings;
     this.settings = { ...DEFAULT_SETTINGS, ...settingsData };
 
     // Upgrade logic for users before ocrService was added

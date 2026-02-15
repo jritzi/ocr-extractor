@@ -31,12 +31,13 @@ export class SettingTab extends PluginSettingTab {
     const description = document.createDocumentFragment();
     description.appendText("See the ");
     description.createEl("a", {
+      // eslint-disable-next-line obsidianmd/ui/sentence-case -- mid-sentence text
       text: "documentation",
       href: "https://github.com/jritzi/ocr-extractor#ocr-services",
     });
     description.appendText(" for more details");
 
-    group.addSetting((setting) =>
+    group.addSetting((setting) => {
       setting
         .setName("OCR service")
         .setDesc(description)
@@ -45,9 +46,9 @@ export class SettingTab extends PluginSettingTab {
             dropdown.addOption(name, Service.label);
           }
 
-          return dropdown
+          dropdown
             .setValue(this.plugin.settings.ocrService)
-            .onChange(async (value) => {
+            .onChange((value) => {
               const newOcrService = value as PluginSettings["ocrService"];
               if (
                 shouldUseMobileServiceFallback({
@@ -60,10 +61,10 @@ export class SettingTab extends PluginSettingTab {
                 );
               }
 
-              await this.plugin.saveSetting("ocrService", newOcrService);
+              void this.plugin.saveSetting("ocrService", newOcrService);
               this.display(); // Re-render settings with new service
             });
-        }),
-    );
+        });
+    });
   }
 }

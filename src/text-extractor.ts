@@ -6,7 +6,6 @@ import {
   Platform,
   TFile,
 } from "obsidian";
-import { uniqBy } from "lodash-es";
 import { OcrService, UserFacingError } from "./services/ocr-service";
 import {
   CALLOUT_HEADER,
@@ -121,7 +120,12 @@ export class TextExtractor {
     const embedsToProcess = embeds.filter(
       (embed) => !this.alreadyProcessed(embed, fileContent),
     );
-    const uniqueEmbeds = uniqBy(embedsToProcess, (embed) => embed.original);
+    const seen = new Set<string>();
+    const uniqueEmbeds = embedsToProcess.filter((embed) => {
+      if (seen.has(embed.original)) return false;
+      seen.add(embed.original);
+      return true;
+    });
     const skippedEmbeds: EmbedCache[] = [];
     let extractedCount = 0;
 

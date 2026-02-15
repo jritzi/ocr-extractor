@@ -24,15 +24,15 @@ export class MistralService extends OcrService {
     settings: PluginSettings,
     saveSetting: OcrExtractorPlugin["saveSetting"],
   ) {
-    group.addSetting((setting) =>
+    group.addSetting((setting) => {
       setting
         .setName("Mistral API key")
         .addText((text) =>
           text
             .setValue(settings.mistralApiKey)
-            .onChange((value) => saveSetting("mistralApiKey", value)),
-        ),
-    );
+            .onChange((value) => void saveSetting("mistralApiKey", value)),
+        );
+    });
   }
 
   protected isMimeTypeSupported(mimeType: string) {

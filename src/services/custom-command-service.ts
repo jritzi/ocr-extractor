@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports -- used to conditionally
-   load Node modules only on desktop */
+/* eslint-disable @typescript-eslint/no-require-imports, import/no-nodejs-modules -- Node modules are only loaded (with require()) when Platform.isDesktop */
 
 import type { SettingGroup } from "obsidian";
 import { Platform } from "obsidian";
@@ -14,25 +13,40 @@ import {
 } from "../utils/notice";
 import { convertPdfToImages } from "../utils/pdf";
 
-const childProcess = Platform.isDesktop ? require("child_process") : null;
-const fs = Platform.isDesktop ? require("fs/promises") : null;
-const os = Platform.isDesktop ? require("os") : null;
-const path = Platform.isDesktop ? require("path") : null;
-const crypto = Platform.isDesktop ? require("crypto") : null;
-const util = Platform.isDesktop ? require("util") : null;
-const execAsync = Platform.isDesktop ? util.promisify(childProcess.exec) : null;
-
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 
 export class CustomCommandService extends OcrService {
   static readonly label = "Custom command";
+
+  private readonly fs: typeof import("fs/promises");
+  private readonly os: typeof import("os");
+  private readonly path: typeof import("path");
+  private readonly crypto: typeof import("crypto");
+  private readonly execAsync: (
+    cmd: string,
+    opts: import("child_process").ExecOptions,
+  ) => Promise<{ stdout: string; stderr: string }>;
+
+  constructor(settings: PluginSettings) {
+    super(settings);
+    assert(Platform.isDesktop, "Service only instantiated on desktop");
+
+    this.fs = require("fs/promises") as typeof this.fs;
+    this.os = require("os") as typeof this.os;
+    this.path = require("path") as typeof this.path;
+    this.crypto = require("crypto") as typeof this.crypto;
+    const util = require("util") as typeof import("util");
+    const childProcess =
+      require("child_process") as typeof import("child_process");
+    this.execAsync = util.promisify(childProcess.exec) as typeof this.execAsync;
+  }
 
   static addSettings(
     group: SettingGroup,
     settings: PluginSettings,
     saveSetting: OcrExtractorPlugin["saveSetting"],
   ) {
-    group.addSetting((setting) =>
+    group.addSetting((setting) => {
       setting
         .setName("Command")
         .setDesc(
@@ -42,29 +56,29 @@ export class CustomCommandService extends OcrService {
           text
             .setPlaceholder("command.sh -i {input} -o {output}")
             .setValue(settings.customCommand)
-            .onChange((value) => saveSetting("customCommand", value)),
+            .onChange((value) => void saveSetting("customCommand", value)),
         )
         .addButton((button) =>
           button
             .setButtonText("Test")
             .setTooltip("Test command with a sample image")
             .setDisabled(!Platform.isDesktop)
-            .onClick(() => this.testCommand(settings)),
-        ),
-    );
+            .onClick(() => void this.testCommand(settings)),
+        );
+    });
 
-    group.addSetting((setting) =>
+    group.addSetting((setting) => {
       setting
         .setName("Convert PDFs to images")
         .setDesc("Convert PDF pages to PNG images before processing")
         .addToggle((toggle) =>
           toggle
             .setValue(settings.customCommandConvertPdfs)
-            .onChange((value) =>
-              saveSetting("customCommandConvertPdfs", value),
+            .onChange(
+              (value) => void saveSetting("customCommandConvertPdfs", value),
             ),
-        ),
-    );
+        );
+    });
   }
 
   private static async testCommand(settings: PluginSettings) {
@@ -112,7 +126,6 @@ export class CustomCommandService extends OcrService {
     mimeType: string,
     filename: string,
   ) {
-    assert(Platform.isDesktop, "Tesseract will be used instead on mobile");
     const command = this.getCustomCommand();
 
     if (
@@ -132,7 +145,11 @@ export class CustomCommandService extends OcrService {
       return pages.length > 0 ? pages : null;
     }
 
-    const text = await this.processFile(data, command, path.extname(filename));
+    const text = await this.processFile(
+      data,
+      command,
+      this.path.extname(filename),
+    );
     return text ? [text] : null;
   }
 
@@ -152,11 +169,14 @@ export class CustomCommandService extends OcrService {
     const { inputPath, outputPath } = this.getTmpPaths(extension);
 
     try {
-      await fs.writeFile(inputPath, data);
+      await this.fs.writeFile(inputPath, data);
       await this.runCommand(command, inputPath, outputPath);
       return await this.readOutput(outputPath);
     } finally {
-      await Promise.allSettled([fs.unlink(inputPath), fs.unlink(outputPath)]);
+      await Promise.allSettled([
+        this.fs.unlink(inputPath),
+        this.fs.unlink(outputPath),
+      ]);
     }
   }
 
@@ -166,12 +186,15 @@ export class CustomCommandService extends OcrService {
    * unsafe characters in original filenames.
    */
   private getTmpPaths(extension: string) {
-    const uuid = crypto.randomUUID();
+    const uuid = this.crypto.randomUUID();
     const sanitizedExt = extension.replace(/[^a-zA-Z0-9]/g, "");
 
     return {
-      inputPath: path.join(os.tmpdir(), `input-${uuid}.${sanitizedExt}`),
-      outputPath: path.join(os.tmpdir(), `output-${uuid}.md`),
+      inputPath: this.path.join(
+        this.os.tmpdir(),
+        `input-${uuid}.${sanitizedExt}`,
+      ),
+      outputPath: this.path.join(this.os.tmpdir(), `output-${uuid}.md`),
     };
   }
 
@@ -186,7 +209,7 @@ export class CustomCommandService extends OcrService {
       .replace(/\{output}/g, `"${outputPath}"`);
 
     try {
-      await execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT });
+      await this.execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT });
     } catch (error) {
       const { killed, code, message, stderr } = error as {
         killed?: boolean;
@@ -210,7 +233,7 @@ export class CustomCommandService extends OcrService {
 
   private async readOutput(outputPath: string) {
     try {
-      const data = await fs.readFile(outputPath);
+      const data = await this.fs.readFile(outputPath);
       return data.toString("utf-8");
     } catch {
       throw new UserFacingError("Custom command did not create output file");
