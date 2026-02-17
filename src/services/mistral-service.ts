@@ -8,15 +8,18 @@ import { toDataUrl } from "../utils/encoding";
 import { warnSkipped } from "../utils/logging";
 import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
+import { t } from "../i18n";
 
 export class MistralService extends OcrService {
-  static readonly label = "Mistral OCR";
-
   private mistral: Mistral;
 
   constructor(settings: PluginSettings) {
     super(settings);
     this.mistral = new Mistral({ apiKey: settings.mistralApiKey });
+  }
+
+  static getLabel() {
+    return t("services.mistralOcr");
   }
 
   static addSettings(
@@ -26,7 +29,7 @@ export class MistralService extends OcrService {
   ) {
     group.addSetting((setting) => {
       setting
-        .setName("Mistral API key")
+        .setName(t("settings.mistralApiKey"))
         .addText((text) =>
           text
             .setValue(settings.mistralApiKey)
@@ -73,7 +76,7 @@ export class MistralService extends OcrService {
     } catch (error: unknown) {
       if (error instanceof MistralError) {
         if (error.statusCode === 401) {
-          throw new UserFacingError("Unauthorized, check your API key", {
+          throw new UserFacingError(t("errors.unauthorized"), {
             cause: error,
           });
         }

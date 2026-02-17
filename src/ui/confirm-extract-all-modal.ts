@@ -1,21 +1,20 @@
 import { App, Modal, Setting } from "obsidian";
+import { t } from "../i18n";
 
 export class ConfirmExtractAllModal extends Modal {
   constructor(app: App, onSubmit: () => void) {
     super(app);
-    this.setTitle("Extract text from all notes?");
+    this.setTitle(t("modals.extractAllTitle"));
 
-    new Setting(this.contentEl).setName(
-      "Make sure you have a backup of your vault before extracting text from attachments in all notes.",
-    );
+    new Setting(this.contentEl).setName(t("modals.extractAllWarning"));
 
     new Setting(this.contentEl)
       .addButton((btn) =>
-        btn.setButtonText("Cancel").onClick(() => this.close()),
+        btn.setButtonText(t("modals.cancel")).onClick(() => this.close()),
       )
       .addButton((btn) =>
         btn
-          .setButtonText("Extract")
+          .setButtonText(t("modals.extract"))
           .setCta()
           .onClick(() => {
             this.close();

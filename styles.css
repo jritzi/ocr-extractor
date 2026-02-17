@@ -8,3 +8,8 @@
   animation: ocr-extractor-spin 1s linear infinite;
   margin-right: 4px;
 }
+
+.callout[data-callout="ocr-extractor"] {
+  --callout-color: var(--color-cyan-rgb);
+  --callout-icon: lucide-scan-text;
+}

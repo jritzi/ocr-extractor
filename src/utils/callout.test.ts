@@ -85,7 +85,7 @@ describe("callout utils", () => {
       const result = formatCalloutToInsert("Line 1\n\nLine 2", fileContent, 0);
 
       expect(result.text).toBe(
-        "> [!summary]- Extracted text\n> Line 1\n>\n> Line 2",
+        "> [!ocr-extractor]- Extracted text\n> Line 1\n>\n> Line 2",
       );
       expect(result.linePrefix).toBe("");
     });
@@ -100,7 +100,7 @@ describe("callout utils", () => {
       );
 
       expect(result.text).toBe(
-        "> > [!summary]- Extracted text\n> > Line 1\n> >\n> > Line 2",
+        "> > [!ocr-extractor]- Extracted text\n> > Line 1\n> >\n> > Line 2",
       );
       expect(result.linePrefix).toBe("> ");
     });

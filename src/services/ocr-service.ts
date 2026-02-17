@@ -13,10 +13,12 @@ export class UserFacingError extends Error {}
 const PAGE_SEPARATOR = "\n\n---\n\n";
 
 export abstract class OcrService {
-  /** The label shown on the setting tab */
-  static readonly label: string;
-
   constructor(protected settings: PluginSettings) {}
+
+  /** The label shown on the setting tab */
+  static getLabel(): string {
+    throw new Error("getLabel() not implemented");
+  }
 
   /** Add service-specific settings to the settings tab */
   static addSettings(

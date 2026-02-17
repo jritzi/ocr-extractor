@@ -20,6 +20,7 @@
     "esbuild": "0.27.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-no-unsanitized": "^4.1.4",
     "eslint-plugin-obsidianmd": "^0.1.9",
     "generate-license-file": "^4.1.1",
     "globals": "^17.3.0",
@@ -34,6 +35,7 @@
   "dependencies": {
     "@mistralai/mistralai": "^1.10.0",
     "file-type": "^21.0.0",
+    "i18next": "^25.8.7",
     "pdfjs-dist": "5.4.530",
     "tesseract.js": "^7.0.0"
   },

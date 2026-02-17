@@ -8,9 +8,10 @@ import {
 } from "obsidian";
 import { OcrService, UserFacingError } from "./services/ocr-service";
 import {
-  CALLOUT_HEADER,
   formatCalloutToInsert,
   insertWithBlankLines,
+  isManagedCallout,
+  migrateLegacyCallouts,
 } from "./utils/callout";
 import { batchPromises, withCancellation } from "./utils/async";
 import { assert } from "./utils/assert";
@@ -18,6 +19,7 @@ import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileServiceFallback } from "./settings";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
+import { t } from "./i18n";
 
 export class TextExtractor {
   private app = this.plugin.app;
@@ -69,9 +71,7 @@ export class TextExtractor {
 
   private async processFiles(files: TFile[]) {
     if (this.usingMobileServiceFallback) {
-      showNotice(
-        "Custom commands are not available on mobile, using Tesseract",
-      );
+      showNotice(t("notices.mobileServiceFallback"));
     }
 
     const allSkippedEmbeds: EmbedCache[] = [];
@@ -106,7 +106,7 @@ export class TextExtractor {
         message = e.message;
       } else {
         console.error(e);
-        message = "Failed to extract text";
+        message = t("errors.extractionFailed");
       }
       this.plugin.statusManager.setError(message);
     }
@@ -171,7 +171,7 @@ export class TextExtractor {
 
       let newContent = data;
       if (data !== originalFileContent) {
-        const warning = `File changed during processing, skipping (${file.path})`;
+        const warning = t("notices.fileChanged", { path: file.path });
         console.warn(warning);
         showErrorNotice(warning);
         return data;
@@ -210,6 +210,8 @@ export class TextExtractor {
         );
       }
 
+      newContent = migrateLegacyCallouts(newContent);
+
       return newContent;
     });
   }
@@ -230,7 +232,7 @@ export class TextExtractor {
 
   private alreadyProcessed(embed: EmbedCache, content: string) {
     const remainder = content.slice(embed.position.end.offset);
-    return remainder.replace(/^[\s>]*/, "").startsWith(CALLOUT_HEADER);
+    return isManagedCallout(remainder.replace(/^[\s>]*/, ""));
   }
 
   private embedMoved(embed: EmbedCache, content: string) {

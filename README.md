@@ -56,6 +56,10 @@ Click the "Test" button to run the command on a sample image and confirm it corr
 
 Note that this option is not supported on mobile, so if a custom command is configured, Tesseract will be used instead if attempting to extract text with the mobile app.
 
+## Translations
+
+OCR Extractor is available in several languages. To request a new language (or to suggest an improvement for an existing translation), [start a discussion](https://github.com/jritzi/ocr-extractor/discussions/new?category=ideas).
+
 ## License
 
 OCR Extractor is licensed under the [MIT License](./LICENSE).

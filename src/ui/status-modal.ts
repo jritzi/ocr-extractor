@@ -6,6 +6,7 @@ import {
   Modal,
   Setting,
 } from "obsidian";
+import { t } from "../i18n";
 
 export class StatusModal extends Modal {
   private readonly messageEl: HTMLElement;
@@ -16,16 +17,16 @@ export class StatusModal extends Modal {
     private onModalClose: () => void,
   ) {
     super(app);
-    this.setTitle("OCR Extractor");
+    this.setTitle(t("modals.ocrExtractor"));
     this.modalEl.addClass("is-loading");
 
     this.messageEl = this.contentEl.createEl("p", {
-      text: "Extracting text from attachments...",
+      text: t("modals.extractingText"),
     });
 
     new Setting(this.contentEl).addButton((button) => {
       this.button = button;
-      button.setButtonText("Cancel").onClick(() => this.close());
+      button.setButtonText(t("modals.cancel")).onClick(() => this.close());
     });
   }
 
@@ -34,20 +35,20 @@ export class StatusModal extends Modal {
 
     this.messageEl.empty();
     this.messageEl.createDiv({
-      text: `Text extracted from ${extractedCount} attachment${extractedCount === 1 ? "" : "s"}. The following were skipped:`,
+      text: t("modals.extractedWarning", { count: extractedCount }),
     });
     const list = this.messageEl.createEl("ul");
     for (const embed of skippedEmbeds) {
       list.createEl("li", { text: getLinkpath(embed.link) });
     }
 
-    this.button.setButtonText("OK");
+    this.button.setButtonText(t("modals.ok"));
   }
 
   showError(message: string) {
     this.modalEl.removeClass("is-loading");
-    this.messageEl.setText(`Error: ${message}`);
-    this.button.setButtonText("OK");
+    this.messageEl.setText(t("errors.error", { message }));
+    this.button.setButtonText(t("modals.ok"));
   }
 
   onClose() {

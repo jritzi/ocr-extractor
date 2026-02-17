@@ -1,4 +1,23 @@
-export const CALLOUT_HEADER = "[!summary]- Extracted text";
+import { t } from "../i18n";
+
+/** Stable marker used for callouts managed by this plugin */
+const CALLOUT_MARKER = "[!ocr-extractor]-";
+
+/** Header before the custom callout type was added */
+const LEGACY_CALLOUT_HEADER = "[!summary]- Extracted text";
+
+export function isManagedCallout(text: string) {
+  return (
+    text.startsWith(CALLOUT_MARKER) || text.startsWith(LEGACY_CALLOUT_HEADER)
+  );
+}
+
+export function migrateLegacyCallouts(content: string) {
+  return content.replaceAll(
+    LEGACY_CALLOUT_HEADER,
+    `${CALLOUT_MARKER} ${t("callouts.title")}`,
+  );
+}
 
 /**
  * Insert text in a string before the given index, ensuring there are blank lines
@@ -61,7 +80,10 @@ export function formatCalloutToInsert(
   // Find initial whitespace and `>` characters
   const linePrefix = lineBeforeEmbed.match(/^[\s>]*/)?.[0] ?? "";
 
-  let text = [`> ${CALLOUT_HEADER}`, markdown.replace(/^/gm, `> `)].join("\n");
+  let text = [
+    `> ${CALLOUT_MARKER} ${t("callouts.title")}`,
+    markdown.replace(/^/gm, `> `),
+  ].join("\n");
 
   // Add existing prefix to all lines. This will properly format the new
   // Markdown, even when used within nested callouts.

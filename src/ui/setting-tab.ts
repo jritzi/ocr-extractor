@@ -2,6 +2,7 @@ import { App, PluginSettingTab, SettingGroup } from "obsidian";
 import OcrExtractorPlugin, { OCR_SERVICES } from "../../main";
 import { PluginSettings, shouldUseMobileServiceFallback } from "../settings";
 import { showNotice } from "../utils/notice";
+import { t } from "../i18n";
 
 export class SettingTab extends PluginSettingTab {
   plugin: OcrExtractorPlugin;
@@ -29,21 +30,19 @@ export class SettingTab extends PluginSettingTab {
 
   private addServiceDropdown(group: SettingGroup) {
     const description = document.createDocumentFragment();
-    description.appendText("See the ");
+    description.appendText(t("settings.ocrServiceDesc") + " ");
     description.createEl("a", {
-      // eslint-disable-next-line obsidianmd/ui/sentence-case -- mid-sentence text
-      text: "documentation",
+      text: t("settings.ocrServiceDocLink"),
       href: "https://github.com/jritzi/ocr-extractor#ocr-services",
     });
-    description.appendText(" for more details");
 
     group.addSetting((setting) => {
       setting
-        .setName("OCR service")
+        .setName(t("settings.ocrService"))
         .setDesc(description)
         .addDropdown((dropdown) => {
           for (const [name, Service] of Object.entries(OCR_SERVICES)) {
-            dropdown.addOption(name, Service.label);
+            dropdown.addOption(name, Service.getLabel());
           }
 
           dropdown
@@ -56,9 +55,7 @@ export class SettingTab extends PluginSettingTab {
                   ocrService: newOcrService,
                 })
               ) {
-                showNotice(
-                  "Custom commands are not available on mobile, Tesseract will be used instead",
-                );
+                showNotice(t("notices.mobileServiceFallbackSetting"));
               }
 
               void this.plugin.saveSetting("ocrService", newOcrService);

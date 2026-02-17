@@ -2,11 +2,14 @@ import { createWorker, Worker } from "tesseract.js";
 import { OcrService } from "./ocr-service";
 import { toDataUrl } from "../utils/encoding";
 import { convertPdfToImages } from "../utils/pdf";
+import { t } from "../i18n";
 
 export class TesseractService extends OcrService {
-  static readonly label = "Tesseract";
-
   private worker: Worker | null = null;
+
+  static getLabel() {
+    return t("services.tesseract");
+  }
 
   async terminate() {
     if (this.worker) {

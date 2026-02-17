@@ -4,9 +4,11 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
+// @ts-expect-error — plugin lacks type declarations
+import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
-  globalIgnores(["main.js", "version-bump.mjs"]),
+  globalIgnores(["main.js", "version-bump.mjs", "**/*.json"]),
 
   {
     files: ["**/*.{ts,mts,cts}"],
@@ -27,6 +29,8 @@ export default defineConfig([
       ],
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
+  noUnsanitized.configs.recommended,
   eslintConfigPrettier,
 
   // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing

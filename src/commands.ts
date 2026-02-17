@@ -1,8 +1,6 @@
 import { Menu } from "obsidian";
-import OcrExtractorPlugin, {
-  EXTRACT_ALL_TEXT,
-  EXTRACT_NOTE_TEXT,
-} from "../main";
+import OcrExtractorPlugin from "../main";
+import { t } from "./i18n";
 
 export function addCommands(plugin: OcrExtractorPlugin) {
   addExtractCurrentNoteCommand(plugin);
@@ -13,7 +11,7 @@ export function addCommands(plugin: OcrExtractorPlugin) {
 function addExtractCurrentNoteCommand(plugin: OcrExtractorPlugin) {
   plugin.addCommand({
     id: "extract-current-note",
-    name: EXTRACT_NOTE_TEXT,
+    name: t("commands.extractCurrentNote"),
     checkCallback: (checking: boolean) => {
       if (plugin.extractor.canProcessActiveFile()) {
         if (!checking) {
@@ -29,7 +27,7 @@ function addExtractCurrentNoteCommand(plugin: OcrExtractorPlugin) {
 function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
   plugin.addCommand({
     id: "extract-all-notes",
-    name: EXTRACT_ALL_TEXT,
+    name: t("commands.extractAllNotes"),
     checkCallback: (checking: boolean) => {
       if (plugin.extractor.canProcessAllFiles()) {
         if (!checking) {
@@ -43,7 +41,7 @@ function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
 }
 
 function addRibbonIcon(plugin: OcrExtractorPlugin) {
-  plugin.addRibbonIcon("scan-text", "Extract text", (event) => {
+  plugin.addRibbonIcon("scan-text", t("commands.extractText"), (event) => {
     const menu = new Menu();
 
     if (!(event.currentTarget instanceof Element)) {
@@ -52,14 +50,14 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
 
     menu.addItem((item) =>
       item
-        .setTitle(EXTRACT_NOTE_TEXT)
+        .setTitle(t("commands.extractCurrentNote"))
         .setDisabled(!plugin.extractor.canProcessActiveFile())
         .onClick(() => plugin.extractor.processActiveFile()),
     );
 
     menu.addItem((item) =>
       item
-        .setTitle(EXTRACT_ALL_TEXT)
+        .setTitle(t("commands.extractAllNotes"))
         .setDisabled(!plugin.extractor.canProcessAllFiles())
         .onClick(() => plugin.extractor.processAllFiles()),
     );

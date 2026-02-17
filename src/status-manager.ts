@@ -3,6 +3,7 @@ import { App, EmbedCache, Menu, MenuItem, setIcon } from "obsidian";
 import { debugLog } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { StatusModal } from "./ui/status-modal";
+import { t } from "./i18n";
 
 export type Status = "idle" | "processing" | "canceling";
 
@@ -26,7 +27,7 @@ export class StatusManager {
       const menu = new Menu();
 
       menu.addItem((item: MenuItem) =>
-        item.setTitle("Cancel").onClick(() => this.setCanceling()),
+        item.setTitle(t("status.cancel")).onClick(() => this.setCanceling()),
       );
 
       menu.showAtMouseEvent(event);
@@ -53,14 +54,19 @@ export class StatusManager {
 
   setProcessingAllNotes(totalNotes: number) {
     this.status = "processing";
-    this.statusBarTextSpan.setText(`Extracting text for note 1/${totalNotes}`);
+    this.statusBarTextSpan.setText(
+      t("status.extractingNote", { current: 1, total: totalNotes }),
+    );
     this.statusBarItem.show();
     debugLog("Status set to processing (all notes)");
   }
 
   updateProgress(notesProcessed: number, totalNotes: number) {
     this.statusBarTextSpan.setText(
-      `Extracting text for note ${notesProcessed}/${totalNotes}`,
+      t("status.extractingNote", {
+        current: notesProcessed,
+        total: totalNotes,
+      }),
     );
   }
 
@@ -70,7 +76,7 @@ export class StatusManager {
     }
 
     this.status = "canceling";
-    this.statusBarTextSpan.setText("Canceling");
+    this.statusBarTextSpan.setText(t("status.canceling"));
     this.statusBarItem.show();
     debugLog("Status set to canceling");
   }
@@ -85,7 +91,7 @@ export class StatusManager {
       this.statusModal = null;
     }
 
-    showNotice("Cancelled text extraction");
+    showNotice(t("notices.cancelled"));
     debugLog("Status set to idle (cancelled)");
   }
 
@@ -105,10 +111,13 @@ export class StatusManager {
       const skippedCount = skippedEmbeds.length;
       if (skippedCount > 0) {
         showNotice(
-          `Text extraction complete. Extracted: ${extractedCount}, skipped: ${skippedCount}`,
+          t("notices.completeExtractedSkipped", {
+            extracted: extractedCount,
+            skipped: skippedCount,
+          }),
         );
       } else if (extractedCount > 0) {
-        showNotice(`Text extraction complete. Extracted: ${extractedCount}`);
+        showNotice(t("notices.completeExtracted", { count: extractedCount }));
       }
     }
 

@@ -12,12 +12,11 @@ import {
   showSuccessNotice,
 } from "../utils/notice";
 import { convertPdfToImages } from "../utils/pdf";
+import { t } from "../i18n";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 
 export class CustomCommandService extends OcrService {
-  static readonly label = "Custom command";
-
   private readonly fs: typeof import("fs/promises");
   private readonly os: typeof import("os");
   private readonly path: typeof import("path");
@@ -41,6 +40,10 @@ export class CustomCommandService extends OcrService {
     this.execAsync = util.promisify(childProcess.exec) as typeof this.execAsync;
   }
 
+  static getLabel() {
+    return t("services.customCommand");
+  }
+
   static addSettings(
     group: SettingGroup,
     settings: PluginSettings,
@@ -48,20 +51,18 @@ export class CustomCommandService extends OcrService {
   ) {
     group.addSetting((setting) => {
       setting
-        .setName("Command")
-        .setDesc(
-          "Shell command to execute (desktop-only, Tesseract will be used instead on mobile), using {input} and {output} for the file paths",
-        )
+        .setName(t("settings.command"))
+        .setDesc(t("settings.commandDesc"))
         .addTextArea((text) =>
           text
-            .setPlaceholder("command.sh -i {input} -o {output}")
+            .setPlaceholder(t("settings.commandPlaceholder"))
             .setValue(settings.customCommand)
             .onChange((value) => void saveSetting("customCommand", value)),
         )
         .addButton((button) =>
           button
-            .setButtonText("Test")
-            .setTooltip("Test command with a sample image")
+            .setButtonText(t("settings.test"))
+            .setTooltip(t("settings.testTooltip"))
             .setDisabled(!Platform.isDesktop)
             .onClick(() => void this.testCommand(settings)),
         );
@@ -69,8 +70,8 @@ export class CustomCommandService extends OcrService {
 
     group.addSetting((setting) => {
       setting
-        .setName("Convert PDFs to images")
-        .setDesc("Convert PDF pages to PNG images before processing")
+        .setName(t("settings.convertPdfs"))
+        .setDesc(t("settings.convertPdfsDesc"))
         .addToggle((toggle) =>
           toggle
             .setValue(settings.customCommandConvertPdfs)
@@ -84,17 +85,17 @@ export class CustomCommandService extends OcrService {
   private static async testCommand(settings: PluginSettings) {
     const testPng = await this.createTestImage();
     const service = new CustomCommandService(settings);
-    const loadingNotice = showLoadingNotice("Testing custom command...");
+    const loadingNotice = showLoadingNotice(t("notices.testingCommand"));
 
     try {
       await service.processOcr(testPng, "test.png");
-      showSuccessNotice("Test succeeded");
+      showSuccessNotice(t("notices.testSucceeded"));
     } catch (error) {
       if (error instanceof UserFacingError) {
-        showErrorNotice(`Test failed: ${error.message}`);
+        showErrorNotice(t("notices.testFailed", { message: error.message }));
       } else {
         console.error("Custom command test failed:", error);
-        showErrorNotice("Test failed: Unexpected error");
+        showErrorNotice(t("notices.testFailedUnexpected"));
       }
     } finally {
       loadingNotice.hide();
@@ -156,7 +157,7 @@ export class CustomCommandService extends OcrService {
   private getCustomCommand() {
     const command = this.settings.customCommand.trim();
     if (!command) {
-      throw new UserFacingError("No custom command configured");
+      throw new UserFacingError(t("errors.noCustomCommand"));
     }
     return command;
   }
@@ -223,10 +224,10 @@ export class CustomCommandService extends OcrService {
       );
 
       if (killed) {
-        throw new UserFacingError("Custom command timed out");
+        throw new UserFacingError(t("errors.commandTimeout"));
       }
       throw new UserFacingError(
-        `Custom command failed with exit code ${code} (see console for details)`,
+        t("errors.commandFailed", { code: String(code) }),
       );
     }
   }
@@ -236,7 +237,7 @@ export class CustomCommandService extends OcrService {
       const data = await this.fs.readFile(outputPath);
       return data.toString("utf-8");
     } catch {
-      throw new UserFacingError("Custom command did not create output file");
+      throw new UserFacingError(t("errors.noOutputFile"));
     }
   }
 }

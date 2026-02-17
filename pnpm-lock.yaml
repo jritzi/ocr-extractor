@@ -13,6 +13,9 @@ importers:
       file-type:
         specifier: ^21.0.0
         version: 21.3.0
+      i18next:
+        specifier: ^25.8.7
+        version: 25.8.7(typescript@5.9.3)
       pdfjs-dist:
         specifier: 5.4.530
         version: 5.4.530
@@ -35,6 +38,9 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-no-unsanitized:
+        specifier: ^4.1.4
+        version: 4.1.4(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-obsidianmd:
         specifier: ^0.1.9
         version: 0.1.9(@eslint/js@9.39.2)(@eslint/json@0.14.0)(@typescript-eslint/parser@8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(obsidian@1.12.0(@codemirror/state@6.5.0)(@codemirror/view@6.38.6))(typescript-eslint@8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))
@@ -78,6 +84,13 @@ packages:
     resolution:
       {
         integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==,
+      }
+    engines: { node: ">=6.9.0" }
+
+  "@babel/runtime@7.28.6":
+    resolution:
+      {
+        integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==,
       }
     engines: { node: ">=6.9.0" }
 
@@ -1866,6 +1879,14 @@ packages:
     peerDependencies:
       eslint: ">=8.23.0"
 
+  eslint-plugin-no-unsanitized@4.1.4:
+    resolution:
+      {
+        integrity: sha512-cjAoZoq3J+5KJuycYYOWrc0/OpZ7pl2Z3ypfFq4GtaAgheg+L7YGxUo2YS3avIvo/dYU5/zR2hXu3v81M9NxhQ==,
+      }
+    peerDependencies:
+      eslint: ^8 || ^9
+
   eslint-plugin-obsidianmd@0.1.9:
     resolution:
       {
@@ -2293,6 +2314,17 @@ packages:
         integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==,
       }
     engines: { node: ">= 14" }
+
+  i18next@25.8.7:
+    resolution:
+      {
+        integrity: sha512-ttxxc5+67S/0hhoeVdEgc1lRklZhdfcUSEPp1//uUG2NB88X3667gRsDar+ZWQFdysnOsnb32bcoMsa4mtzhkQ==,
+      }
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   iconv-lite@0.6.3:
     resolution:
@@ -4242,6 +4274,8 @@ snapshots:
 
   "@babel/helper-validator-identifier@7.28.5": {}
 
+  "@babel/runtime@7.28.6": {}
+
   "@borewit/text-codec@0.2.1": {}
 
   "@codemirror/state@6.5.0":
@@ -5437,6 +5471,10 @@ snapshots:
       minimatch: 9.0.5
       semver: 7.7.4
 
+  eslint-plugin-no-unsanitized@4.1.4(eslint@9.39.2(jiti@2.6.1)):
+    dependencies:
+      eslint: 9.39.2(jiti@2.6.1)
+
   eslint-plugin-obsidianmd@0.1.9(@eslint/js@9.39.2)(@eslint/json@0.14.0)(@typescript-eslint/parser@8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(obsidian@1.12.0(@codemirror/state@6.5.0)(@codemirror/view@6.38.6))(typescript-eslint@8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)):
     dependencies:
       "@eslint/js": 9.39.2
@@ -5759,6 +5797,12 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
+
+  i18next@25.8.7(typescript@5.9.3):
+    dependencies:
+      "@babel/runtime": 7.28.6
+    optionalDependencies:
+      typescript: 5.9.3
 
   iconv-lite@0.6.3:
     dependencies:

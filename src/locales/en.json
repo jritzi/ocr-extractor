@@ -1,0 +1,65 @@
+{
+  "callouts": {
+    "title": "Extracted text"
+  },
+  "commands": {
+    "extractCurrentNote": "Extract text from attachments in current note",
+    "extractAllNotes": "Extract text from attachments in all notes",
+    "extractText": "Extract text"
+  },
+  "settings": {
+    "ocrService": "OCR service",
+    "ocrServiceDesc": "See the documentation for more details:",
+    "ocrServiceDocLink": "OCR services",
+    "mistralApiKey": "Mistral API key",
+    "command": "Command",
+    "commandDesc": "Shell command to execute (desktop-only, Tesseract will be used instead on mobile), using {input} and {output} for the file paths",
+    "commandPlaceholder": "command.sh -i {input} -o {output}",
+    "test": "Test",
+    "testTooltip": "Test command with a sample image",
+    "convertPdfs": "Convert PDFs to images",
+    "convertPdfsDesc": "Convert PDF pages to PNG images before processing"
+  },
+  "services": {
+    "tesseract": "Tesseract",
+    "mistralOcr": "Mistral OCR",
+    "customCommand": "Custom command"
+  },
+  "modals": {
+    "ocrExtractor": "OCR Extractor",
+    "extractingText": "Extracting text from attachments...",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "extractedWarning_one": "Text extracted from {{count}} attachment. The following were skipped:",
+    "extractedWarning_other": "Text extracted from {{count}} attachments. The following were skipped:",
+    "extractAllTitle": "Extract text from all notes?",
+    "extractAllWarning": "Make sure you have a backup of your vault before extracting text from attachments in all notes.",
+    "extract": "Extract"
+  },
+  "status": {
+    "extractingNote": "Extracting text for note {{current}}/{{total}}",
+    "canceling": "Canceling",
+    "cancel": "Cancel"
+  },
+  "notices": {
+    "cancelled": "Cancelled text extraction",
+    "completeExtracted": "Text extraction complete. Extracted: {{count}}",
+    "completeExtractedSkipped": "Text extraction complete. Extracted: {{extracted}}, skipped: {{skipped}}",
+    "mobileServiceFallback": "Custom commands are not available on mobile, using Tesseract",
+    "mobileServiceFallbackSetting": "Custom commands are not available on mobile, Tesseract will be used instead",
+    "fileChanged": "File changed during processing, skipping ({{path}})",
+    "testingCommand": "Testing custom command...",
+    "testSucceeded": "Test succeeded",
+    "testFailed": "Test failed: {{message}}",
+    "testFailedUnexpected": "Test failed: Unexpected error"
+  },
+  "errors": {
+    "unauthorized": "Unauthorized, check your API key",
+    "noCustomCommand": "No custom command configured",
+    "commandTimeout": "Custom command timed out",
+    "commandFailed": "Custom command failed with exit code {{code}} (see console for details)",
+    "noOutputFile": "Custom command did not create output file",
+    "extractionFailed": "Failed to extract text",
+    "error": "Error: {{message}}"
+  }
+}

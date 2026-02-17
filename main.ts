@@ -1,6 +1,7 @@
-import { Plugin } from "obsidian";
+import { getLanguage, Plugin } from "obsidian";
 import { SettingTab } from "./src/ui/setting-tab";
 import { DEFAULT_SETTINGS, PluginSettings } from "./src/settings";
+import { setLanguage } from "./src/i18n";
 import { TesseractService } from "./src/services/tesseract-service";
 import { MistralService } from "./src/services/mistral-service";
 import { CustomCommandService } from "./src/services/custom-command-service";
@@ -14,10 +15,6 @@ export const OCR_SERVICES = {
   customCommand: CustomCommandService,
 } as const;
 
-export const EXTRACT_ALL_TEXT = "Extract text from attachments in all notes";
-export const EXTRACT_NOTE_TEXT =
-  "Extract text from attachments in current note";
-
 export default class OcrExtractorPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
 
@@ -26,6 +23,7 @@ export default class OcrExtractorPlugin extends Plugin {
   statusManager!: StatusManager;
 
   async onload() {
+    await setLanguage(getLanguage());
     await this.loadSettings();
     this.addSettingTab(new SettingTab(this.app, this));
 
