@@ -18,7 +18,9 @@
     "test": "Test",
     "testTooltip": "Test command with a sample image",
     "convertPdfs": "Convert PDFs to images",
-    "convertPdfsDesc": "Convert PDF pages to PNG images before processing"
+    "convertPdfsDesc": "Convert PDF pages to PNG images before processing",
+    "useEmbeddedPdfText": "Use embedded PDF text",
+    "useEmbeddedPdfTextDesc": "When a PDF already contains embedded text, use it instead of extracting with OCR"
   },
   "services": {
     "tesseract": "Tesseract",
@@ -50,6 +52,8 @@
     "fileChanged": "File changed during processing, skipping ({{path}})",
     "testingCommand": "Testing custom command...",
     "testSucceeded": "Test succeeded",
+    "testNoOutput": "Command succeeded but no output file produced",
+    "testOutputMismatch": "Command succeeded but output (\"{{actual}}\") does not match expected (\"{{expected}}\").",
     "testFailed": "Test failed: {{message}}",
     "testFailedUnexpected": "Test failed: Unexpected error"
   },
@@ -58,7 +62,6 @@
     "noCustomCommand": "No custom command configured",
     "commandTimeout": "Custom command timed out",
     "commandFailed": "Custom command failed with exit code {{code}} (see console for details)",
-    "noOutputFile": "Custom command did not create output file",
     "extractionFailed": "Failed to extract text",
     "error": "Error: {{message}}"
   }

@@ -46,13 +46,13 @@ Then, enter your API key in the plugin settings.
 
 For advanced use cases, you can provide a custom command that will be used to process attachments. This can be used, for example, to extract text with an OCR model running locally, a script that uses a third-party API (that isn't supported natively by the plugin), or Tesseract with a custom configuration.
 
-Enter your custom command in the plugin settings, where `{input}` is the path to the input attachment file and `{output}` is the path to the produced Markdown or text file containing the extracted text (or a blank file to skip the attachment). For example:
+Enter your custom command in the plugin settings, where `{input}` is the path to the input attachment file and `{output}` is the path to the produced Markdown or text file containing the extracted text. To skip an unsupported attachment, don't create the output file. For example:
 
 ```shell
 tesseract {input} - -l eng+spa > {output}
 ```
 
-Click the "Test" button to run the command on a sample image and confirm it correctly returns exit code 0 and produces an output file. If the custom command only supports images, enable the setting to convert PDFs to PNGs before processing.
+Click the "Test" button to run the command on a sample image with text and confirm it correctly extracts the text. If the custom command only supports images, enable the setting to convert PDFs to PNGs before processing.
 
 Note that this option is not supported on mobile, so if a custom command is configured, Tesseract will be used instead if attempting to extract text with the mobile app.
 

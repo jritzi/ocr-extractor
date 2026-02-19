@@ -6,6 +6,7 @@ export interface PluginSettings {
   mistralApiKey: string;
   customCommand: string;
   customCommandConvertPdfs: boolean;
+  useEmbeddedPdfText: boolean;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
@@ -13,6 +14,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   mistralApiKey: "",
   customCommand: "",
   customCommandConvertPdfs: false,
+  useEmbeddedPdfText: false,
 };
 
 /**

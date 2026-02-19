@@ -18,6 +18,7 @@ const appendLicenses = {
     build.onEnd(async () => {
       const licenses = await getLicenseFileText("./package.json");
       const prefixed = licenses
+        .replace(/\*\//g, "*\\/")
         .split("\n")
         .map((line) => (line ? ` * ${line}` : " *"))
         .join("\n");

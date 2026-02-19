@@ -26,6 +26,8 @@ export class SettingTab extends PluginSettingTab {
       this.plugin.settings,
       this.plugin.saveSetting.bind(this.plugin),
     );
+
+    this.addGeneralSettings(group);
   }
 
   private addServiceDropdown(group: SettingGroup) {
@@ -62,6 +64,22 @@ export class SettingTab extends PluginSettingTab {
               this.display(); // Re-render settings with new service
             });
         });
+    });
+  }
+
+  private addGeneralSettings(group: SettingGroup) {
+    group.addSetting((setting) => {
+      setting
+        .setName(t("settings.useEmbeddedPdfText"))
+        .setDesc(t("settings.useEmbeddedPdfTextDesc"))
+        .addToggle((toggle) =>
+          toggle
+            .setValue(this.plugin.settings.useEmbeddedPdfText)
+            .onChange(
+              (value) =>
+                void this.plugin.saveSetting("useEmbeddedPdfText", value),
+            ),
+        );
     });
   }
 }

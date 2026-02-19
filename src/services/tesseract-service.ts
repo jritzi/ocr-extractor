@@ -1,7 +1,7 @@
 import { createWorker, Worker } from "tesseract.js";
 import { OcrService } from "./ocr-service";
 import { toDataUrl } from "../utils/encoding";
-import { convertPdfToImages } from "../utils/pdf";
+import { convertPdfToImages, isPdf } from "../utils/pdf";
 import { t } from "../i18n";
 
 export class TesseractService extends OcrService {
@@ -19,7 +19,7 @@ export class TesseractService extends OcrService {
   }
 
   protected isMimeTypeSupported(mimeType: string) {
-    return mimeType === "application/pdf" || mimeType.startsWith("image/");
+    return isPdf(mimeType) || mimeType.startsWith("image/");
   }
 
   protected async extractPages(
@@ -27,7 +27,7 @@ export class TesseractService extends OcrService {
     mimeType: string,
     _filename: string,
   ) {
-    if (mimeType === "application/pdf") {
+    if (isPdf(mimeType)) {
       return this.extractPdfPages(data);
     }
 

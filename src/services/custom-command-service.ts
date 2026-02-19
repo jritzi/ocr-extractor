@@ -9,12 +9,14 @@ import { assert } from "../utils/assert";
 import {
   showErrorNotice,
   showLoadingNotice,
+  showNotice,
   showSuccessNotice,
 } from "../utils/notice";
-import { convertPdfToImages } from "../utils/pdf";
+import { convertPdfToImages, isPdf } from "../utils/pdf";
 import { t } from "../i18n";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
+const TEST_TEXT = "OCR test";
 
 export class CustomCommandService extends OcrService {
   private readonly fs: typeof import("fs/promises");
@@ -88,8 +90,19 @@ export class CustomCommandService extends OcrService {
     const loadingNotice = showLoadingNotice(t("notices.testingCommand"));
 
     try {
-      await service.processOcr(testPng, "test.png");
-      showSuccessNotice(t("notices.testSucceeded"));
+      const result = await service.processOcr(testPng, "test.png");
+      if (!result) {
+        showErrorNotice(t("notices.testNoOutput"));
+      } else if (result.trim() === TEST_TEXT) {
+        showSuccessNotice(t("notices.testSucceeded"));
+      } else {
+        showNotice(
+          t("notices.testOutputMismatch", {
+            expected: TEST_TEXT,
+            actual: result.trim(),
+          }),
+        );
+      }
     } catch (error) {
       if (error instanceof UserFacingError) {
         showErrorNotice(t("notices.testFailed", { message: error.message }));
@@ -104,11 +117,14 @@ export class CustomCommandService extends OcrService {
 
   private static async createTestImage() {
     const canvas = document.createElement("canvas");
-    canvas.width = 1;
-    canvas.height = 1;
+    canvas.width = 200;
+    canvas.height = 50;
     const ctx = canvas.getContext("2d")!;
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, 1, 1);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "black";
+    ctx.font = "24px sans-serif";
+    ctx.fillText(TEST_TEXT, 10, 34);
 
     const blob = await new Promise<Blob>((resolve) =>
       canvas.toBlob((b) => resolve(b!), "image/png"),
@@ -118,7 +134,7 @@ export class CustomCommandService extends OcrService {
 
   protected isMimeTypeSupported(_mimeType: string) {
     // The command will be run on all file types (it can skip attachments by
-    // writing an empty output file).
+    // not creating the output file).
     return true;
   }
 
@@ -129,10 +145,7 @@ export class CustomCommandService extends OcrService {
   ) {
     const command = this.getCustomCommand();
 
-    if (
-      mimeType === "application/pdf" &&
-      this.settings.customCommandConvertPdfs
-    ) {
+    if (isPdf(mimeType) && this.settings.customCommandConvertPdfs) {
       const images = await convertPdfToImages(data);
       const pages: string[] = [];
 
@@ -234,10 +247,10 @@ export class CustomCommandService extends OcrService {
 
   private async readOutput(outputPath: string) {
     try {
-      const data = await this.fs.readFile(outputPath);
-      return data.toString("utf-8");
+      return await this.fs.readFile(outputPath, "utf-8");
     } catch {
-      throw new UserFacingError(t("errors.noOutputFile"));
+      // Skip attachment if no output file produced
+      return null;
     }
   }
 }

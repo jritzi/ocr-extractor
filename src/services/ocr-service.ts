@@ -3,6 +3,7 @@ import type { SettingGroup } from "obsidian";
 import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
+import { getPdfTextContent, isPdf } from "../utils/pdf";
 
 /**
  * Errors with a message intended to be shown directly to the user (as opposed
@@ -40,22 +41,34 @@ export abstract class OcrService {
       return null;
     }
 
+    if (isPdf(mimeType) && this.settings.useEmbeddedPdfText) {
+      const result = this.joinPages(await getPdfTextContent(data));
+      if (result) {
+        return result;
+      }
+    }
+
     const pages = await this.extractPages(data, mimeType, filename);
     if (pages === null) {
       return null;
     }
-    const nonEmptyPages = pages
-      .map((page) => page.trim())
-      .filter((page) => page.length > 0);
-    if (nonEmptyPages.length === 0) {
+    const result = this.joinPages(pages);
+    if (!result) {
       warnSkipped(filename, "no text to extract");
       return null;
     }
-    return nonEmptyPages.join(PAGE_SEPARATOR);
+    return result;
   }
 
   /** Clean up any resources held by this service. */
   async terminate() {}
+
+  private joinPages(pages: string[]) {
+    const nonEmpty = pages
+      .map((page) => page.trim())
+      .filter((page) => page.length > 0);
+    return nonEmpty.length > 0 ? nonEmpty.join(PAGE_SEPARATOR) : null;
+  }
 
   /**
    * Whether this service can handle the given MIME type. If false, the file
