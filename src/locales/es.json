@@ -1,0 +1,68 @@
+{
+  "callouts": {
+    "title": "Texto extraído"
+  },
+  "commands": {
+    "extractCurrentNote": "Extraer texto de los archivos adjuntos en la nota actual",
+    "extractAllNotes": "Extraer texto de los archivos adjuntos en todas las notas",
+    "extractText": "Extraer texto"
+  },
+  "settings": {
+    "ocrService": "Servicio OCR",
+    "ocrServiceDesc": "Consulta la documentación para más detalles:",
+    "ocrServiceDocLink": "Servicios OCR",
+    "mistralApiKey": "Clave API de Mistral",
+    "command": "Comando",
+    "commandDesc": "Comando de shell a ejecutar (solo en escritorio, en dispositivos móviles se usará Tesseract), utilizando {input} y {output} para las rutas de los archivos",
+    "commandPlaceholder": "command.sh -i {input} -o {output}",
+    "test": "Probar",
+    "testTooltip": "Probar comando con una imagen de ejemplo",
+    "convertPdfs": "Convertir archivos PDF a imágenes",
+    "convertPdfsDesc": "Convertir las páginas del PDF a imágenes PNG antes de procesarlas",
+    "useEmbeddedPdfText": "Usar texto incrustado en PDF",
+    "useEmbeddedPdfTextDesc": "Cuando un PDF ya contiene texto incrustado, úsalo en lugar de extraerlo con OCR"
+  },
+  "services": {
+    "tesseract": "Tesseract",
+    "mistralOcr": "Mistral OCR",
+    "customCommand": "Comando personalizado"
+  },
+  "modals": {
+    "ocrExtractor": "OCR Extractor",
+    "extractingText": "Extrayendo texto de los archivos adjuntos...",
+    "cancel": "Cancelar",
+    "ok": "ACEPTAR",
+    "extractedWarning_one": "Texto extraído de {{count}} archivo adjunto. Se omitieron los siguientes:",
+    "extractedWarning_other": "Texto extraído de {{count}} archivos adjuntos. Se omitieron los siguientes:",
+    "extractAllTitle": "¿Extraer texto de todas las notas?",
+    "extractAllWarning": "Asegúrese de tener una copia de seguridad de su vault antes de extraer texto de los archivos adjuntos en todas las notas.",
+    "extract": "Extraer"
+  },
+  "status": {
+    "extractingNote": "Extrayendo texto para la nota {{current}}/{{total}}",
+    "canceling": "Cancelando",
+    "cancel": "Cancelar"
+  },
+  "notices": {
+    "cancelled": "Extracción de texto cancelada",
+    "completeExtracted": "Extracción de texto completada. Extraído: {{count}}",
+    "completeExtractedSkipped": "Extracción de texto completada. Extraído: {{extracted}}, omitido: {{skipped}}",
+    "mobileServiceFallback": "Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
+    "mobileServiceFallbackSetting": "Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
+    "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",
+    "testingCommand": "Probando comando personalizado...",
+    "testSucceeded": "Prueba exitosa",
+    "testNoOutput": "El comando se ejecutó correctamente pero no se produjo ningún archivo de salida",
+    "testOutputMismatch": "El comando se ejecutó correctamente pero la salida (\"{{actual}}\") no coincide con la esperada (\"{{expected}}\").",
+    "testFailed": "Prueba fallida: {{message}}",
+    "testFailedUnexpected": "Prueba fallida: error inesperado"
+  },
+  "errors": {
+    "unauthorized": "No autorizado, verifique su clave API",
+    "noCustomCommand": "No se ha configurado ningún comando personalizado",
+    "commandTimeout": "El comando personalizado expiró",
+    "commandFailed": "El comando personalizado falló con el código de salida {{code}} (ver consola para más detalles)",
+    "extractionFailed": "No se pudo extraer el texto",
+    "error": "Error: {{message}}"
+  }
+}
