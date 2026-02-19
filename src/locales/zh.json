@@ -1,0 +1,68 @@
+{
+  "callouts": {
+    "title": "提取的文本"
+  },
+  "commands": {
+    "extractCurrentNote": "从当前笔记的附件中提取文本",
+    "extractAllNotes": "从所有笔记的附件中提取文本",
+    "extractText": "提取文本"
+  },
+  "settings": {
+    "ocrService": "OCR 服务",
+    "ocrServiceDesc": "请查看文档以了解详细信息：",
+    "ocrServiceDocLink": "OCR 服务",
+    "mistralApiKey": "Mistral API 密钥",
+    "command": "命令",
+    "commandDesc": "要执行的 Shell 命令（仅限桌面端，移动端将改用 Tesseract），请使用 {input} 和 {output} 作为文件路径",
+    "commandPlaceholder": "command.sh -i {input} -o {output}",
+    "test": "测试",
+    "testTooltip": "使用示例图片测试命令",
+    "convertPdfs": "PDF 转图片",
+    "convertPdfsDesc": "在处理前将 PDF 页面转换为 PNG 图片",
+    "useEmbeddedPdfText": "使用嵌入的 PDF 文本",
+    "useEmbeddedPdfTextDesc": "当 PDF 已包含嵌入文本时，使用该文本而非通过 OCR 提取"
+  },
+  "services": {
+    "tesseract": "Tesseract",
+    "mistralOcr": "Mistral OCR",
+    "customCommand": "自定义命令"
+  },
+  "modals": {
+    "ocrExtractor": "OCR Extractor",
+    "extractingText": "正在提取附件中的文本…",
+    "cancel": "取消",
+    "ok": "确定",
+    "extractedWarning_one": "已从 {{count}} 个附件中提取文本。已跳过以下内容：",
+    "extractedWarning_other": "已从 {{count}} 个附件中提取文本。已跳过以下内容：",
+    "extractAllTitle": "是否从所有笔记中提取文本？",
+    "extractAllWarning": "在从所有笔记的附件中提取文本之前，请确保您的仓库已经备份。",
+    "extract": "提取"
+  },
+  "status": {
+    "extractingNote": "正在提取第 {{current}}/{{total}} 个笔记的文本",
+    "canceling": "正在取消",
+    "cancel": "取消"
+  },
+  "notices": {
+    "cancelled": "已取消文本提取",
+    "completeExtracted": "文本提取完成。已提取：{{count}}",
+    "completeExtractedSkipped": "文本提取完成。已提取：{{extracted}}，已跳过：{{skipped}}",
+    "mobileServiceFallback": "移动端不支持自定义命令，正在改用 Tesseract",
+    "mobileServiceFallbackSetting": "移动端不支持自定义命令，将改用 Tesseract",
+    "fileChanged": "处理期间文件被更改，正在跳过 ({{path}})",
+    "testingCommand": "正在测试自定义命令…",
+    "testSucceeded": "测试成功",
+    "testNoOutput": "命令执行成功，但未生成输出文件",
+    "testOutputMismatch": "命令执行成功，但输出 (\"{{actual}}\") 与预期 (\"{{expected}}\") 不符。",
+    "testFailed": "测试失败：{{message}}",
+    "testFailedUnexpected": "测试失败：发生意外错误"
+  },
+  "errors": {
+    "unauthorized": "未授权，请检查您的 API 密钥",
+    "noCustomCommand": "未配置自定义命令",
+    "commandTimeout": "自定义命令超时",
+    "commandFailed": "自定义命令执行失败，错误代码为 {{code}}（详情请查看控制台）",
+    "extractionFailed": "文本提取失败",
+    "error": "错误：{{message}}"
+  }
+}
