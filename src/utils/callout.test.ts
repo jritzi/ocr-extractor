@@ -6,7 +6,7 @@ import {
 } from "./callout";
 
 describe("callout utils", () => {
-  describe("migrateLegacyCallouts", () => {
+  describe("migrateCallouts", () => {
     it("migrates legacy callout headers", () => {
       const content = "> [!summary]- Extracted text\n> content";
       expect(migrateCallouts(content)).toBe(
