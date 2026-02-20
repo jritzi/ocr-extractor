@@ -6,16 +6,25 @@ const CALLOUT_MARKER = "[!ocr-extractor]-";
 /** Header before the custom callout type was added */
 const LEGACY_CALLOUT_HEADER = "[!summary]- Extracted text";
 
+/** Matches the full callout header line, capturing everything up to and including the marker */
+const CALLOUT_HEADER_REGEX = /^([\s>]*\[!ocr-extractor\]-) .*$/gm;
+
 export function isManagedCallout(text: string) {
   return (
     text.startsWith(CALLOUT_MARKER) || text.startsWith(LEGACY_CALLOUT_HEADER)
   );
 }
 
-export function migrateLegacyCallouts(content: string) {
-  return content.replaceAll(
-    LEGACY_CALLOUT_HEADER,
-    `${CALLOUT_MARKER} ${t("callouts.title")}`,
+export function migrateCallouts(content: string) {
+  return (
+    content
+      // Replace legacy callout markers with the new one
+      .replaceAll(
+        LEGACY_CALLOUT_HEADER,
+        `${CALLOUT_MARKER} ${t("callouts.title")}`,
+      )
+      // Update headers to the current language
+      .replaceAll(CALLOUT_HEADER_REGEX, `$1 ${t("callouts.title")}`)
   );
 }
 
