@@ -11,7 +11,7 @@ import {
   formatCalloutToInsert,
   insertWithBlankLines,
   isManagedCallout,
-  migrateLegacyCallouts,
+  migrateCallouts,
 } from "./utils/callout";
 import { batchPromises, withCancellation } from "./utils/async";
 import { assert } from "./utils/assert";
@@ -210,7 +210,7 @@ export class TextExtractor {
         );
       }
 
-      newContent = migrateLegacyCallouts(newContent);
+      newContent = migrateCallouts(newContent);
 
       return newContent;
     });

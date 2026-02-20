@@ -1,7 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { formatCalloutToInsert, insertWithBlankLines } from "./callout";
+import {
+  formatCalloutToInsert,
+  insertWithBlankLines,
+  migrateCallouts,
+} from "./callout";
 
 describe("callout utils", () => {
+  describe("migrateLegacyCallouts", () => {
+    it("migrates legacy callout headers", () => {
+      const content = "> [!summary]- Extracted text\n> content";
+      expect(migrateCallouts(content)).toBe(
+        "> [!ocr-extractor]- Extracted text\n> content",
+      );
+    });
+
+    it("updates callout headers to current language", () => {
+      const content = "> [!ocr-extractor]- Texto extraído\n> content";
+      expect(migrateCallouts(content)).toBe(
+        "> [!ocr-extractor]- Extracted text\n> content",
+      );
+    });
+
+    it("correctly updates headers for nested callouts", () => {
+      const content = "> > [!ocr-extractor]- Texto extraído\n> > content";
+      expect(migrateCallouts(content)).toBe(
+        "> > [!ocr-extractor]- Extracted text\n> > content",
+      );
+    });
+  });
+
   describe("insertWithBlankLines", () => {
     it("inserts text with blank lines before and after", () => {
       const result = insertWithBlankLines("beforeafter", "text", 6);
