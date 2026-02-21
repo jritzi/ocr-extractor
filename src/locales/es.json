@@ -19,8 +19,8 @@
     "testTooltip": "Probar comando con una imagen de ejemplo",
     "convertPdfs": "Convertir archivos PDF a imágenes",
     "convertPdfsDesc": "Convertir las páginas del PDF a imágenes PNG antes de procesarlas",
-    "useEmbeddedPdfText": "Usar texto incrustado en PDF",
-    "useEmbeddedPdfTextDesc": "Cuando un PDF ya contiene texto incrustado, úsalo en lugar de extraerlo con OCR"
+    "useEmbeddedPdfText": "Usar texto de PDF incrustado",
+    "useEmbeddedPdfTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo en lugar de extraerlo con OCR"
   },
   "services": {
     "tesseract": "Tesseract",
@@ -52,8 +52,8 @@
     "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",
     "testingCommand": "Probando comando personalizado...",
     "testSucceeded": "Prueba exitosa",
-    "testNoOutput": "El comando se ejecutó correctamente pero no se produjo ningún archivo de salida",
-    "testOutputMismatch": "El comando se ejecutó correctamente pero la salida (\"{{actual}}\") no coincide con la esperada (\"{{expected}}\").",
+    "testNoOutput": "El comando se ejecutó correctamente, pero no se generó ningún archivo de salida",
+    "testOutputMismatch": "El comando se ejecutó correctamente, pero la salida («{{actual}}») no coincide con lo esperado («{{expected}}»).",
     "testFailed": "Prueba fallida: {{message}}",
     "testFailedUnexpected": "Prueba fallida: error inesperado"
   },
