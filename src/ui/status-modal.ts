@@ -17,7 +17,7 @@ export class StatusModal extends Modal {
     private onModalClose: () => void,
   ) {
     super(app);
-    this.setTitle(t("modals.ocrExtractor"));
+    this.setTitle(t("pluginName"));
     this.modalEl.addClass("is-loading");
 
     this.messageEl = this.contentEl.createEl("p", {

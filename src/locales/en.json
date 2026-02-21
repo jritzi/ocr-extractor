@@ -1,11 +1,11 @@
 {
+  "pluginName": "OCR Extractor",
   "callouts": {
     "title": "Extracted text"
   },
   "commands": {
-    "extractCurrentNote": "Extract text from attachments in current note",
-    "extractAllNotes": "Extract text from attachments in all notes",
-    "extractText": "Extract text"
+    "extractCurrentNote": "Extract text in current note",
+    "extractAllNotes": "Extract text in all notes"
   },
   "settings": {
     "ocrService": "OCR service",
@@ -28,7 +28,6 @@
     "customCommand": "Custom command"
   },
   "modals": {
-    "ocrExtractor": "OCR Extractor",
     "extractingText": "Extracting text from attachments...",
     "cancel": "Cancel",
     "ok": "OK",

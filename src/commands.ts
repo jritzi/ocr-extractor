@@ -1,4 +1,4 @@
-import { Menu } from "obsidian";
+import { Menu, Platform } from "obsidian";
 import OcrExtractorPlugin from "../main";
 import { t } from "./i18n";
 
@@ -41,7 +41,7 @@ function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
 }
 
 function addRibbonIcon(plugin: OcrExtractorPlugin) {
-  plugin.addRibbonIcon("scan-text", t("commands.extractText"), (event) => {
+  plugin.addRibbonIcon("scan-text", t("pluginName"), (event) => {
     const menu = new Menu();
 
     if (!(event.currentTarget instanceof Element)) {
@@ -55,12 +55,14 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
         .onClick(() => plugin.extractor.processActiveFile()),
     );
 
-    menu.addItem((item) =>
-      item
-        .setTitle(t("commands.extractAllNotes"))
-        .setDisabled(!plugin.extractor.canProcessAllFiles())
-        .onClick(() => plugin.extractor.processAllFiles()),
-    );
+    if (Platform.isDesktop) {
+      menu.addItem((item) =>
+        item
+          .setTitle(t("commands.extractAllNotes"))
+          .setDisabled(!plugin.extractor.canProcessAllFiles())
+          .onClick(() => plugin.extractor.processAllFiles()),
+      );
+    }
 
     const rect = event.currentTarget.getBoundingClientRect();
     menu.showAtPosition({ x: rect.right + 2, y: rect.top + 7 });
