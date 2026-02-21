@@ -1,6 +1,11 @@
 import { getLanguage, Plugin } from "obsidian";
 import { SettingTab } from "./src/ui/setting-tab";
-import { DEFAULT_SETTINGS, PluginSettings } from "./src/settings";
+import {
+  DEFAULT_SETTINGS,
+  migrateSettings,
+  PluginSettings,
+  StoredSettings,
+} from "./src/settings";
 import { setLanguage } from "./src/i18n";
 import { TesseractService } from "./src/services/tesseract-service";
 import { MistralService } from "./src/services/mistral-service";
@@ -51,13 +56,15 @@ export default class OcrExtractorPlugin extends Plugin {
   }
 
   private async loadSettings() {
-    const settingsData = (await this.loadData()) as PluginSettings;
-    this.settings = { ...DEFAULT_SETTINGS, ...settingsData };
+    const data = (await this.loadData()) as StoredSettings | null;
+    const oldSettings = data ?? {};
+    const newSettings = migrateSettings(oldSettings, this.app.secretStorage);
 
-    // Upgrade logic for users before ocrService was added
-    if (settingsData?.mistralApiKey && !settingsData.ocrService) {
-      this.settings.ocrService = "mistral";
-      await this.saveData(this.settings);
+    if (newSettings !== oldSettings) {
+      await this.saveData(newSettings);
     }
+
+    // Apply defaults last to avoid interfering with migrations
+    this.settings = { ...DEFAULT_SETTINGS, ...newSettings };
   }
 }

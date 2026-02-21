@@ -34,7 +34,7 @@ export class TextExtractor {
     }
 
     const ServiceClass = OCR_SERVICES[serviceName];
-    this.service = new ServiceClass(plugin.settings);
+    this.service = new ServiceClass(plugin.settings, plugin.app.secretStorage);
   }
 
   canProcessActiveFile() {

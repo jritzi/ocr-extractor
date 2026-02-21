@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports, import/no-nodejs-modules -- Node modules are only loaded (with require()) when Platform.isDesktop */
 
-import type { SettingGroup } from "obsidian";
+import type { SecretStorage, SettingGroup } from "obsidian";
 import { Platform } from "obsidian";
 import { OcrService, UserFacingError } from "./ocr-service";
 import type OcrExtractorPlugin from "../../main";
@@ -28,8 +28,8 @@ export class CustomCommandService extends OcrService {
     opts: import("child_process").ExecOptions,
   ) => Promise<{ stdout: string; stderr: string }>;
 
-  constructor(settings: PluginSettings) {
-    super(settings);
+  constructor(settings: PluginSettings, secretStorage: SecretStorage) {
+    super(settings, secretStorage);
     assert(Platform.isDesktop, "Service only instantiated on desktop");
 
     this.fs = require("fs/promises") as typeof this.fs;
@@ -46,11 +46,7 @@ export class CustomCommandService extends OcrService {
     return t("services.customCommand");
   }
 
-  static addSettings(
-    group: SettingGroup,
-    settings: PluginSettings,
-    saveSetting: OcrExtractorPlugin["saveSetting"],
-  ) {
+  static addSettings(group: SettingGroup, plugin: OcrExtractorPlugin) {
     group.addSetting((setting) => {
       setting
         .setName(t("settings.command"))
@@ -58,15 +54,17 @@ export class CustomCommandService extends OcrService {
         .addTextArea((text) =>
           text
             .setPlaceholder(t("settings.commandPlaceholder"))
-            .setValue(settings.customCommand)
-            .onChange((value) => void saveSetting("customCommand", value)),
+            .setValue(plugin.settings.customCommand)
+            .onChange(
+              (value) => void plugin.saveSetting("customCommand", value),
+            ),
         )
         .addButton((button) =>
           button
             .setButtonText(t("settings.test"))
             .setTooltip(t("settings.testTooltip"))
             .setDisabled(!Platform.isDesktop)
-            .onClick(() => void this.testCommand(settings)),
+            .onClick(() => void this.testCommand(plugin)),
         );
     });
 
@@ -76,17 +74,18 @@ export class CustomCommandService extends OcrService {
         .setDesc(t("settings.convertPdfsDesc"))
         .addToggle((toggle) =>
           toggle
-            .setValue(settings.customCommandConvertPdfs)
+            .setValue(plugin.settings.customCommandConvertPdfs)
             .onChange(
-              (value) => void saveSetting("customCommandConvertPdfs", value),
+              (value) =>
+                void plugin.saveSetting("customCommandConvertPdfs", value),
             ),
         );
     });
   }
 
-  private static async testCommand(settings: PluginSettings) {
+  private static async testCommand({ settings, app }: OcrExtractorPlugin) {
     const testPng = await this.createTestImage();
-    const service = new CustomCommandService(settings);
+    const service = new CustomCommandService(settings, app.secretStorage);
     const loadingNotice = showLoadingNotice(t("notices.testingCommand"));
 
     try {

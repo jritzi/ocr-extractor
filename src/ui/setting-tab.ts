@@ -21,11 +21,7 @@ export class SettingTab extends PluginSettingTab {
     this.addServiceDropdown(group);
 
     const ServiceClass = OCR_SERVICES[this.plugin.settings.ocrService];
-    ServiceClass.addSettings(
-      group,
-      this.plugin.settings,
-      this.plugin.saveSetting.bind(this.plugin),
-    );
+    ServiceClass.addSettings(group, this.plugin);
 
     this.addGeneralSettings(group);
   }

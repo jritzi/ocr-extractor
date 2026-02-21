@@ -1,5 +1,5 @@
 import { fileTypeFromBuffer } from "file-type";
-import type { SettingGroup } from "obsidian";
+import type { SecretStorage, SettingGroup } from "obsidian";
 import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
@@ -14,7 +14,10 @@ export class UserFacingError extends Error {}
 const PAGE_SEPARATOR = "\n\n---\n\n";
 
 export abstract class OcrService {
-  constructor(protected settings: PluginSettings) {}
+  constructor(
+    protected settings: PluginSettings,
+    protected secretStorage: SecretStorage,
+  ) {}
 
   /** The label shown on the setting tab */
   static getLabel(): string {
@@ -22,11 +25,7 @@ export abstract class OcrService {
   }
 
   /** Add service-specific settings to the settings tab */
-  static addSettings(
-    _group: SettingGroup,
-    _settings: PluginSettings,
-    _saveSetting: OcrExtractorPlugin["saveSetting"],
-  ) {}
+  static addSettings(_group: SettingGroup, _plugin: OcrExtractorPlugin) {}
 
   /**
    * Main entry point called by the plugin to extract text. Subclasses should

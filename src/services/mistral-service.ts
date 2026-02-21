@@ -1,4 +1,5 @@
-import type { SettingGroup } from "obsidian";
+import type { SecretStorage, SettingGroup } from "obsidian";
+import { SecretComponent } from "obsidian";
 import { Mistral } from "@mistralai/mistralai";
 import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
@@ -13,27 +14,26 @@ import { t } from "../i18n";
 export class MistralService extends OcrService {
   private mistral: Mistral;
 
-  constructor(settings: PluginSettings) {
-    super(settings);
-    this.mistral = new Mistral({ apiKey: settings.mistralApiKey });
+  constructor(settings: PluginSettings, secretStorage: SecretStorage) {
+    super(settings, secretStorage);
+    const apiKey = secretStorage.getSecret(settings.mistralSecret) ?? "";
+    this.mistral = new Mistral({ apiKey });
   }
 
   static getLabel() {
     return t("services.mistralOcr");
   }
 
-  static addSettings(
-    group: SettingGroup,
-    settings: PluginSettings,
-    saveSetting: OcrExtractorPlugin["saveSetting"],
-  ) {
+  static addSettings(group: SettingGroup, plugin: OcrExtractorPlugin) {
     group.addSetting((setting) => {
       setting
         .setName(t("settings.mistralApiKey"))
-        .addText((text) =>
-          text
-            .setValue(settings.mistralApiKey)
-            .onChange((value) => void saveSetting("mistralApiKey", value)),
+        .addComponent((el) =>
+          new SecretComponent(plugin.app, el)
+            .setValue(plugin.settings.mistralSecret)
+            .onChange(
+              (value) => void plugin.saveSetting("mistralSecret", value),
+            ),
         );
     });
   }
