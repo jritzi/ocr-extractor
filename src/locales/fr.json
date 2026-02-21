@@ -1,11 +1,11 @@
 {
+  "pluginName": "OCR Extractor",
   "callouts": {
     "title": "Texte extrait"
   },
   "commands": {
     "extractCurrentNote": "Extraire le texte des pièces jointes et l’insérer dans la note actuelle",
-    "extractAllNotes": "Extraire le texte des pièces jointes et l’insérer dans toutes les notes",
-    "extractText": "Extraire le texte"
+    "extractAllNotes": "Extraire le texte des pièces jointes et l’insérer dans toutes les notes"
   },
   "settings": {
     "ocrService": "Service OCR",
@@ -28,7 +28,6 @@
     "customCommand": "Commande personnalisée"
   },
   "modals": {
-    "ocrExtractor": "OCR Extractor",
     "extractingText": "Extraction du texte des pièces jointes…",
     "cancel": "Annuler",
     "ok": "OK",

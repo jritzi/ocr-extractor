@@ -1,11 +1,11 @@
 {
+  "pluginName": "OCR Extractor",
   "callouts": {
     "title": "Texto extraído"
   },
   "commands": {
     "extractCurrentNote": "Extraer texto de los archivos adjuntos en la nota actual",
-    "extractAllNotes": "Extraer texto de los archivos adjuntos en todas las notas",
-    "extractText": "Extraer texto"
+    "extractAllNotes": "Extraer texto de los archivos adjuntos en todas las notas"
   },
   "settings": {
     "ocrService": "Servicio OCR",
@@ -28,7 +28,6 @@
     "customCommand": "Comando personalizado"
   },
   "modals": {
-    "ocrExtractor": "OCR Extractor",
     "extractingText": "Extrayendo texto de los archivos adjuntos...",
     "cancel": "Cancelar",
     "ok": "ACEPTAR",

@@ -1,11 +1,11 @@
 {
+  "pluginName": "OCR Extractor",
   "callouts": {
     "title": "提取的文本"
   },
   "commands": {
     "extractCurrentNote": "从当前笔记的附件中提取文本",
-    "extractAllNotes": "从所有笔记的附件中提取文本",
-    "extractText": "提取文本"
+    "extractAllNotes": "从所有笔记的附件中提取文本"
   },
   "settings": {
     "ocrService": "OCR 服务",
@@ -28,7 +28,6 @@
     "customCommand": "自定义命令"
   },
   "modals": {
-    "ocrExtractor": "OCR Extractor",
     "extractingText": "正在提取附件中的文本…",
     "cancel": "取消",
     "ok": "确定",
