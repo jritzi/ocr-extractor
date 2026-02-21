@@ -4,8 +4,8 @@
     "title": "Texto extraído"
   },
   "commands": {
-    "extractCurrentNote": "Extract text in current note",
-    "extractAllNotes": "Extract text in all notes"
+    "extractCurrentNote": "Extraer texto de la nota actual",
+    "extractAllNotes": "Extraer texto de todas las notas"
   },
   "settings": {
     "ocrService": "Servicio OCR",
