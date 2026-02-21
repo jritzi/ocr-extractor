@@ -1,0 +1,68 @@
+{
+  "callouts": {
+    "title": "Texte extrait"
+  },
+  "commands": {
+    "extractCurrentNote": "Extraire le texte des pièces jointes et l’insérer dans la note actuelle",
+    "extractAllNotes": "Extraire le texte des pièces jointes et l’insérer dans toutes les notes",
+    "extractText": "Extraire le texte"
+  },
+  "settings": {
+    "ocrService": "Service OCR",
+    "ocrServiceDesc": "Pour plus d’informations, consultez la documentation :",
+    "ocrServiceDocLink": "Services OCR",
+    "mistralApiKey": "Clé API Mistral",
+    "command": "Commande",
+    "commandDesc": "Commande shell à exécuter (uniquement sur ordinateur, Tesseract sera utilisé à la place sur mobile), en utilisant {input} et {output} pour les chemins d’accès aux fichiers",
+    "commandPlaceholder": "command.sh -i {input} -o {output}",
+    "test": "Tester",
+    "testTooltip": "Tester la commande en utilisant un exemple d’image",
+    "convertPdfs": "Convertir les PDF en images",
+    "convertPdfsDesc": "Convertir les pages PDF en images PNG avant le traitement",
+    "useEmbeddedPdfText": "Utiliser le texte intégré du fichier PDF",
+    "useEmbeddedPdfTextDesc": "Lorsqu’un PDF contient déjà du texte intégré, utilisez-le au lieu de l’extraire en utilisant la reconnaissance optique de caractères (OCR)"
+  },
+  "services": {
+    "tesseract": "Tesseract",
+    "mistralOcr": "Mistral OCR",
+    "customCommand": "Commande personnalisée"
+  },
+  "modals": {
+    "ocrExtractor": "OCR Extractor",
+    "extractingText": "Extraction du texte des pièces jointes…",
+    "cancel": "Annuler",
+    "ok": "OK",
+    "extractedWarning_one": "Texte extrait de {{count}} pièce jointe. Les éléments suivants ont été ignorés :",
+    "extractedWarning_other": "Texte extrait de {{count}} pièces jointes. Les éléments suivants ont été ignorés :",
+    "extractAllTitle": "Extraire le texte de toutes les notes ?",
+    "extractAllWarning": "Assurez-vous de sauvegarder votre coffre-fort avant d’extraire le texte des pièces jointes et de l’insérer dans toutes les notes.",
+    "extract": "Extraire"
+  },
+  "status": {
+    "extractingNote": "Extraction du texte à insérer dans la note {{current}}/{{total}}",
+    "canceling": "Annulation en cours",
+    "cancel": "Annuler"
+  },
+  "notices": {
+    "cancelled": "Extraction de texte annulée",
+    "completeExtracted": "Extraction du texte terminée. Extraits : {{count}}",
+    "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
+    "mobileServiceFallback": "Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé à la place",
+    "mobileServiceFallbackSetting": "Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract sera utilisé à la place",
+    "fileChanged": "Le fichier a été modifié pendant le traitement et a donc été ignoré ({{path}})",
+    "testingCommand": "Test de la commande personnalisée...",
+    "testSucceeded": "Test effectué avec succès",
+    "testNoOutput": "La commande a été exécutée avec succès, mais aucun fichier de sortie n’a été produit",
+    "testOutputMismatch": "La commande a été exécutée avec succès, mais la sortie (« {{actual}} ») ne correspond pas à la sortie attendue (« {{expected}} »).",
+    "testFailed": "Le test a échoué : {{message}}",
+    "testFailedUnexpected": "Le test a échoué : erreur inattendue"
+  },
+  "errors": {
+    "unauthorized": "Action non autorisée, vérifiez votre clé API",
+    "noCustomCommand": "Aucune commande personnalisée configurée",
+    "commandTimeout": "Le délai d’attente de la commande personnalisée a expiré",
+    "commandFailed": "La commande personnalisée a échoué avec le code de sortie {{code}} (voir la console pour plus de détails)",
+    "extractionFailed": "L’extraction du texte a échoué",
+    "error": "Erreur : {{message}}"
+  }
+}
