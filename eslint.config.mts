@@ -10,9 +10,16 @@ import noUnsanitized from "eslint-plugin-no-unsanitized";
 export default defineConfig([
   globalIgnores(["main.js", "version-bump.mjs", "**/*.json"]),
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
+  noUnsanitized.configs.recommended,
+  eslintConfigPrettier,
+  // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing
+  ...obsidianmd.configs.recommendedWithLocalesEn,
+
   {
     files: ["**/*.{ts,mts,cts}"],
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked],
+    plugins: { obsidianmd },
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
@@ -25,19 +32,8 @@ export default defineConfig([
       "@typescript-eslint/member-ordering": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { argsIgnorePattern: "^_" },
+        { argsIgnorePattern: "^_", ignoreRestSiblings: true },
       ],
-    },
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
-  noUnsanitized.configs.recommended,
-  eslintConfigPrettier,
-
-  // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing
-  ...obsidianmd.configs.recommendedWithLocalesEn,
-  {
-    plugins: { obsidianmd },
-    rules: {
       "obsidianmd/ui/sentence-case": [
         "error",
         {
