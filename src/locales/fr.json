@@ -4,8 +4,8 @@
     "title": "Texte extrait"
   },
   "commands": {
-    "extractCurrentNote": "Extraire le texte des pièces jointes et l’insérer dans la note actuelle",
-    "extractAllNotes": "Extraire le texte des pièces jointes et l’insérer dans toutes les notes"
+    "extractCurrentNote": "Extraire le texte de la note actuelle",
+    "extractAllNotes": "Extraire le texte de toutes les notes"
   },
   "settings": {
     "ocrService": "Service OCR",
