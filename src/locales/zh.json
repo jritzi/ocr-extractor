@@ -4,8 +4,8 @@
     "title": "提取的文本"
   },
   "commands": {
-    "extractCurrentNote": "从当前笔记的附件中提取文本",
-    "extractAllNotes": "从所有笔记的附件中提取文本"
+    "extractCurrentNote": "Extract text in current note",
+    "extractAllNotes": "Extract text in all notes"
   },
   "settings": {
     "ocrService": "OCR 服务",
