@@ -7,7 +7,7 @@ export interface PluginSettings {
   mistralSecret: string;
   customCommand: string;
   customCommandConvertPdfs: boolean;
-  useEmbeddedPdfText: boolean;
+  useEmbeddedText: boolean;
 }
 
 /** Old settings from previous versions */
@@ -23,7 +23,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   mistralSecret: "",
   customCommand: "",
   customCommandConvertPdfs: false,
-  useEmbeddedPdfText: false,
+  useEmbeddedText: false,
 };
 
 /**

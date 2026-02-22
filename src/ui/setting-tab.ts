@@ -66,14 +66,13 @@ export class SettingTab extends PluginSettingTab {
   private addGeneralSettings(group: SettingGroup) {
     group.addSetting((setting) => {
       setting
-        .setName(t("settings.useEmbeddedPdfText"))
-        .setDesc(t("settings.useEmbeddedPdfTextDesc"))
+        .setName(t("settings.useEmbeddedText"))
+        .setDesc(t("settings.useEmbeddedTextDesc"))
         .addToggle((toggle) =>
           toggle
-            .setValue(this.plugin.settings.useEmbeddedPdfText)
+            .setValue(this.plugin.settings.useEmbeddedText)
             .onChange(
-              (value) =>
-                void this.plugin.saveSetting("useEmbeddedPdfText", value),
+              (value) => void this.plugin.saveSetting("useEmbeddedText", value),
             ),
         );
     });

@@ -19,8 +19,8 @@
     "testTooltip": "Test command with a sample image",
     "convertPdfs": "Convert PDFs to images",
     "convertPdfsDesc": "Convert PDF pages to PNG images before processing",
-    "useEmbeddedPdfText": "Use embedded PDF text",
-    "useEmbeddedPdfTextDesc": "When a PDF already contains embedded text, use it instead of extracting with OCR"
+    "useEmbeddedText": "Use embedded PDF text",
+    "useEmbeddedTextDesc": "When a PDF already contains embedded text, use it instead of extracting with OCR"
   },
   "services": {
     "tesseract": "Tesseract",

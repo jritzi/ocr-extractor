@@ -19,8 +19,8 @@
     "testTooltip": "使用示例图片测试命令",
     "convertPdfs": "PDF 转图片",
     "convertPdfsDesc": "在处理前将 PDF 页面转换为 PNG 图片",
-    "useEmbeddedPdfText": "使用嵌入的 PDF 文本",
-    "useEmbeddedPdfTextDesc": "当 PDF 已包含嵌入文本时，使用该文本而非通过 OCR 提取"
+    "useEmbeddedText": "使用嵌入的 PDF 文本",
+    "useEmbeddedTextDesc": "当 PDF 已包含嵌入文本时，使用该文本而非通过 OCR 提取"
   },
   "services": {
     "tesseract": "Tesseract",
