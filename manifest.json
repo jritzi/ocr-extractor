@@ -1,8 +1,8 @@
 {
   "id": "ocr-extractor",
   "name": "OCR Extractor",
-  "version": "1.3.0",
-  "minAppVersion": "1.11.0",
+  "version": "2.0.0",
+  "minAppVersion": "1.11.4",
   "description": "Extract text from documents, images, etc. and store it as Markdown in your notes.",
   "author": "Johnathan Ritzi",
   "authorUrl": "https://github.com/jritzi",
