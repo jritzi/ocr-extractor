@@ -20,7 +20,7 @@
     "convertPdfs": "Convertir les PDF en images",
     "convertPdfsDesc": "Convertir les pages PDF en images PNG avant le traitement",
     "useEmbeddedText": "Utiliser le texte intégré du fichier PDF",
-    "useEmbeddedTextDesc": "Lorsqu’un PDF contient déjà du texte intégré, utilisez-le au lieu de l’extraire en utilisant la reconnaissance optique de caractères (OCR)"
+    "useEmbeddedTextDesc": "Lorsqu'un PDF contient déjà du texte intégré, utilisez-le au lieu de l'extraire avec l'OCR"
   },
   "services": {
     "tesseract": "Tesseract",
