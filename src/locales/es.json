@@ -38,7 +38,7 @@
     "extract": "Extraer"
   },
   "status": {
-    "extractingNote": "Extrayendo texto para la nota {{current}}/{{total}}",
+    "extractingNote": "Extrayendo texto de la nota {{current}}/{{total}}",
     "canceling": "Cancelando",
     "cancel": "Cancelar"
   },
