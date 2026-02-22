@@ -19,8 +19,8 @@
     "testTooltip": "Probar comando con una imagen de ejemplo",
     "convertPdfs": "Convertir archivos PDF a imágenes",
     "convertPdfsDesc": "Convertir las páginas del PDF a imágenes PNG antes de procesarlas",
-    "useEmbeddedPdfText": "Usar texto de PDF incrustado",
-    "useEmbeddedPdfTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo en lugar de extraerlo con OCR"
+    "useEmbeddedText": "Usar texto de PDF incrustado",
+    "useEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo en lugar de extraerlo con OCR"
   },
   "services": {
     "tesseract": "Tesseract",

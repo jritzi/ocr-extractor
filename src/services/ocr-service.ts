@@ -40,7 +40,7 @@ export abstract class OcrService {
       return null;
     }
 
-    if (isPdf(mimeType) && this.settings.useEmbeddedPdfText) {
+    if (isPdf(mimeType) && this.settings.useEmbeddedText) {
       const result = this.joinPages(await getPdfTextContent(data));
       if (result) {
         return result;

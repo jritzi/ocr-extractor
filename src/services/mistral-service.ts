@@ -12,12 +12,8 @@ import { PluginSettings } from "../settings";
 import { t } from "../i18n";
 
 export class MistralService extends OcrService {
-  private mistral: Mistral;
-
   constructor(settings: PluginSettings, secretStorage: SecretStorage) {
     super(settings, secretStorage);
-    const apiKey = secretStorage.getSecret(settings.mistralSecret) ?? "";
-    this.mistral = new Mistral({ apiKey });
   }
 
   static getLabel() {
@@ -47,6 +43,10 @@ export class MistralService extends OcrService {
     mimeType: string,
     filename: string,
   ) {
+    const apiKey =
+      this.secretStorage.getSecret(this.settings.mistralSecret) ?? "";
+    const mistral = new Mistral({ apiKey });
+
     const isImage = mimeType.startsWith("image/");
     const url = toDataUrl(data, mimeType);
 
@@ -60,7 +60,7 @@ export class MistralService extends OcrService {
     try {
       const ocrResponse = await withRetries(
         () =>
-          this.mistral.ocr.process({
+          mistral.ocr.process({
             model: "mistral-ocr-latest",
             document,
             // Do not extract images

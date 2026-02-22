@@ -45,7 +45,9 @@ async function mapPdfPages<T>(
   callback: (page: PDFPageProxy) => Promise<T>,
 ) {
   const pdf = await getDocument({
-    data,
+    // Copy data before passing to pdfjs (it detaches the original, preventing
+    // the caller from using `data` later)
+    data: new Uint8Array(data),
     useWorkerFetch: false,
     isEvalSupported: false,
     disableAutoFetch: true,
