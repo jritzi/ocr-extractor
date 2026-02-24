@@ -39,14 +39,23 @@ export class TextExtractor {
 
   canProcessActiveFile() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    return view?.file && this.plugin.statusManager.isIdle();
+    return view?.file && this.canProcessSingleFile();
   }
 
   processActiveFile() {
     assert(this.canProcessActiveFile(), "Command disabled when can't process");
 
     const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
-    const file = view.file!;
+    this.processSingleFile(view.file!);
+  }
+
+  canProcessSingleFile() {
+    return this.plugin.statusManager.isIdle();
+  }
+
+  processSingleFile(file: TFile) {
+    assert(this.canProcessSingleFile(), "Callers check before processing");
+
     this.plugin.statusManager.setProcessingSingleNote();
     void this.processFiles([file]);
   }
