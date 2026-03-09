@@ -18,6 +18,7 @@ import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileServiceFallback } from "./settings";
+import { resolveEmbedPath } from "./utils/file";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 import { t } from "./i18n";
 
@@ -39,7 +40,7 @@ export class TextExtractor {
 
   canProcessActiveFile() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    return view?.file && this.canProcessSingleFile();
+    return !!view?.file && this.canProcessSingleFile();
   }
 
   processActiveFile() {
@@ -231,11 +232,11 @@ export class TextExtractor {
   }
 
   private getEmbedFile(embed: EmbedCache, file: TFile) {
-    const path = this.app.metadataCache.getFirstLinkpathDest(
-      getLinkpath(embed.link),
+    const path = resolveEmbedPath(
+      this.app.metadataCache,
+      embed.link,
       file.path,
-    )?.path;
-
+    );
     return path ? this.app.vault.getFileByPath(path) : null;
   }
 

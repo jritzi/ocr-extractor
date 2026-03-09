@@ -12,7 +12,7 @@ import { MistralService } from "./src/services/mistral-service";
 import { CustomCommandService } from "./src/services/custom-command-service";
 import { TextExtractor } from "./src/text-extractor";
 import { addCommands } from "./src/commands";
-import { registerEvents } from "./src/events";
+import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
 
 export const OCR_SERVICES = {
@@ -37,7 +37,7 @@ export default class OcrExtractorPlugin extends Plugin {
     this.extractor = new TextExtractor(this);
 
     addCommands(this);
-    registerEvents(this);
+    registerAutoExtractEvents(this);
   }
 
   onunload() {
