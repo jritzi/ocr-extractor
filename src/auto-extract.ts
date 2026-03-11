@@ -1,6 +1,6 @@
 import OcrExtractorPlugin from "../main";
 import { showNotice } from "./utils/notice";
-import { isObsidianNative, isMarkdown, resolveEmbedPath } from "./utils/file";
+import { isMarkdown, isObsidianNative, resolveEmbedPath } from "./utils/file";
 import { t } from "./i18n";
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
@@ -50,7 +50,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
 
   plugin.registerEvent(
     plugin.app.metadataCache.on("changed", (file) => {
-      if (!plugin.settings.autoExtractAttachments || !isMarkdown(file)) return;
+      if (!isMarkdown(file)) return;
 
       const prevCount = embedCounts.get(file.path);
 
@@ -59,6 +59,10 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
 
       const newCount = getEmbedCount(file.path);
       embedCounts.set(file.path, newCount);
+
+      // Check only at the last minute to ensure we keep tracking (but not
+      // extracting) even if the setting is off
+      if (!plugin.settings.autoExtractAttachments) return;
 
       if (newCount > prevCount) {
         if (!plugin.extractor.canProcessSingleFile()) {
