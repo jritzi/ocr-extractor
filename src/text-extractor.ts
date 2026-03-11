@@ -1,5 +1,11 @@
 import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
-import { EmbedCache, MarkdownView, Platform, TFile } from "obsidian";
+import {
+  EmbedCache,
+  getLinkpath,
+  MarkdownView,
+  Platform,
+  TFile,
+} from "obsidian";
 import { OcrService, UserFacingError } from "./services/ocr-service";
 import {
   formatCalloutToInsert,
@@ -138,7 +144,7 @@ export class TextExtractor {
       const embedFile = this.getEmbedFile(embed, noteFile);
 
       if (!embedFile) {
-        warnSkipped(embed.link, "file not found");
+        warnSkipped(getLinkpath(embed.link), "file not found");
         skippedEmbeds.push(embed);
       } else if (isObsidianNative(embedFile)) {
         // Skip without warning
