@@ -1,6 +1,6 @@
 import OcrExtractorPlugin from "../main";
 import { showNotice } from "./utils/notice";
-import { isMarkdown, resolveEmbedPath } from "./utils/file";
+import { isObsidianNative, isMarkdown, resolveEmbedPath } from "./utils/file";
 import { t } from "./i18n";
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
@@ -18,11 +18,12 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
    */
   function getEmbedCount(filePath: string) {
     const cache = plugin.app.metadataCache.getCache(filePath);
-    return (cache?.embeds ?? []).filter(
-      (e) =>
-        resolveEmbedPath(plugin.app.metadataCache, e.link, filePath) !==
-        undefined,
-    ).length;
+    return (cache?.embeds ?? []).filter((e) => {
+      const path = resolveEmbedPath(plugin.app.metadataCache, e.link, filePath);
+      if (!path) return false;
+      const file = plugin.app.vault.getFileByPath(path);
+      return file && !isObsidianNative(file);
+    }).length;
   }
 
   plugin.registerEvent(

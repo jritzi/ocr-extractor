@@ -1,18 +1,13 @@
 import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
 import { EmbedCache, MarkdownView, Platform, TFile } from "obsidian";
 import { OcrService, UserFacingError } from "./services/ocr-service";
-import {
-  formatCalloutToInsert,
-  insertWithBlankLines,
-  isManagedCallout,
-  migrateCallouts,
-} from "./utils/callout";
+import { formatCalloutToInsert, insertWithBlankLines, isManagedCallout, migrateCallouts } from "./utils/callout";
 import { batchPromises, withCancellation } from "./utils/async";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileServiceFallback } from "./settings";
-import { isMarkdown, resolveEmbedPath } from "./utils/file";
+import { isObsidianNative, resolveEmbedPath } from "./utils/file";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 import { t } from "./i18n";
 
@@ -137,25 +132,23 @@ export class TextExtractor {
       let markdown: string | null = null;
       const embedFile = this.getEmbedFile(embed, noteFile);
 
-      if (embedFile) {
-        if (isMarkdown(embedFile)) {
-          // Note embedded in another note, skip without warning
-        } else {
-          const binary = await this.app.vault.readBinary(embedFile);
-          const data = new Uint8Array(binary);
-          markdown = await withCancellation(
-            this.service.processOcr(data, embedFile.name),
-            () => this.plugin.statusManager.isCanceling(),
-          );
-          if (markdown === null) {
-            skippedEmbeds.push(embed);
-          } else {
-            extractedCount++;
-          }
-        }
-      } else {
+      if (!embedFile) {
         warnSkipped(embed.link, "file not found");
         skippedEmbeds.push(embed);
+      } else if (isObsidianNative(embedFile)) {
+        // Skip without warning
+      } else {
+        const binary = await this.app.vault.readBinary(embedFile);
+        const data = new Uint8Array(binary);
+        markdown = await withCancellation(
+          this.service.processOcr(data, embedFile.name),
+          () => this.plugin.statusManager.isCanceling(),
+        );
+        if (markdown === null) {
+          skippedEmbeds.push(embed);
+        } else {
+          extractedCount++;
+        }
       }
 
       return [embed.original, markdown] as const;
