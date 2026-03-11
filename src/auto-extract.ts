@@ -6,8 +6,8 @@ import { t } from "./i18n";
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
   /**
    * Map of note paths to number of valid embeds in that file. Set when note
-   * opened, deleted when note deleted, and updated when note changed (if the
-   * count increases, auto-extract if configured).
+   * opened and updated on note change (if the count increases, auto-extract
+   * if configured).
    */
   const embedCounts = new Map<string, number>();
 
@@ -33,6 +33,15 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
   );
 
   plugin.registerEvent(
+    plugin.app.vault.on("rename", (file, oldPath) => {
+      const count = embedCounts.get(oldPath);
+      if (count === undefined) return;
+      embedCounts.set(file.path, count);
+      embedCounts.delete(oldPath);
+    }),
+  );
+
+  plugin.registerEvent(
     plugin.app.metadataCache.on("deleted", (file) => {
       embedCounts.delete(file.path);
     }),
@@ -43,11 +52,12 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       if (!plugin.settings.autoExtractAttachments || !isMarkdown(file)) return;
 
       const prevCount = embedCounts.get(file.path);
+
+      // Ignore if note has never been opened
+      if (prevCount === undefined) return;
+
       const newCount = getEmbedCount(file.path);
       embedCounts.set(file.path, newCount);
-
-      // If file changed without an open event, add to embed map but don't extract
-      if (prevCount === undefined) return;
 
       if (newCount > prevCount) {
         if (!plugin.extractor.canProcessSingleFile()) {

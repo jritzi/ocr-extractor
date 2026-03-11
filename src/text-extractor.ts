@@ -1,11 +1,5 @@
 import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
-import {
-  EmbedCache,
-  getLinkpath,
-  MarkdownView,
-  Platform,
-  TFile,
-} from "obsidian";
+import { EmbedCache, MarkdownView, Platform, TFile } from "obsidian";
 import { OcrService, UserFacingError } from "./services/ocr-service";
 import {
   formatCalloutToInsert,
@@ -18,7 +12,7 @@ import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileServiceFallback } from "./settings";
-import { resolveEmbedPath } from "./utils/file";
+import { isMarkdown, resolveEmbedPath } from "./utils/file";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 import { t } from "./i18n";
 
@@ -144,19 +138,23 @@ export class TextExtractor {
       const embedFile = this.getEmbedFile(embed, noteFile);
 
       if (embedFile) {
-        const binary = await this.app.vault.readBinary(embedFile);
-        const data = new Uint8Array(binary);
-        markdown = await withCancellation(
-          this.service.processOcr(data, embedFile.name),
-          () => this.plugin.statusManager.isCanceling(),
-        );
-        if (markdown === null) {
-          skippedEmbeds.push(embed);
+        if (isMarkdown(embedFile)) {
+          // Note embedded in another note, skip without warning
         } else {
-          extractedCount++;
+          const binary = await this.app.vault.readBinary(embedFile);
+          const data = new Uint8Array(binary);
+          markdown = await withCancellation(
+            this.service.processOcr(data, embedFile.name),
+            () => this.plugin.statusManager.isCanceling(),
+          );
+          if (markdown === null) {
+            skippedEmbeds.push(embed);
+          } else {
+            extractedCount++;
+          }
         }
       } else {
-        warnSkipped(getLinkpath(embed.link), "file not found");
+        warnSkipped(embed.link, "file not found");
         skippedEmbeds.push(embed);
       }
 
