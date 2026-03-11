@@ -1,7 +1,12 @@
 import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
 import { EmbedCache, MarkdownView, Platform, TFile } from "obsidian";
 import { OcrService, UserFacingError } from "./services/ocr-service";
-import { formatCalloutToInsert, insertWithBlankLines, isManagedCallout, migrateCallouts } from "./utils/callout";
+import {
+  formatCalloutToInsert,
+  insertWithBlankLines,
+  isManagedCallout,
+  migrateCallouts,
+} from "./utils/callout";
 import { batchPromises, withCancellation } from "./utils/async";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
