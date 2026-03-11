@@ -1,0 +1,1 @@
+- `en.json` is the only source locale file maintained in this repository. Translations for all other locales are managed via Crowdin and are added automatically after merging. Do not suggest adding missing translation keys to non-English locale files.
