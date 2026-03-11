@@ -8,6 +8,7 @@ export interface PluginSettings {
   customCommand: string;
   customCommandConvertPdfs: boolean;
   useEmbeddedText: boolean;
+  autoExtractAttachments: boolean;
 }
 
 /** Old settings from previous versions */
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   customCommand: "",
   customCommandConvertPdfs: false,
   useEmbeddedText: false,
+  autoExtractAttachments: false,
 };
 
 /**

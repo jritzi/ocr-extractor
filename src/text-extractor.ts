@@ -18,6 +18,7 @@ import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileServiceFallback } from "./settings";
+import { isObsidianNative, resolveEmbedPath } from "./utils/file";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 import { t } from "./i18n";
 
@@ -39,14 +40,23 @@ export class TextExtractor {
 
   canProcessActiveFile() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    return view?.file && this.plugin.statusManager.isIdle();
+    return !!view?.file && this.canProcessSingleFile();
   }
 
   processActiveFile() {
     assert(this.canProcessActiveFile(), "Command disabled when can't process");
 
     const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
-    const file = view.file!;
+    this.processSingleFile(view.file!);
+  }
+
+  canProcessSingleFile() {
+    return this.plugin.statusManager.isIdle();
+  }
+
+  processSingleFile(file: TFile) {
+    assert(this.canProcessSingleFile(), "Callers check before processing");
+
     this.plugin.statusManager.setProcessingSingleNote();
     void this.processFiles([file]);
   }
@@ -133,7 +143,12 @@ export class TextExtractor {
       let markdown: string | null = null;
       const embedFile = this.getEmbedFile(embed, noteFile);
 
-      if (embedFile) {
+      if (!embedFile) {
+        warnSkipped(getLinkpath(embed.link), "file not found");
+        skippedEmbeds.push(embed);
+      } else if (isObsidianNative(embedFile)) {
+        // Skip without warning
+      } else {
         const binary = await this.app.vault.readBinary(embedFile);
         const data = new Uint8Array(binary);
         markdown = await withCancellation(
@@ -145,9 +160,6 @@ export class TextExtractor {
         } else {
           extractedCount++;
         }
-      } else {
-        warnSkipped(getLinkpath(embed.link), "file not found");
-        skippedEmbeds.push(embed);
       }
 
       return [embed.original, markdown] as const;
@@ -222,11 +234,11 @@ export class TextExtractor {
   }
 
   private getEmbedFile(embed: EmbedCache, file: TFile) {
-    const path = this.app.metadataCache.getFirstLinkpathDest(
-      getLinkpath(embed.link),
+    const path = resolveEmbedPath(
+      this.app.metadataCache,
+      embed.link,
       file.path,
-    )?.path;
-
+    );
     return path ? this.app.vault.getFileByPath(path) : null;
   }
 

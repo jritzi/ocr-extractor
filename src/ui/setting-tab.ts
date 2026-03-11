@@ -76,5 +76,19 @@ export class SettingTab extends PluginSettingTab {
             ),
         );
     });
+
+    group.addSetting((setting) => {
+      setting
+        .setName(t("settings.autoExtractAttachments"))
+        .setDesc(t("settings.autoExtractAttachmentsDesc"))
+        .addToggle((toggle) =>
+          toggle
+            .setValue(this.plugin.settings.autoExtractAttachments)
+            .onChange(
+              (value) =>
+                void this.plugin.saveSetting("autoExtractAttachments", value),
+            ),
+        );
+    });
   }
 }
