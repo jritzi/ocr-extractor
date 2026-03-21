@@ -15,8 +15,8 @@ importers:
         specifier: ^21.3.3
         version: 21.3.3
       i18next:
-        specifier: ^25.8.19
-        version: 25.8.19(typescript@5.9.3)
+        specifier: ^25.8.20
+        version: 25.8.20(typescript@5.9.3)
       pdfjs-dist:
         specifier: 5.5.207
         version: 5.5.207
@@ -1441,8 +1441,8 @@ packages:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
 
-  i18next@25.8.19:
-    resolution: {integrity: sha512-Szzho7sXdv9Do6TvZIyYu+H+94xCrh60cq01DKcYH/gDjpcHimrQApUEQycxw37U7guwbTEJ07CWScGGbgs96w==}
+  i18next@25.8.20:
+    resolution: {integrity: sha512-xjo9+lbX/P1tQt3xpO2rfJiBppNfUnNIPKgCvNsTKsvTOCro1Qr/geXVg1N47j5ScOSaXAPq8ET93raK3Rr06A==}
     peerDependencies:
       typescript: ^5
     peerDependenciesMeta:
@@ -4123,7 +4123,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  i18next@25.8.19(typescript@5.9.3):
+  i18next@25.8.20(typescript@5.9.3):
     dependencies:
       '@babel/runtime': 7.29.2
     optionalDependencies:

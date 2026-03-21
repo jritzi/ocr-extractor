@@ -37,7 +37,7 @@
   "dependencies": {
     "@mistralai/mistralai": "^2.0.0",
     "file-type": "^21.3.3",
-    "i18next": "^25.8.19",
+    "i18next": "^25.8.20",
     "pdfjs-dist": "5.5.207",
     "tesseract.js": "^7.0.0"
   },
