@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@mistralai/mistralai':
-        specifier: ^1.10.0
-        version: 1.14.0
+        specifier: ^2.0.0
+        version: 2.0.0
       file-type:
         specifier: ^21.3.3
         version: 21.3.3
@@ -342,8 +342,8 @@ packages:
     peerDependencies:
       eslint: ^9
 
-  '@mistralai/mistralai@1.14.0':
-    resolution: {integrity: sha512-6zaj2f2LCd37cRpBvCgctkDbXtYBlAC85p+u4uU/726zjtsI+sdVH34qRzkm9iE3tRb8BoaiI0/P7TD+uMvLLQ==}
+  '@mistralai/mistralai@2.0.0':
+    resolution: {integrity: sha512-F39E/pXQqtnR1fuLWB5oQF7/dWi4bgki8wEfAobhZDrhOvZfDtSrM31or/KI1IORQerYoRxgt6ke5QnnSKIQwA==}
 
   '@napi-rs/canvas-android-arm64@0.1.97':
     resolution: {integrity: sha512-V1c/WVw+NzH8vk7ZK/O8/nyBSCQimU8sfMsB/9qeSvdkGKNU7+mxy/bIF0gTgeBFmHpj30S4E9WHMSrxXGQuVQ==}
@@ -2769,7 +2769,7 @@ snapshots:
       eslint-plugin-react: 7.37.3(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-security: 1.4.0
 
-  '@mistralai/mistralai@1.14.0':
+  '@mistralai/mistralai@2.0.0':
     dependencies:
       ws: 8.19.0
       zod: 4.3.6

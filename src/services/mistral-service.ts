@@ -1,7 +1,6 @@
 import type { SecretStorage, SettingGroup } from "obsidian";
 import { SecretComponent } from "obsidian";
 import { Mistral } from "@mistralai/mistralai";
-import { OCRRequest } from "@mistralai/mistralai/models/components";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
 import { UserFacingError, OcrService } from "./ocr-service";
 import { withRetries } from "../utils/async";
@@ -50,12 +49,9 @@ export class MistralService extends OcrService {
     const isImage = mimeType.startsWith("image/");
     const url = toDataUrl(data, mimeType);
 
-    let document: OCRRequest["document"];
-    if (isImage) {
-      document = { type: "image_url", imageUrl: url };
-    } else {
-      document = { type: "document_url", documentUrl: url };
-    }
+    const document = isImage
+      ? ({ type: "image_url", imageUrl: url } as const)
+      : ({ type: "document_url", documentUrl: url } as const);
 
     try {
       const ocrResponse = await withRetries(
