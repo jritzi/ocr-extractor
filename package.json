@@ -19,26 +19,26 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/node": "^24.10.13",
-    "esbuild": "0.27.3",
+    "esbuild": "0.27.4",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-no-unsanitized": "^4.1.4",
+    "eslint-plugin-no-unsanitized": "^4.1.5",
     "eslint-plugin-obsidianmd": "^0.1.9",
     "generate-license-file": "^4.1.1",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "jiti": "^2.5.1",
-    "obsidian": "^1.11.4",
+    "obsidian": "^1.12.3",
     "prettier": "3.8.1",
     "tslib": "2.8.1",
     "typescript": "5.9.3",
-    "typescript-eslint": "^8.43.0",
-    "vitest": "^4.0.16"
+    "typescript-eslint": "^8.57.1",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "@mistralai/mistralai": "^1.10.0",
-    "file-type": "^21.3.1",
-    "i18next": "^25.8.7",
-    "pdfjs-dist": "5.4.530",
+    "file-type": "^21.3.3",
+    "i18next": "^25.8.19",
+    "pdfjs-dist": "5.5.207",
     "tesseract.js": "^7.0.0"
   },
   "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be"
