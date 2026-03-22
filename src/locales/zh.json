@@ -20,7 +20,9 @@
     "convertPdfs": "PDF 转图片",
     "convertPdfsDesc": "在处理前将 PDF 页面转换为 PNG 图片",
     "useEmbeddedText": "使用嵌入的 PDF 文本",
-    "useEmbeddedTextDesc": "当 PDF 已包含嵌入文本时，使用该文本而非通过 OCR 提取"
+    "useEmbeddedTextDesc": "当 PDF 已包含嵌入文本时，使用该文本而非通过 OCR 提取",
+    "autoExtractAttachments": "自动提取附件",
+    "autoExtractAttachmentsDesc": "当新附件添加到笔记时自动提取文本"
   },
   "services": {
     "tesseract": "Tesseract",
@@ -46,6 +48,7 @@
     "cancelled": "已取消文本提取",
     "completeExtracted": "文本提取完成。已提取：{{count}}",
     "completeExtractedSkipped": "文本提取完成。已提取：{{extracted}}，已跳过：{{skipped}}",
+    "autoExtractSkippedWhileBusy": "提取正在进行中，新附件已跳过",
     "mobileServiceFallback": "移动端不支持自定义命令，正在改用 Tesseract",
     "mobileServiceFallbackSetting": "移动端不支持自定义命令，将改用 Tesseract",
     "fileChanged": "处理期间文件被更改，正在跳过 ({{path}})",
