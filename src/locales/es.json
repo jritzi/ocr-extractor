@@ -48,7 +48,7 @@
     "cancelled": "Extracción de texto cancelada",
     "completeExtracted": "Extracción de texto completada. Extraído: {{count}}",
     "completeExtractedSkipped": "Extracción de texto completada. Extraído: {{extracted}}, omitido: {{skipped}}",
-    "autoExtractSkippedWhileBusy": "Ya hay una extracción en curso, se imitió el nuevo archivo adjunto",
+    "autoExtractSkippedWhileBusy": "Ya hay una extracción en curso, se omitió el nuevo archivo adjunto",
     "mobileServiceFallback": "Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
     "mobileServiceFallbackSetting": "Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
     "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",
