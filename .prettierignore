@@ -1,3 +1,4 @@
 build
 coverage
 pnpm-lock.yaml
+src/locales/
