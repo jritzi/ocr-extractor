@@ -20,7 +20,9 @@
     "convertPdfs": "Convertir archivos PDF a imágenes",
     "convertPdfsDesc": "Convertir las páginas del PDF a imágenes PNG antes de procesarlas",
     "useEmbeddedText": "Usar texto de PDF incrustado",
-    "useEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo en lugar de extraerlo con OCR"
+    "useEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo en lugar de extraerlo con OCR",
+    "autoExtractAttachments": "Extraer archivos adjuntos automáticamente",
+    "autoExtractAttachmentsDesc": "Extrae texto automáticamente cuando se agrega un nuevo archivo adjunto a una nota"
   },
   "services": {
     "tesseract": "Tesseract",
@@ -38,7 +40,7 @@
     "extract": "Extraer"
   },
   "status": {
-    "extractingNote": "Extrayendo texto de la nota {{current}}/{{total}}",
+    "extractingNote": "Extrayendo texto en la nota {{current}}/{{total}}",
     "canceling": "Cancelando",
     "cancel": "Cancelar"
   },
@@ -46,6 +48,7 @@
     "cancelled": "Extracción de texto cancelada",
     "completeExtracted": "Extracción de texto completada. Extraído: {{count}}",
     "completeExtractedSkipped": "Extracción de texto completada. Extraído: {{extracted}}, omitido: {{skipped}}",
+    "autoExtractSkippedWhileBusy": "Ya hay una extracción en curso, nuevo archivo adjunto omitido",
     "mobileServiceFallback": "Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
     "mobileServiceFallbackSetting": "Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
     "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",

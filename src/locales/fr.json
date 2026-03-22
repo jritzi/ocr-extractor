@@ -20,7 +20,9 @@
     "convertPdfs": "Convertir les PDF en images",
     "convertPdfsDesc": "Convertir les pages PDF en images PNG avant le traitement",
     "useEmbeddedText": "Utiliser le texte intégré du fichier PDF",
-    "useEmbeddedTextDesc": "Lorsqu'un PDF contient déjà du texte intégré, utilisez-le au lieu de l'extraire avec l'OCR"
+    "useEmbeddedTextDesc": "Lorsqu'un PDF contient déjà du texte intégré, utilisez-le au lieu de l'extraire avec l'OCR",
+    "autoExtractAttachments": "Extraction automatique des pièces jointes",
+    "autoExtractAttachmentsDesc": "Extraire automatiquement le texte lorsqu’une nouvelle pièce jointe est ajoutée à une note"
   },
   "services": {
     "tesseract": "Tesseract",
@@ -38,7 +40,7 @@
     "extract": "Extraire"
   },
   "status": {
-    "extractingNote": "Extraction du texte à insérer dans la note {{current}}/{{total}}",
+    "extractingNote": "Extraction du texte dans la note {{current}}/{{total}}",
     "canceling": "Annulation en cours",
     "cancel": "Annuler"
   },
@@ -46,6 +48,7 @@
     "cancelled": "Extraction de texte annulée",
     "completeExtracted": "Extraction du texte terminée. Extraits : {{count}}",
     "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
+    "autoExtractSkippedWhileBusy": "Extraction déjà en cours, la nouvelle pièce jointe est ignorée",
     "mobileServiceFallback": "Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé à la place",
     "mobileServiceFallbackSetting": "Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract sera utilisé à la place",
     "fileChanged": "Le fichier a été modifié pendant le traitement et a donc été ignoré ({{path}})",
