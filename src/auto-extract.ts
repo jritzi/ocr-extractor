@@ -66,7 +66,11 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
 
       if (newCount > prevCount) {
         if (!plugin.extractor.canProcessSingleFile()) {
-          showNotice(t("notices.autoExtractSkippedWhileBusy"));
+          showNotice(
+            t("notices.autoExtractSkippedWhileBusy", {
+              pluginName: t("pluginName"),
+            }),
+          );
           return;
         }
         plugin.extractor.processSingleFile(file);
