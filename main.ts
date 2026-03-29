@@ -6,8 +6,7 @@ import {
   PluginSettings,
   StoredSettings,
 } from "./src/settings";
-import { setLanguage, t } from "./src/i18n";
-import { showErrorNotice } from "./src/utils/notice";
+import { setLanguage } from "./src/i18n";
 import { TesseractService } from "./src/services/tesseract-service";
 import { MistralService } from "./src/services/mistral-service";
 import { CustomCommandService } from "./src/services/custom-command-service";
@@ -59,19 +58,11 @@ export default class OcrExtractorPlugin extends Plugin {
   }
 
   private async loadSettings() {
-    let data: StoredSettings;
-    try {
-      data = ((await this.loadData()) ?? {}) as StoredSettings;
-    } catch {
-      showErrorNotice(
-        t("notices.invalidSettings", { pluginName: t("pluginName") }),
-      );
-      return;
-    }
+    const data = (await this.loadData()) as StoredSettings | null;
+    const oldSettings = data ?? {};
+    const newSettings = migrateSettings(oldSettings, this.app.secretStorage);
 
-    const newSettings = migrateSettings(data, this.app.secretStorage);
-
-    if (newSettings !== data) {
+    if (newSettings !== oldSettings) {
       await this.saveData(newSettings);
     }
 

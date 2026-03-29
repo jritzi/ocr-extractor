@@ -48,7 +48,6 @@
     "cancelled": "Cancelled text extraction",
     "completeExtracted": "Text extraction complete. Extracted: {{count}}",
     "completeExtractedSkipped": "Text extraction complete. Extracted: {{extracted}}, skipped: {{skipped}}",
-    "invalidSettings": "{{pluginName}}: Invalid settings file, using defaults",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",
     "mobileServiceFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
     "mobileServiceFallbackSetting": "{{pluginName}}: Custom commands are not available on mobile, Tesseract will be used instead",
