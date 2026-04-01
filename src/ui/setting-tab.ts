@@ -53,7 +53,11 @@ export class SettingTab extends PluginSettingTab {
                   ocrService: newOcrService,
                 })
               ) {
-                showNotice(t("notices.mobileServiceFallbackSetting"));
+                showNotice(
+                  t("notices.mobileServiceFallbackSetting", {
+                    pluginName: t("pluginName"),
+                  }),
+                );
               }
 
               void this.plugin.saveSetting("ocrService", newOcrService);

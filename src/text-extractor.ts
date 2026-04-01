@@ -81,7 +81,9 @@ export class TextExtractor {
 
   private async processFiles(files: TFile[]) {
     if (this.usingMobileServiceFallback) {
-      showNotice(t("notices.mobileServiceFallback"));
+      showNotice(
+        t("notices.mobileServiceFallback", { pluginName: t("pluginName") }),
+      );
     }
 
     const allSkippedEmbeds: EmbedCache[] = [];
