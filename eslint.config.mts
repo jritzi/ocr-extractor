@@ -8,11 +8,12 @@ import obsidianmd from "eslint-plugin-obsidianmd";
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
-  globalIgnores(["main.js", "version-bump.mjs", "**/*.json"]),
+  globalIgnores(["main.js", "**/*.json", "e2e/obsidian-extracted/"]),
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
   noUnsanitized.configs.recommended,
   eslintConfigPrettier,
+
   // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing
   ...obsidianmd.configs.recommendedWithLocalesEn,
 
@@ -42,6 +43,18 @@ export default defineConfig([
           ignoreWords: ["PDFs"],
         },
       ],
+    },
+  },
+
+  // Disable Obsidian-specific rules outside src/
+  {
+    files: ["**/*.{ts,mts,cts}"],
+    ignores: ["src/**"],
+    rules: {
+      "import/no-nodejs-modules": "off",
+      "no-console": "off",
+      "obsidianmd/hardcoded-config-path": "off",
+      "obsidianmd/ui/sentence-case": "off",
     },
   },
 ]);
