@@ -8,7 +8,13 @@ import obsidianmd from "eslint-plugin-obsidianmd";
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
-  globalIgnores(["main.js", "**/*.json", "e2e/obsidian-extracted/"]),
+  globalIgnores([
+    "main.js",
+    "**/*.json",
+    "e2e/obsidian-extracted/",
+    "e2e/test-results/",
+    "e2e/playwright-report/",
+  ]),
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
   noUnsanitized.configs.recommended,

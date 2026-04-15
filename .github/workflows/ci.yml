@@ -82,13 +82,15 @@ jobs:
         run: pnpm build
 
       - name: Install Electron system dependencies
-        run: sudo apt-get install -y xvfb libgtk-3-0 libasound2t64 libnss3 libxss1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0 libasound2t64 libnss3 libxss1
 
       - name: Cache Obsidian extraction
         uses: actions/cache@v4
         with:
           path: e2e/obsidian-extracted
-          key: obsidian-extracted-${{ hashFiles('e2e/global-setup.ts') }}
+          key: obsidian-extracted-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**') }}
 
       - name: Run E2E tests
         run: xvfb-run --auto-servernum pnpm test:e2e

@@ -2,14 +2,13 @@ import { execFileSync } from "child_process";
 import { mkdtempSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
-import { prepareAsars, getDownloadUrl, verifyElectronVersion } from "./utils";
+import { getDownloadUrl, prepareAsars, verifyElectronVersion } from "./utils";
 
 export function setupLinux(obsidianVersion: string) {
   const arch = process.arch === "arm64" ? "arm64" : "x64";
+  const tarRoot = `obsidian-${obsidianVersion}`;
   const tarFilename =
-    arch === "arm64"
-      ? `obsidian-${obsidianVersion}-arm64.tar.gz`
-      : `obsidian-${obsidianVersion}.tar.gz`;
+    arch === "arm64" ? `${tarRoot}-arm64.tar.gz` : `${tarRoot}.tar.gz`;
 
   const tmpDir = mkdtempSync(join(tmpdir(), "obsidian-setup-"));
 
@@ -23,25 +22,25 @@ export function setupLinux(obsidianVersion: string) {
     );
 
     console.log("Extracting...");
+    const extractedDir = join(tmpDir, tarRoot);
     execFileSync(
       "tar",
       [
         "xz",
-        "--strip-components=2",
         "-C",
         tmpDir,
         "-f",
         tarFile,
-        `obsidian-${obsidianVersion}/resources/app.asar`,
-        `obsidian-${obsidianVersion}/resources/app.asar.unpacked`,
-        `obsidian-${obsidianVersion}/resources/obsidian.asar`,
-        `obsidian-${obsidianVersion}/obsidian`,
+        `${tarRoot}/resources/app.asar`,
+        `${tarRoot}/resources/app.asar.unpacked`,
+        `${tarRoot}/resources/obsidian.asar`,
+        `${tarRoot}/obsidian`,
       ],
       { stdio: "inherit" },
     );
 
-    prepareAsars(tmpDir);
-    verifyElectronVersion(join(tmpDir, "obsidian"));
+    prepareAsars(join(extractedDir, "resources"));
+    verifyElectronVersion(join(extractedDir, "obsidian"));
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
   }
