@@ -25,6 +25,8 @@ export default function globalSetup() {
       setupLinux(OBSIDIAN_VERSION);
       break;
     default:
+      // When adding Windows support, ensure the electronApp fixture
+      // cleanup logic is updated
       throw new Error(`${process.platform} not supported for E2E tests`);
   }
 

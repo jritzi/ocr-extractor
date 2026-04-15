@@ -63,7 +63,24 @@ export const test = base.extend<ObsidianFixtures>({
 
       await use(app);
     } finally {
-      await app?.close();
+      if (app) {
+        // Give Electron a chance to shut down gracefully, then force kill the
+        // process group to clean up any child processes (e.g. a slow OCR
+        // command) that would otherwise block teardown
+        await Promise.race([
+          app.close(),
+          new Promise((resolve) => setTimeout(resolve, 5000)),
+        ]).catch(() => {});
+        const pid = app.process().pid;
+        if (pid) {
+          try {
+            // Negative PID to kill the process group
+            process.kill(-pid, "SIGKILL");
+          } catch {
+            // Process already exited
+          }
+        }
+      }
       rmSync(tmpBase, { recursive: true, force: true });
     }
   },
