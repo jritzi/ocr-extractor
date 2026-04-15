@@ -20,7 +20,7 @@ export function getDownloadUrl(version: string, filename: string) {
 
 export function prepareAsars(sourceDir: string) {
   if (existsSync(EXTRACTED)) {
-    rmSync(EXTRACTED, { recursive: true });
+    rmSync(EXTRACTED, { recursive: true, force: true });
   }
   mkdirSync(EXTRACTED, { recursive: true });
 
