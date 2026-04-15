@@ -1,8 +1,6 @@
 import { availableParallelism } from "os";
 import { defineConfig } from "@playwright/test";
 
-const workers = process.env.CI ? availableParallelism() : 4;
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -19,9 +17,9 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
 
-  // Each test uses a unique --user-data-dir, so workers run fully independently
+  /* Each test uses a unique --user-data-dir, so workers run fully independently */
   fullyParallel: true,
-  workers,
+  workers: process.env.CI ? availableParallelism() : 4,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   /* 'html' generates a browsable report; 'list' is simpler for local dev */

@@ -33,6 +33,7 @@ export function setupLinux(obsidianVersion: string) {
         "-f",
         tarFile,
         `obsidian-${obsidianVersion}/resources/app.asar`,
+        `obsidian-${obsidianVersion}/resources/app.asar.unpacked`,
         `obsidian-${obsidianVersion}/resources/obsidian.asar`,
         `obsidian-${obsidianVersion}/obsidian`,
       ],
