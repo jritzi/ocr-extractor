@@ -1,5 +1,4 @@
 import esbuild from "esbuild";
-import process from "process";
 import { builtinModules } from "module";
 import fs from "fs";
 import { getLicenseFileText } from "generate-license-file";

@@ -4,7 +4,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { getDownloadUrl, prepareAsars, verifyElectronVersion } from "./utils";
 
-export function setupLinux(obsidianVersion: string) {
+export async function setupLinux(obsidianVersion: string) {
   const arch = process.arch === "arm64" ? "arm64" : "x64";
   const tarRoot = `obsidian-${obsidianVersion}`;
   const tarFilename =
@@ -40,7 +40,7 @@ export function setupLinux(obsidianVersion: string) {
     );
 
     prepareAsars(join(extractedDir, "resources"));
-    verifyElectronVersion(join(extractedDir, "obsidian"));
+    await verifyElectronVersion(join(extractedDir, "obsidian"));
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
   }

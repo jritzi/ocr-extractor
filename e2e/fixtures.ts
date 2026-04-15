@@ -64,15 +64,20 @@ export const test = base.extend<ObsidianFixtures>({
       await use(app);
     } finally {
       if (app) {
-        // Give Electron a chance to shut down gracefully, then force kill the
-        // process group to clean up any child processes (e.g. a slow OCR
-        // command) that would otherwise block teardown
         const pid = app.process().pid;
-        await Promise.race([
-          app.close(),
-          new Promise((resolve) => setTimeout(resolve, 5000)),
-        ]).catch(() => {});
-        if (pid) {
+        const timedOut = await Promise.race([
+          app
+            .close()
+            .then(() => false)
+            .catch(() => false),
+          new Promise<boolean>((resolve) =>
+            setTimeout(() => resolve(true), 5000),
+          ),
+        ]);
+        // If graceful shutdown timed out, force kill the process group to
+        // clean up any child processes (e.g. a slow OCR command) that are
+        // blocking teardown
+        if (timedOut && pid) {
           try {
             // Negative PID to kill the process group
             process.kill(-pid, "SIGKILL");

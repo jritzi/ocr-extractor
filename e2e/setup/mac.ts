@@ -4,7 +4,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { prepareAsars, getDownloadUrl, verifyElectronVersion } from "./utils";
 
-export function setupMac(obsidianVersion: string) {
+export async function setupMac(obsidianVersion: string) {
   const dmgFilename = `Obsidian-${obsidianVersion}.dmg`;
   const tmpDir = mkdtempSync(join(tmpdir(), "obsidian-setup-"));
   const tmpDmg = join(tmpDir, dmgFilename);
@@ -47,7 +47,7 @@ export function setupMac(obsidianVersion: string) {
         "A",
         "Electron Framework",
       );
-      verifyElectronVersion(electronBinary);
+      await verifyElectronVersion(electronBinary);
     } finally {
       execFileSync("hdiutil", ["detach", mountPoint, "-quiet"]);
     }

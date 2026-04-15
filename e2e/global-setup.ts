@@ -10,7 +10,7 @@ const OBSIDIAN_VERSION = "1.12.7";
 
 const VERSION_FILE = join(EXTRACTED, ".obsidian-version");
 
-export default function globalSetup() {
+export default async function globalSetup() {
   ensurePluginBuilt();
 
   if (isUpToDate()) return;
@@ -19,10 +19,10 @@ export default function globalSetup() {
 
   switch (process.platform) {
     case "darwin":
-      setupMac(OBSIDIAN_VERSION);
+      await setupMac(OBSIDIAN_VERSION);
       break;
     case "linux":
-      setupLinux(OBSIDIAN_VERSION);
+      await setupLinux(OBSIDIAN_VERSION);
       break;
     default:
       // When adding Windows support, ensure the electronApp fixture
