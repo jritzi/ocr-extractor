@@ -46,7 +46,7 @@ function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
     id: "cancel-extraction",
     name: t("commands.cancelExtraction"),
     checkCallback: (checking: boolean) => {
-      if (!plugin.statusManager.isIdle()) {
+      if (plugin.statusManager.isProcessing()) {
         if (!checking) {
           plugin.statusManager.setCanceling();
         }
