@@ -5,7 +5,8 @@
   },
   "commands": {
     "extractCurrentNote": "Extraire le texte de la note actuelle",
-    "extractAllNotes": "Extraire le texte de toutes les notes"
+    "extractAllNotes": "Extraire le texte de toutes les notes",
+    "cancelExtraction": "Annuler l'extraction"
   },
   "settings": {
     "ocrService": "Service OCR",
@@ -48,9 +49,9 @@
     "cancelled": "Extraction de texte annulée",
     "completeExtracted": "Extraction du texte terminée. Extraits : {{count}}",
     "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
-    "autoExtractSkippedWhileBusy": "{{pluginName}} : Extraction déjà en cours, nouvelle pièce jointe ignorée.",
-    "mobileServiceFallback": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé.",
-    "mobileServiceFallbackSetting": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract sera utilisé.",
+    "autoExtractSkippedWhileBusy": "{{pluginName}} : Extraction déjà en cours, nouvelle pièce jointe ignorée",
+    "mobileServiceFallback": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé",
+    "mobileServiceFallbackSetting": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract sera utilisé",
     "fileChanged": "Le fichier a été modifié pendant le traitement et a donc été ignoré ({{path}})",
     "testingCommand": "Test de la commande personnalisée...",
     "testSucceeded": "Test effectué avec succès",
