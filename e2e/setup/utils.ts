@@ -79,7 +79,7 @@ async function getBundledElectronVersion(obsidianBinary: string) {
   });
 }
 
-function getInstalledElectronVersion() {
+export function getInstalledElectronVersion() {
   const pkg = JSON.parse(
     readFileSync(
       join(ROOT, "node_modules", "electron", "package.json"),
