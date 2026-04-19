@@ -90,7 +90,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: e2e/obsidian-extracted
-          key: obsidian-extracted-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**') }}
+          key: obsidian-extracted-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
 
       - name: Run E2E tests
         run: xvfb-run --auto-servernum pnpm test:e2e
