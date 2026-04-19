@@ -38,6 +38,10 @@ export class StatusManager {
     return this.status === "idle";
   }
 
+  isProcessing() {
+    return this.status === "processing";
+  }
+
   isCanceling() {
     return this.status === "canceling";
   }
