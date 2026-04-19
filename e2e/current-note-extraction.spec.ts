@@ -1,5 +1,11 @@
 import { expect, test } from "./fixtures";
-import { createNote, extractCurrentNote, openNote } from "./helpers";
+import {
+  createNote,
+  expectCallout,
+  expectNoCallout,
+  extractCurrentNote,
+  openNote,
+} from "./helpers";
 
 test.use({ mockOcrOutput: "Mock extracted text" });
 
@@ -8,8 +14,7 @@ test("successful extraction", async ({ page }) => {
   await openNote(page, "Extraction test");
   await extractCurrentNote(page);
 
-  await page.locator(".callout-fold").click();
-  await expect(page.getByText("Mock extracted text")).toBeVisible();
+  await expectCallout(page, "Mock extracted text");
 });
 
 test("warning about skipped attachments", async ({ page }) => {
@@ -28,12 +33,16 @@ test("warning about skipped attachments", async ({ page }) => {
     ),
   ).toBeVisible();
   await expect(modal.getByText("attachments/missing.pdf")).toBeVisible();
+  await expect(modal.getByText("attachments/sample.pdf")).not.toBeVisible();
+
+  await modal.getByRole("button", { name: "OK" }).click();
+  await expectCallout(page, "Mock extracted text");
 });
 
 test.describe("loading and cancellation", () => {
   test.use({ ocrScript: "slow" });
 
-  test("loading indicator", async ({ page }) => {
+  test("loading message and cancellation", async ({ page }) => {
     await createNote(page, "Extraction test", "![[attachments/sample.pdf]]");
     await openNote(page, "Extraction test");
     await extractCurrentNote(page);
@@ -42,20 +51,11 @@ test.describe("loading and cancellation", () => {
     await expect(
       modal.getByText("Extracting text from attachments..."),
     ).toBeVisible();
-  });
 
-  test("cancelling extraction", async ({ page }) => {
-    await createNote(page, "Extraction test", "![[attachments/sample.pdf]]");
-    await openNote(page, "Extraction test");
-    await extractCurrentNote(page);
+    await modal.getByRole("button", { name: "Cancel" }).click();
 
-    await page
-      .locator(".modal")
-      .getByRole("button", { name: "Cancel" })
-      .click();
-
-    await expect(page.locator(".modal")).not.toBeVisible();
-    await expect(page.locator(".callout-fold")).not.toBeVisible();
+    await expect(page.getByText("Cancelled text extraction")).toBeVisible();
+    await expectNoCallout(page);
   });
 });
 
@@ -73,5 +73,8 @@ test.describe("error handling", () => {
         "Error: Custom command failed with exit code 1 (see console for details)",
       ),
     ).toBeVisible();
+
+    await modal.getByRole("button", { name: "OK" }).click();
+    await expectNoCallout(page);
   });
 });

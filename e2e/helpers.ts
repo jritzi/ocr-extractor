@@ -29,4 +29,20 @@ export async function extractCurrentNote(page: Page) {
 
 export async function extractAllNotes(page: Page) {
   await runCommand(page, "OCR Extractor: Extract text in all notes");
+  await page.locator(".modal").getByRole("button", { name: "Extract" }).click();
+}
+
+export async function cancelExtraction(page: Page) {
+  await runCommand(page, "OCR Extractor: Cancel extraction");
+}
+
+export async function expectCallout(page: Page, expectedText: string) {
+  await page.locator(".callout").click();
+  await expect(
+    page.locator(".callout-content").getByText(expectedText),
+  ).toBeVisible();
+}
+
+export async function expectNoCallout(page: Page) {
+  await expect(page.locator(".callout")).not.toBeVisible();
 }
