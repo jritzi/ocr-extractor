@@ -5,7 +5,8 @@
   },
   "commands": {
     "extractCurrentNote": "在当前笔记中提取文本",
-    "extractAllNotes": "在所有笔记中提取文本"
+    "extractAllNotes": "在所有笔记中提取文本",
+    "cancelExtraction": "取消提取"
   },
   "settings": {
     "ocrService": "OCR 服务",

@@ -5,7 +5,8 @@
   },
   "commands": {
     "extractCurrentNote": "Extraer texto de la nota actual",
-    "extractAllNotes": "Extraer texto de todas las notas"
+    "extractAllNotes": "Extraer texto de todas las notas",
+    "cancelExtraction": "Cancelar extracción"
   },
   "settings": {
     "ocrService": "Servicio OCR",
@@ -48,7 +49,7 @@
     "cancelled": "Extracción de texto cancelada",
     "completeExtracted": "Extracción de texto completada. Extraído: {{count}}",
     "completeExtractedSkipped": "Extracción de texto completada. Extraído: {{extracted}}, omitido: {{skipped}}",
-    "autoExtractSkippedWhileBusy": "{{pluginName}}: Ya hay una extracción en curso, se omite el nuevo archivo adjunto.",
+    "autoExtractSkippedWhileBusy": "{{pluginName}}: Ya hay una extracción en curso, se omite el nuevo archivo adjunto",
     "mobileServiceFallback": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
     "mobileServiceFallbackSetting": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
     "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",
