@@ -5,6 +5,7 @@ import { t } from "./i18n";
 export function addCommands(plugin: OcrExtractorPlugin) {
   addExtractCurrentNoteCommand(plugin);
   addExtractAllNotesCommand(plugin);
+  addCancelExtractionCommand(plugin);
   addRibbonIcon(plugin);
 }
 
@@ -32,6 +33,22 @@ function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
       if (plugin.extractor.canProcessAllFiles()) {
         if (!checking) {
           plugin.extractor.processAllFiles();
+        }
+
+        return true;
+      }
+    },
+  });
+}
+
+function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "cancel-extraction",
+    name: t("commands.cancelExtraction"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.statusManager.isProcessing()) {
+        if (!checking) {
+          plugin.statusManager.setCanceling();
         }
 
         return true;

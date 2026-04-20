@@ -5,7 +5,8 @@
   },
   "commands": {
     "extractCurrentNote": "Extract text in current note",
-    "extractAllNotes": "Extract text in all notes"
+    "extractAllNotes": "Extract text in all notes",
+    "cancelExtraction": "Cancel extraction"
   },
   "settings": {
     "ocrService": "OCR service",

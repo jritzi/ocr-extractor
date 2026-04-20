@@ -2,7 +2,7 @@
 
 ## About
 
-OCR Extractor is a simple [Obsidian](https://obsidian.md/) plugin that uses [OCR](https://en.wikipedia.org/wiki/Optical_character_recognition) to extract text from documents, images, etc. embedded in your notes. Different [OCR services](#ocr-services) (free or paid, local or cloud-based) are available, depending on your needs.
+OCR Extractor is a simple [Obsidian](https://obsidian.md/) plugin that uses [OCR](https://en.wikipedia.org/wiki/Optical_character_recognition) to extract text from PDFs, documents, images, etc. embedded in your notes. Different [OCR services](#ocr-services) (free or paid, local or cloud-based) are available, depending on your needs.
 
 Following Obsidian's philosophy of storing data in an open, future-proof file format, the extracted text is added below the embedded attachment as an expandable [callout](https://help.obsidian.md/callouts). This means that the text will be searchable via Obsidian's [built-in search](https://help.obsidian.md/plugins/search), other search plugins, and even your operating system's native file search.
 
@@ -55,6 +55,10 @@ tesseract {input} - -l eng+spa > {output}
 Click the "Test" button to run the command on a sample image with text and confirm it correctly extracts the text. If the custom command only supports images, enable the setting to convert PDFs to PNGs before processing.
 
 Note that this option is not supported on mobile, so if a custom command is configured, Tesseract will be used instead if attempting to extract text with the mobile app.
+
+## Contributing
+
+For details on how to report a bug, share a feature request, or contribute code, see the [Contribution Guidelines](./CONTRIBUTING.md). To report a security issue, see the [Security Policy](./SECURITY.md).
 
 ## Translations
 
