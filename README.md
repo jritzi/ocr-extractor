@@ -58,7 +58,7 @@ Note that this option is not supported on mobile, so if a custom command is conf
 
 ## Contributing
 
-For details on how to report a bug, share a feature request, or contribute code, see the [Contribution Guidelines](./CONTRIBUTING.md). To report a security issue, see the [Security Policy](./SECURITY.md). 
+For details on how to report a bug, share a feature request, or contribute code, see the [Contribution Guidelines](./CONTRIBUTING.md). To report a security issue, see the [Security Policy](./SECURITY.md).
 
 ## Translations
 
