@@ -1,7 +1,7 @@
 {
   "name": "ocr-extractor",
   "version": "2.1.0",
-  "description": "Obsidian plugin to extract text from documents, images, etc. and store it as Markdown in notes",
+  "description": "Obsidian plugin to extract text from PDFs, documents, images, etc. with OCR and store it as Markdown in notes",
   "main": "main.js",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
