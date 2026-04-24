@@ -4,12 +4,13 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
-// @ts-expect-error — plugin lacks type declarations
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
   globalIgnores([
     "main.js",
+    "esbuild.config.mjs",
+    "version-bump.mjs",
     "**/*.json",
     "e2e/obsidian-extracted/",
     "e2e/test-results/",
@@ -20,7 +21,6 @@ export default defineConfig([
   noUnsanitized.configs.recommended,
   eslintConfigPrettier,
 
-  // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing
   ...obsidianmd.configs.recommendedWithLocalesEn,
 
   {
@@ -60,6 +60,8 @@ export default defineConfig([
       "import/no-nodejs-modules": "off",
       "no-console": "off",
       "obsidianmd/hardcoded-config-path": "off",
+      "obsidianmd/prefer-active-window-timers": "off",
+      "obsidianmd/rule-custom-message": "off",
       "obsidianmd/ui/sentence-case": "off",
     },
   },
