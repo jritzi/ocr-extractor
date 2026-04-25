@@ -10,13 +10,9 @@ export async function seedNote(page: Page, name: string, content = "") {
   );
 }
 
-export async function typeAtEndOfNote(page: Page, text: string) {
-  const modifier = process.platform === "darwin" ? "Meta" : "Control";
-  await page
-    .locator(".cm-editor")
-    .getByRole("textbox")
-    .press(`${modifier}+End`);
-  await page.keyboard.type(text);
+export async function createNote(page: Page, name: string) {
+  await page.getByLabel("New note").click();
+  await page.locator(".inline-title").fill(name);
 }
 
 export async function openNote(page: Page, name: string) {
@@ -24,6 +20,14 @@ export async function openNote(page: Page, name: string) {
   await page.getByPlaceholder("Find or create a note").fill(name);
   await page.keyboard.press("Enter");
   await expect(page.locator(".inline-title").getByText(name)).toBeVisible();
+}
+
+export async function typeAtEndOfNote(page: Page, text: string) {
+  await page
+    .locator(".cm-editor")
+    .getByRole("textbox")
+    .press(withModifier("End"));
+  await page.keyboard.type(text);
 }
 
 export async function runCommand(page: Page, command: string) {
@@ -38,7 +42,7 @@ export async function extractCurrentNote(page: Page) {
 
 export async function extractAllNotes(page: Page) {
   await runCommand(page, "OCR Extractor: Extract text in all notes");
-  await page.locator(".modal").getByRole("button", { name: "Extract" }).click();
+  await clickModalButton(page, "Extract");
 }
 
 export async function cancelExtraction(page: Page) {
@@ -62,7 +66,15 @@ export async function toggleSetting(page: Page, label: string) {
 }
 
 export async function closeModal(page: Page) {
-  await page.locator(".modal-close-button").click();
+  const modal = page.locator(".modal");
+  await modal.locator(".modal-close-button").click();
+  await expect(modal).not.toBeVisible();
+}
+
+export async function clickModalButton(page: Page, buttonName: string) {
+  const modal = page.locator(".modal");
+  await modal.getByRole("button", { name: buttonName }).click();
+  await expect(modal).not.toBeVisible();
 }
 
 export async function expectCallout(page: Page, expectedText: string) {
@@ -72,6 +84,16 @@ export async function expectCallout(page: Page, expectedText: string) {
   ).toBeVisible();
 }
 
+/**
+ * Confirm that a callout has not been added. Only call after another
+ * expectation confirms that extraction has been attempted (otherwise this may
+ * pass before it has actually finished running).
+ */
 export async function expectNoCallout(page: Page) {
   await expect(page.locator(".callout")).not.toBeVisible();
+}
+
+function withModifier(key: string) {
+  const modifier = process.platform === "darwin" ? "Meta" : "Control";
+  return `${modifier}+${key}`;
 }

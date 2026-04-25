@@ -1,6 +1,7 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "./fixtures";
 import {
   seedNote,
+  clickModalButton,
   expectCallout,
   expectNoCallout,
   extractCurrentNote,
@@ -33,7 +34,7 @@ test("warning about skipped attachments", async ({ page }) => {
   await expect(modal.getByText("attachments/missing.pdf")).toBeVisible();
   await expect(modal.getByText("attachments/sample.pdf")).not.toBeVisible();
 
-  await modal.getByRole("button", { name: "OK" }).click();
+  await clickModalButton(page, "OK");
   await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
@@ -50,7 +51,7 @@ test.describe("loading and cancellation", () => {
       modal.getByText("Extracting text from attachments..."),
     ).toBeVisible();
 
-    await modal.getByRole("button", { name: "Cancel" }).click();
+    await clickModalButton(page, "Cancel");
 
     await expect(page.getByText("Cancelled text extraction")).toBeVisible();
     await expectNoCallout(page);
@@ -72,7 +73,7 @@ test.describe("error handling", () => {
       ),
     ).toBeVisible();
 
-    await modal.getByRole("button", { name: "OK" }).click();
+    await clickModalButton(page, "OK");
     await expectNoCallout(page);
   });
 });
