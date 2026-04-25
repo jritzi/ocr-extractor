@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-export async function createNote(page: Page, name: string, content: string) {
+export async function seedNote(page: Page, name: string, content = "") {
   await page.evaluate(
     async ({ name, content }) => {
       // eslint-disable-next-line no-restricted-globals -- non-global app not available in this context
@@ -8,6 +8,15 @@ export async function createNote(page: Page, name: string, content: string) {
     },
     { name, content },
   );
+}
+
+export async function typeAtEndOfNote(page: Page, text: string) {
+  const modifier = process.platform === "darwin" ? "Meta" : "Control";
+  await page
+    .locator(".cm-editor")
+    .getByRole("textbox")
+    .press(`${modifier}+End`);
+  await page.keyboard.type(text);
 }
 
 export async function openNote(page: Page, name: string) {
@@ -34,6 +43,26 @@ export async function extractAllNotes(page: Page) {
 
 export async function cancelExtraction(page: Page) {
   await runCommand(page, "OCR Extractor: Cancel extraction");
+}
+
+export async function openPluginSettings(page: Page) {
+  await page.locator(".clickable-icon:has(.lucide-settings)").click();
+  await page
+    .locator(".vertical-tab-nav-item")
+    .getByText("OCR Extractor")
+    .click();
+}
+
+export async function toggleSetting(page: Page, label: string) {
+  await page
+    .locator(".setting-item")
+    .filter({ hasText: label })
+    .locator(".checkbox-container")
+    .click();
+}
+
+export async function closeModal(page: Page) {
+  await page.locator(".modal-close-button").click();
 }
 
 export async function expectCallout(page: Page, expectedText: string) {

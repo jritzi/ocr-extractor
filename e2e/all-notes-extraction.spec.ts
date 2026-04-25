@@ -1,18 +1,16 @@
-import { expect, test } from "./fixtures";
+import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "./fixtures";
 import {
   cancelExtraction,
-  createNote,
+  seedNote,
   expectCallout,
   expectNoCallout,
   extractAllNotes,
   openNote,
 } from "./helpers";
 
-test.use({ mockOcrOutput: "Mock extracted text" });
-
 test("successful extraction", async ({ page }) => {
-  await createNote(page, "Note 1", "![[attachments/sample.pdf]]");
-  await createNote(page, "Note 2", "![[attachments/sample.pdf]]");
+  await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
+  await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
   await extractAllNotes(page);
 
   await expect(
@@ -20,19 +18,19 @@ test("successful extraction", async ({ page }) => {
   ).toBeVisible();
 
   await openNote(page, "Note 1");
-  await expectCallout(page, "Mock extracted text");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
 
   await openNote(page, "Note 2");
-  await expectCallout(page, "Mock extracted text");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
 test("warning about skipped attachments", async ({ page }) => {
-  await createNote(
+  await seedNote(
     page,
     "Note 1",
     "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
   );
-  await createNote(page, "Note 2", "![[attachments/sample.pdf]]");
+  await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
   await extractAllNotes(page);
 
   await expect(
@@ -40,18 +38,18 @@ test("warning about skipped attachments", async ({ page }) => {
   ).toBeVisible();
 
   await openNote(page, "Note 1");
-  await expectCallout(page, "Mock extracted text");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
 
   await openNote(page, "Note 2");
-  await expectCallout(page, "Mock extracted text");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
 test.describe("loading and cancellation", () => {
-  test.use({ ocrScript: "slow" });
+  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.slow } });
 
   test("loading message and cancellation", async ({ page }) => {
-    await createNote(page, "Note 1", "![[attachments/sample.pdf]]");
-    await createNote(page, "Note 2", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
     await extractAllNotes(page);
 
     await expect(
@@ -73,11 +71,11 @@ test.describe("loading and cancellation", () => {
 });
 
 test.describe("error handling", () => {
-  test.use({ ocrScript: "error" });
+  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.error } });
 
   test("error message", async ({ page }) => {
-    await createNote(page, "Note 1", "![[attachments/sample.pdf]]");
-    await createNote(page, "Note 2", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
     await extractAllNotes(page);
 
     await expect(
