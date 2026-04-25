@@ -10,6 +10,8 @@ import noUnsanitized from "eslint-plugin-no-unsanitized";
 export default defineConfig([
   globalIgnores([
     "main.js",
+    "esbuild.config.mjs",
+    "version-bump.mjs",
     "**/*.json",
     "e2e/obsidian-extracted/",
     "e2e/test-results/",
@@ -20,7 +22,6 @@ export default defineConfig([
   noUnsanitized.configs.recommended,
   eslintConfigPrettier,
 
-  // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing
   ...obsidianmd.configs.recommendedWithLocalesEn,
 
   {
@@ -30,9 +31,7 @@ export default defineConfig([
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ["eslint.config.mts"],
-        },
+        projectService: true,
       },
     },
     rules: {
@@ -60,6 +59,8 @@ export default defineConfig([
       "import/no-nodejs-modules": "off",
       "no-console": "off",
       "obsidianmd/hardcoded-config-path": "off",
+      "obsidianmd/prefer-active-window-timers": "off",
+      "obsidianmd/rule-custom-message": "off",
       "obsidianmd/ui/sentence-case": "off",
     },
   },

@@ -39,7 +39,7 @@ export class CustomCommandService extends OcrService {
     const util = require("util") as typeof import("util");
     const childProcess =
       require("child_process") as typeof import("child_process");
-    this.execAsync = util.promisify(childProcess.exec) as typeof this.execAsync;
+    this.execAsync = util.promisify(childProcess.exec);
   }
 
   static getLabel() {
@@ -115,7 +115,7 @@ export class CustomCommandService extends OcrService {
   }
 
   private static async createTestImage() {
-    const canvas = document.createElement("canvas");
+    const canvas = activeDocument.createElement("canvas");
     canvas.width = 200;
     canvas.height = 50;
     const ctx = canvas.getContext("2d")!;
