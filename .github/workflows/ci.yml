@@ -20,7 +20,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version-file: .node-version
           cache: "pnpm"
 
       - name: Install dependencies
@@ -49,7 +49,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version-file: .node-version
           cache: "pnpm"
 
       - name: Install dependencies
@@ -58,7 +58,7 @@ jobs:
       - name: Test
         run: pnpm test
 
-  e2e:
+  e2e-linux:
     needs: checks
     runs-on: ubuntu-latest
     permissions:
@@ -72,7 +72,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "24"
+          node-version-file: .node-version
           cache: "pnpm"
 
       - name: Install dependencies
@@ -90,7 +90,40 @@ jobs:
         uses: actions/cache@v4
         with:
           path: e2e/obsidian-extracted
-          key: obsidian-extracted-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
+          key: obsidian-extracted-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
 
       - name: Run E2E tests
         run: xvfb-run --auto-servernum pnpm test:e2e
+
+  e2e-macos:
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: checks
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build plugin
+        run: pnpm build
+
+      - name: Cache Obsidian extraction
+        uses: actions/cache@v4
+        with:
+          path: e2e/obsidian-extracted
+          key: obsidian-extracted-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
