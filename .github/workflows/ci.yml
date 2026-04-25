@@ -96,7 +96,7 @@ jobs:
         run: xvfb-run --auto-servernum pnpm test:e2e
 
   e2e-macos:
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: macos-latest
     permissions:
