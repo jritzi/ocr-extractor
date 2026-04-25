@@ -43,7 +43,7 @@ interface ObsidianFixtures {
 
 export const test = base.extend<ObsidianFixtures>({
   mockOcrOutput: [MOCK_OCR_OUTPUT, { option: true }],
-  settings: [{} as Partial<PluginSettings>, { option: true }],
+  settings: [{}, { option: true }],
 
   electronApp: async ({ mockOcrOutput, settings }, use) => {
     const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
