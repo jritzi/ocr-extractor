@@ -41,7 +41,7 @@ export async function setupMac(obsidianVersion: string) {
         "Resources",
       );
       prepareAsars(resources);
-      execFileSync("xattr", ["-cr", EXTRACTED]);
+      execFileSync("xattr", ["-cr", EXTRACTED], { stdio: "inherit" });
 
       const electronBinary = join(
         mountPoint,
