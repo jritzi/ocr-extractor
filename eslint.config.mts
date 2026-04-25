@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
+// @ts-expect-error — plugin lacks type declarations
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
@@ -30,9 +31,7 @@ export default defineConfig([
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ["eslint.config.mts"],
-        },
+        projectService: true,
       },
     },
     rules: {
