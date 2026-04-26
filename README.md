@@ -54,7 +54,7 @@ tesseract {input} - -l eng+spa > {output}
 
 Click the "Test" button to run the command on a sample image with text and confirm it correctly extracts the text. If the custom command only supports images, enable the setting to convert PDFs to PNGs before processing.
 
-Note that this option is not supported on mobile, so if a custom command is configured, Tesseract will be used instead of attempting to extract text with the mobile app.
+Note that this option is not supported on mobile, so if a custom command is configured, the plugin will use Tesseract on mobile instead of running the custom command.
 
 ## Contributing
 

@@ -19,7 +19,7 @@ test("setting off by default (OCR used even when PDF has embedded text)", async 
 test.describe("setting on", () => {
   test.use({ settings: { useEmbeddedText: true } });
 
-  test("using embedded text from OCR when available", async ({ page }) => {
+  test("using embedded text from PDF when available", async ({ page }) => {
     await seedNote(page, "Note", "![[attachments/sample.pdf]]");
     await openNote(page, "Note");
     await extractCurrentNote(page);
