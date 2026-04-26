@@ -1,24 +1,23 @@
-import { expect, test } from "./fixtures";
+import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "./fixtures";
 import {
-  createNote,
+  seedNote,
+  clickModalButton,
   expectCallout,
   expectNoCallout,
   extractCurrentNote,
   openNote,
 } from "./helpers";
 
-test.use({ mockOcrOutput: "Mock extracted text" });
-
 test("successful extraction", async ({ page }) => {
-  await createNote(page, "Extraction test", "![[attachments/sample.pdf]]");
+  await seedNote(page, "Extraction test", "![[attachments/sample.pdf]]");
   await openNote(page, "Extraction test");
   await extractCurrentNote(page);
 
-  await expectCallout(page, "Mock extracted text");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
 test("warning about skipped attachments", async ({ page }) => {
-  await createNote(
+  await seedNote(
     page,
     "Warning test",
     "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
@@ -35,15 +34,15 @@ test("warning about skipped attachments", async ({ page }) => {
   await expect(modal.getByText("attachments/missing.pdf")).toBeVisible();
   await expect(modal.getByText("attachments/sample.pdf")).not.toBeVisible();
 
-  await modal.getByRole("button", { name: "OK" }).click();
-  await expectCallout(page, "Mock extracted text");
+  await clickModalButton(page, "OK");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
 test.describe("loading and cancellation", () => {
-  test.use({ ocrScript: "slow" });
+  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.slow } });
 
   test("loading message and cancellation", async ({ page }) => {
-    await createNote(page, "Extraction test", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Extraction test", "![[attachments/sample.pdf]]");
     await openNote(page, "Extraction test");
     await extractCurrentNote(page);
 
@@ -52,7 +51,7 @@ test.describe("loading and cancellation", () => {
       modal.getByText("Extracting text from attachments..."),
     ).toBeVisible();
 
-    await modal.getByRole("button", { name: "Cancel" }).click();
+    await clickModalButton(page, "Cancel");
 
     await expect(page.getByText("Cancelled text extraction")).toBeVisible();
     await expectNoCallout(page);
@@ -60,10 +59,10 @@ test.describe("loading and cancellation", () => {
 });
 
 test.describe("error handling", () => {
-  test.use({ ocrScript: "error" });
+  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.error } });
 
   test("error message", async ({ page }) => {
-    await createNote(page, "Extraction test", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Extraction test", "![[attachments/sample.pdf]]");
     await openNote(page, "Extraction test");
     await extractCurrentNote(page);
 
@@ -74,7 +73,7 @@ test.describe("error handling", () => {
       ),
     ).toBeVisible();
 
-    await modal.getByRole("button", { name: "OK" }).click();
+    await clickModalButton(page, "OK");
     await expectNoCallout(page);
   });
 });

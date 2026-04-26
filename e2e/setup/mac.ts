@@ -2,7 +2,12 @@ import { execFileSync } from "child_process";
 import { mkdirSync, mkdtempSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
-import { prepareAsars, getDownloadUrl, verifyElectronVersion } from "./utils";
+import {
+  prepareAsars,
+  getDownloadUrl,
+  verifyElectronVersion,
+  EXTRACTED,
+} from "./utils";
 
 export async function setupMac(obsidianVersion: string) {
   const dmgFilename = `Obsidian-${obsidianVersion}.dmg`;
@@ -36,6 +41,7 @@ export async function setupMac(obsidianVersion: string) {
         "Resources",
       );
       prepareAsars(resources);
+      execFileSync("xattr", ["-cr", EXTRACTED], { stdio: "inherit" });
 
       const electronBinary = join(
         mountPoint,

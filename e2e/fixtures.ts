@@ -15,15 +15,19 @@ import {
 } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
+import type { PluginSettings } from "../src/settings";
 import { E2E, EXTRACTED, ROOT } from "./setup/utils";
+import { closeModal } from "./helpers";
 
 const TEST_VAULT = join(E2E, "test-vault");
-const MOCK_OCR_SCRIPTS = {
-  fast: join(E2E, "mock-ocr", "fast.sh"),
-  slow: join(E2E, "mock-ocr", "slow.sh"),
-  error: join(E2E, "mock-ocr", "error.sh"),
+
+export const MOCK_OCR_OUTPUT = "Mock extracted text";
+
+export const MOCK_OCR_COMMANDS = {
+  fast: `"${join(E2E, "mock-ocr", "fast.sh")}" {input} {output}`,
+  slow: `"${join(E2E, "mock-ocr", "slow.sh")}" {input} {output}`,
+  error: `"${join(E2E, "mock-ocr", "error.sh")}" {input} {output}`,
 };
-export type OcrScript = keyof typeof MOCK_OCR_SCRIPTS;
 
 // Obsidian app extracted during globalSetup (run via the local electron binary
 // because Obsidian's bundled electron has the Node inspector disabled,
@@ -31,17 +35,17 @@ export type OcrScript = keyof typeof MOCK_OCR_SCRIPTS;
 const OBSIDIAN_EXTRACTED = join(EXTRACTED, "main.js");
 
 interface ObsidianFixtures {
-  ocrScript: OcrScript;
   mockOcrOutput: string;
+  settings: Partial<PluginSettings>;
   electronApp: ElectronApplication;
   page: Page;
 }
 
 export const test = base.extend<ObsidianFixtures>({
-  ocrScript: ["fast", { option: true }],
-  mockOcrOutput: ["Mock extracted text", { option: true }],
+  mockOcrOutput: [MOCK_OCR_OUTPUT, { option: true }],
+  settings: [{}, { option: true }],
 
-  electronApp: async ({ ocrScript, mockOcrOutput }, use) => {
+  electronApp: async ({ mockOcrOutput, settings }, use) => {
     const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
     const tmpVault = join(tmpBase, "vault");
     const tmpUserData = join(tmpBase, "user-data");
@@ -49,7 +53,7 @@ export const test = base.extend<ObsidianFixtures>({
     let app: ElectronApplication | undefined;
     try {
       copyTestVault(tmpVault);
-      installPlugin(tmpVault, ocrScript);
+      installPlugin(tmpVault, settings);
       createUserData(tmpUserData, tmpVault);
 
       app = await electron.launch({
@@ -99,7 +103,7 @@ export const test = base.extend<ObsidianFixtures>({
       .click();
 
     // Close "Community plugins" settings
-    await page.locator(".modal-close-button").click();
+    await closeModal(page);
 
     // Ensure all network requests are explicitly mocked
     await page.route(/^https?:\/\//, (route) => {
@@ -117,7 +121,7 @@ function copyTestVault(tmpVault: string) {
   cpSync(TEST_VAULT, tmpVault, { recursive: true });
 }
 
-function installPlugin(tmpVault: string, ocrScript: OcrScript) {
+function installPlugin(tmpVault: string, settings: Partial<PluginSettings>) {
   const pluginDir = join(tmpVault, ".obsidian", "plugins", "ocr-extractor");
   mkdirSync(pluginDir, { recursive: true });
   copyFileSync(join(ROOT, "main.js"), join(pluginDir, "main.js"));
@@ -127,7 +131,8 @@ function installPlugin(tmpVault: string, ocrScript: OcrScript) {
     JSON.stringify(
       {
         ocrService: "customCommand",
-        customCommand: `"${MOCK_OCR_SCRIPTS[ocrScript]}" {input} {output}`,
+        customCommand: MOCK_OCR_COMMANDS.fast,
+        ...settings,
       },
       null,
       2,
