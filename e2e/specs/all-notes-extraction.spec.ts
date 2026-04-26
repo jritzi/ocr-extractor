@@ -1,4 +1,4 @@
-import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "./fixtures";
+import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
   cancelExtraction,
   seedNote,
@@ -6,7 +6,7 @@ import {
   expectNoCallout,
   extractAllNotes,
   openNote,
-} from "./helpers";
+} from "../helpers";
 
 test("successful extraction", async ({ page }) => {
   await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");

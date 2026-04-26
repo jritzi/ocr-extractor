@@ -1,4 +1,4 @@
-import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "./fixtures";
+import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
   closeModal,
   createNote,
@@ -10,7 +10,7 @@ import {
   seedNote,
   toggleSetting,
   typeAtEndOfNote,
-} from "./helpers";
+} from "../helpers";
 
 test("auto-extract setting", async ({ page }) => {
   await seedNote(page, "Note 1");
