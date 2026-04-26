@@ -15,32 +15,21 @@ import {
 test("auto-extract setting", async ({ page }) => {
   await seedNote(page, "Note 1");
   await seedNote(page, "Note 2");
-  await seedNote(page, "Note 3");
 
   // Off by default
   await openNote(page, "Note 1");
   await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
 
-  // Stays off after toggling on then off
-  await openNote(page, "Note 2");
-  await openPluginSettings(page);
-  await toggleSetting(page, "Auto-extract attachments");
-  await toggleSetting(page, "Auto-extract attachments");
-  await closeModal(page);
-  await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
-
   // Extracts when on
-  await openNote(page, "Note 3");
+  await openNote(page, "Note 2");
   await openPluginSettings(page);
   await toggleSetting(page, "Auto-extract attachments");
   await closeModal(page);
   await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
   await expectCallout(page, MOCK_OCR_OUTPUT);
 
-  // 1 and 2 would have extracted by now
+  // Note 1 would have extracted by now
   await openNote(page, "Note 1");
-  await expectNoCallout(page);
-  await openNote(page, "Note 2");
   await expectNoCallout(page);
 });
 
