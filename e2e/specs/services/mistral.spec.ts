@@ -1,7 +1,16 @@
 import { expect, test } from "../../fixtures";
 import { expectHttpRequest, mockHttp } from "../../helpers/http";
-import { clickModalButton, getModal, openNote, seedNote } from "../../helpers/obsidian";
-import { expectCallout, expectNoCallout, extractCurrentNote } from "../../helpers/plugin";
+import {
+  clickModalButton,
+  getModal,
+  openNote,
+  seedNote,
+} from "../../helpers/obsidian";
+import {
+  expectCallout,
+  expectNoCallout,
+  extractCurrentNote,
+} from "../../helpers/plugin";
 
 const MISTRAL_URL = "https://api.mistral.ai/v1/ocr";
 const MOCK_RESPONSE = "Mistral extracted text";

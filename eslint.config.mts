@@ -12,13 +12,12 @@ import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
   includeIgnoreFile(path.resolve(import.meta.dirname, ".gitignore")),
-  globalIgnores(["**/*.json"]),
+  globalIgnores(["**/*.json", "esbuild.config.mjs", "version-bump.mjs"]),
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
   noUnsanitized.configs.recommended,
   eslintConfigPrettier,
 
-  // @ts-expect-error — eslint-plugin-obsidianmd has incorrect typing
   ...obsidianmd.configs.recommendedWithLocalesEn,
 
   {
@@ -28,9 +27,7 @@ export default defineConfig([
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ["eslint.config.mts"],
-        },
+        projectService: true,
       },
     },
     rules: {
@@ -59,6 +56,9 @@ export default defineConfig([
       "no-console": "off",
       "no-restricted-globals": "off",
       "obsidianmd/hardcoded-config-path": "off",
+      "obsidianmd/prefer-active-doc": "off",
+      "obsidianmd/prefer-active-window-timers": "off",
+      "obsidianmd/rule-custom-message": "off",
       "obsidianmd/ui/sentence-case": "off",
     },
   },

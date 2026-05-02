@@ -31,7 +31,7 @@ export async function withRetries<T>(
   for (let attempt = 0; attempt <= retryCount; attempt++) {
     if (attempt > 0) {
       const delay = 1_000 * Math.pow(2, attempt - 1);
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      await new Promise((resolve) => activeWindow.setTimeout(resolve, delay));
     }
 
     try {
@@ -60,7 +60,7 @@ export async function withCancellation<T>(
 
   const cancelPromise = new Promise<null>((resolve, reject) => {
     resolveCleanup = resolve;
-    intervalId = window.setInterval(() => {
+    intervalId = activeWindow.setInterval(() => {
       if (shouldCancel()) {
         reject(new CancelError());
       }
@@ -76,7 +76,7 @@ export async function withCancellation<T>(
       throw e;
     }
   } finally {
-    clearInterval(intervalId);
+    activeWindow.clearInterval(intervalId);
     resolveCleanup?.(null);
   }
 }

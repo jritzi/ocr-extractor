@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
@@ -17,5 +16,5 @@
     "useDefineForClassFields": false,
     "lib": ["DOM", "ES5", "ES6", "ES7", "ES2022"]
   },
-  "include": ["**/*.ts", "**/*.d.ts"]
+  "include": ["**/*.ts", "**/*.mts", "**/*.d.ts"]
 }
