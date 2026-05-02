@@ -4,17 +4,15 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
+import { includeIgnoreFile } from "@eslint/compat";
+import path from "path";
+
 // @ts-expect-error — plugin lacks type declarations
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
-  globalIgnores([
-    "main.js",
-    "**/*.json",
-    "e2e/obsidian-extracted/",
-    "e2e/test-results/",
-    "e2e/playwright-report/",
-  ]),
+  includeIgnoreFile(path.resolve(import.meta.dirname, ".gitignore")),
+  globalIgnores(["**/*.json"]),
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
   noUnsanitized.configs.recommended,
@@ -59,6 +57,7 @@ export default defineConfig([
     rules: {
       "import/no-nodejs-modules": "off",
       "no-console": "off",
+      "no-restricted-globals": "off",
       "obsidianmd/hardcoded-config-path": "off",
       "obsidianmd/ui/sentence-case": "off",
     },

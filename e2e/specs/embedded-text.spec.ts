@@ -1,10 +1,6 @@
 import { MOCK_OCR_OUTPUT, test } from "../fixtures";
-import {
-  expectCallout,
-  extractCurrentNote,
-  openNote,
-  seedNote,
-} from "../helpers";
+import { openNote, seedNote } from "../helpers/obsidian";
+import { expectCallout, extractCurrentNote } from "../helpers/plugin";
 
 test("setting off by default (OCR used even when PDF has embedded text)", async ({
   page,

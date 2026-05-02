@@ -2,15 +2,17 @@ import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
   closeModal,
   createNote,
+  openNote,
+  seedNote,
+  typeAtEndOfNote,
+} from "../helpers/obsidian";
+import {
   expectCallout,
   expectNoCallout,
   extractAllNotes,
-  openNote,
   openPluginSettings,
-  seedNote,
   toggleSetting,
-  typeAtEndOfNote,
-} from "../helpers";
+} from "../helpers/plugin";
 
 test("auto-extract setting", async ({ page }) => {
   await seedNote(page, "Note 1");

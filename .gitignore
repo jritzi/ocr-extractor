@@ -22,12 +22,11 @@ data.json
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
 
-# Obsidian app extracted for E2E tests
-e2e/obsidian-extracted/
-
-# Playwright output — test artifacts and HTML report
+# E2E
 e2e/test-results/
 e2e/playwright-report/
+e2e/obsidian-extracted/
+e2e/setup/http-interceptor.js
 
 # Misc
 TODO.md

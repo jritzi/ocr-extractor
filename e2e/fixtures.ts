@@ -5,21 +5,19 @@ import {
   Page,
   test as base,
 } from "@playwright/test";
-import {
-  copyFileSync,
-  cpSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "fs";
+import { mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import type { PluginSettings } from "../src/settings";
-import { E2E, EXTRACTED, ROOT } from "./setup/utils";
-import { closeModal } from "./helpers";
-
-const TEST_VAULT = join(E2E, "test-vault");
+import { E2E, EXTRACTED } from "./setup/utils";
+import {
+  copyTestVault,
+  createUserData,
+  injectHttpInterceptor,
+  setupPlugin,
+} from "./setup/vault";
+import { expectNoUnexpectedRequests } from "./helpers/http";
+import { closeModal } from "./helpers/obsidian";
 
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
 
@@ -53,8 +51,12 @@ export const test = base.extend<ObsidianFixtures>({
     let app: ElectronApplication | undefined;
     try {
       copyTestVault(tmpVault);
-      installPlugin(tmpVault, settings);
       createUserData(tmpUserData, tmpVault);
+      setupPlugin(tmpVault, {
+        ocrService: "customCommand",
+        customCommand: MOCK_OCR_COMMANDS.fast,
+        ...settings,
+      });
 
       app = await electron.launch({
         args: [
@@ -105,48 +107,12 @@ export const test = base.extend<ObsidianFixtures>({
     // Close "Community plugins" settings
     await closeModal(page);
 
-    // Ensure all network requests are explicitly mocked
-    await page.route(/^https?:\/\//, (route) => {
-      throw new Error(`Unexpected network request: ${route.request().url()}`);
-    });
+    await injectHttpInterceptor(page);
 
     await use(page);
+
+    await expectNoUnexpectedRequests(page);
   },
 });
 
 export { expect };
-
-function copyTestVault(tmpVault: string) {
-  mkdirSync(tmpVault, { recursive: true });
-  cpSync(TEST_VAULT, tmpVault, { recursive: true });
-}
-
-function installPlugin(tmpVault: string, settings: Partial<PluginSettings>) {
-  const pluginDir = join(tmpVault, ".obsidian", "plugins", "ocr-extractor");
-  mkdirSync(pluginDir, { recursive: true });
-  copyFileSync(join(ROOT, "main.js"), join(pluginDir, "main.js"));
-  copyFileSync(join(ROOT, "manifest.json"), join(pluginDir, "manifest.json"));
-  writeFileSync(
-    join(pluginDir, "data.json"),
-    JSON.stringify(
-      {
-        ocrService: "customCommand",
-        customCommand: MOCK_OCR_COMMANDS.fast,
-        ...settings,
-      },
-      null,
-      2,
-    ),
-  );
-}
-
-function createUserData(tmpUserData: string, tmpVault: string) {
-  const vaultId = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
-  mkdirSync(tmpUserData, { recursive: true });
-  writeFileSync(
-    join(tmpUserData, "obsidian.json"),
-    JSON.stringify({
-      vaults: { [vaultId]: { path: tmpVault, ts: Date.now(), open: true } },
-    }),
-  );
-}

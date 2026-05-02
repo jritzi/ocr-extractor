@@ -1,12 +1,10 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
+import { clickModalButton, openNote, seedNote } from "../helpers/obsidian";
 import {
-  seedNote,
-  clickModalButton,
   expectCallout,
   expectNoCallout,
   extractCurrentNote,
-  openNote,
-} from "../helpers";
+} from "../helpers/plugin";
 
 test("successful extraction", async ({ page }) => {
   await seedNote(page, "Extraction test", "![[attachments/sample.pdf]]");
