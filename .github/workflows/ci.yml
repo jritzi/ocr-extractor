@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6
@@ -87,7 +87,7 @@ jobs:
           sudo apt-get install -y xvfb libgtk-3-0 libasound2t64 libnss3 libxss1
 
       - name: Cache Obsidian extraction
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: e2e/obsidian-extracted
           key: obsidian-extracted-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6
@@ -120,7 +120,7 @@ jobs:
         run: pnpm build
 
       - name: Cache Obsidian extraction
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: e2e/obsidian-extracted
           key: obsidian-extracted-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
@@ -129,7 +129,7 @@ jobs:
         run: pnpm test:e2e
 
   e2e-windows:
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: windows-latest
     permissions:
@@ -138,7 +138,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6
@@ -153,7 +153,7 @@ jobs:
         run: pnpm build
 
       - name: Cache Obsidian extraction
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: e2e/obsidian-extracted
           key: obsidian-extracted-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'pnpm-lock.yaml') }}
