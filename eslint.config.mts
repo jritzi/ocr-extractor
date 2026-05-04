@@ -6,12 +6,15 @@ import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
 import { includeIgnoreFile } from "@eslint/compat";
 import path from "path";
+import { fileURLToPath } from "url";
 
 // @ts-expect-error — plugin lacks type declarations
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
-  includeIgnoreFile(path.resolve(import.meta.dirname, ".gitignore")),
+  includeIgnoreFile(
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".gitignore"),
+  ),
   globalIgnores([
     "**/*.json",
     "esbuild.config.mjs",
