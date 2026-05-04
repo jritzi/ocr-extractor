@@ -12,7 +12,12 @@ import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
   includeIgnoreFile(path.resolve(import.meta.dirname, ".gitignore")),
-  globalIgnores(["**/*.json", "esbuild.config.mjs", "version-bump.mjs"]),
+  globalIgnores([
+    "**/*.json",
+    "esbuild.config.mjs",
+    "version-bump.mjs",
+    "e2e/mock-ocr/*.js",
+  ]),
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
   noUnsanitized.configs.recommended,
