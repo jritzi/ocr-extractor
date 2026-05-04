@@ -19,7 +19,7 @@ export default defineConfig({
 
   /* Each test uses a unique --user-data-dir, so workers run fully independently */
   fullyParallel: true,
-  workers: process.env.CI ? availableParallelism() : 4,
+  workers: process.env.CI ? availableParallelism() : 5,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   /* 'html' generates a browsable report; 'list' is simpler for local dev */

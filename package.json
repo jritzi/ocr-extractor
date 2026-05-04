@@ -19,8 +19,11 @@
   "license": "MIT",
   "devDependencies": {
     "@electron/asar": "^4.1.2",
+    "@eslint/compat": "^2.0.5",
     "@eslint/js": "^9.39.2",
+    "@mswjs/interceptors": "^0.41.6",
     "@playwright/test": "^1.58.2",
+    "@tesseract.js-data/eng": "^1.0.0",
     "@types/node": "^24.10.13",
     "electron": "39.8.3",
     "esbuild": "0.28.0",

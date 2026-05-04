@@ -4,18 +4,22 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
+import { includeIgnoreFile } from "@eslint/compat";
+import path from "path";
+import { fileURLToPath } from "url";
+
 // @ts-expect-error — plugin lacks type declarations
 import noUnsanitized from "eslint-plugin-no-unsanitized";
 
 export default defineConfig([
+  includeIgnoreFile(
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".gitignore"),
+  ),
   globalIgnores([
-    "main.js",
+    "**/*.json",
     "esbuild.config.mjs",
     "version-bump.mjs",
-    "**/*.json",
-    "e2e/obsidian-extracted/",
-    "e2e/test-results/",
-    "e2e/playwright-report/",
+    "e2e/mock-ocr/*.js",
   ]),
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
@@ -58,7 +62,9 @@ export default defineConfig([
     rules: {
       "import/no-nodejs-modules": "off",
       "no-console": "off",
+      "no-restricted-globals": "off",
       "obsidianmd/hardcoded-config-path": "off",
+      "obsidianmd/prefer-active-doc": "off",
       "obsidianmd/prefer-active-window-timers": "off",
       "obsidianmd/rule-custom-message": "off",
       "obsidianmd/ui/sentence-case": "off",

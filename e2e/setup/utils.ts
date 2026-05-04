@@ -1,4 +1,3 @@
-import { spawn } from "child_process";
 import { extractAll } from "@electron/asar";
 import {
   copyFileSync,
@@ -40,8 +39,8 @@ export function prepareAsars(sourceDir: string) {
   );
 }
 
-export async function verifyElectronVersion(obsidianBinary: string) {
-  const bundledVersion = await getBundledElectronVersion(obsidianBinary);
+export function verifyElectronVersion(obsidianBinary: string) {
+  const bundledVersion = getBundledElectronVersion(obsidianBinary);
   const installedVersion = getInstalledElectronVersion();
 
   if (bundledVersion !== installedVersion) {
@@ -52,31 +51,13 @@ export async function verifyElectronVersion(obsidianBinary: string) {
   }
 }
 
-async function getBundledElectronVersion(obsidianBinary: string) {
-  return new Promise<string>((resolve, reject) => {
-    const proc = spawn("strings", [obsidianBinary]);
-    let buffer = "";
-    let resolved = false;
-
-    proc.stdout.on("data", (chunk: Buffer) => {
-      if (resolved) return;
-      buffer += chunk.toString();
-      const match = buffer.match(/^Electron v(.+)$/m);
-      if (match) {
-        resolved = true;
-        proc.kill();
-        resolve(match[1]);
-      }
-    });
-
-    proc.on("close", () => {
-      if (!resolved) {
-        reject(new Error("Could not determine bundled Electron version."));
-      }
-    });
-
-    proc.on("error", reject);
-  });
+function getBundledElectronVersion(obsidianBinary: string) {
+  const content = readFileSync(obsidianBinary, "latin1");
+  const match = content.match(/Electron\/([\d.]+)/);
+  if (!match) {
+    throw new Error("Could not determine bundled Electron version.");
+  }
+  return match[1];
 }
 
 export function getInstalledElectronVersion() {
