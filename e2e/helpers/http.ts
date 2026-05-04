@@ -21,13 +21,14 @@ export async function expectHttpRequest(
   url: string,
   expected: Record<string, unknown>,
 ) {
-  const requests = await page.evaluate(
-    ({ method, url }) => globalThis.__httpMock.requests(method, url),
-    { method, url },
-  );
-  expect(requests).toEqual(
-    expect.arrayContaining([expect.objectContaining(expected)]),
-  );
+  await expect
+    .poll(() =>
+      page.evaluate(
+        ({ method, url }) => globalThis.__httpMock.requests(method, url),
+        { method, url },
+      ),
+    )
+    .toEqual(expect.arrayContaining([expect.objectContaining(expected)]));
 }
 
 export async function expectNoUnexpectedRequests(page: Page) {
