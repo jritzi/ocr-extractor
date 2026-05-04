@@ -5,6 +5,7 @@ import {
   Page,
   test as base,
 } from "@playwright/test";
+import { execFileSync } from "child_process";
 import { mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
@@ -22,9 +23,9 @@ import { closeModal } from "./helpers/obsidian";
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
 
 export const MOCK_OCR_COMMANDS = {
-  fast: `"${join(E2E, "mock-ocr", "fast.sh")}" {input} {output}`,
-  slow: `"${join(E2E, "mock-ocr", "slow.sh")}" {input} {output}`,
-  error: `"${join(E2E, "mock-ocr", "error.sh")}" {input} {output}`,
+  fast: `node "${join(E2E, "mock-ocr", "fast.js")}" {input} {output}`,
+  slow: `node "${join(E2E, "mock-ocr", "slow.js")}" {input} {output}`,
+  error: `node "${join(E2E, "mock-ocr", "error.js")}" {input} {output}`,
 };
 
 // Obsidian app extracted during globalSetup (run via the local electron binary
@@ -85,8 +86,14 @@ export const test = base.extend<ObsidianFixtures>({
         // blocking teardown
         if (timedOut && pid) {
           try {
-            // Negative PID to kill the process group
-            process.kill(-pid, "SIGKILL");
+            if (process.platform === "win32") {
+              execFileSync("taskkill", ["/pid", String(pid), "/T", "/F"], {
+                stdio: "ignore",
+              });
+            } else {
+              // Negative PID to kill the process group
+              process.kill(-pid, "SIGKILL");
+            }
           } catch {
             // Process already exited
           }

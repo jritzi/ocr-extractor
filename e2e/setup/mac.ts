@@ -9,7 +9,7 @@ import {
   EXTRACTED,
 } from "./utils";
 
-export async function setupMac(obsidianVersion: string) {
+export function setupMac(obsidianVersion: string) {
   const dmgFilename = `Obsidian-${obsidianVersion}.dmg`;
   const tmpDir = mkdtempSync(join(tmpdir(), "obsidian-setup-"));
   const tmpDmg = join(tmpDir, dmgFilename);
@@ -23,6 +23,7 @@ export async function setupMac(obsidianVersion: string) {
       { stdio: "inherit" },
     );
 
+    console.log("Mounting DMG...");
     mkdirSync(mountPoint, { recursive: true });
     execFileSync("hdiutil", [
       "attach",
@@ -53,7 +54,7 @@ export async function setupMac(obsidianVersion: string) {
         "A",
         "Electron Framework",
       );
-      await verifyElectronVersion(electronBinary);
+      verifyElectronVersion(electronBinary);
     } finally {
       execFileSync("hdiutil", ["detach", mountPoint, "-quiet"]);
     }

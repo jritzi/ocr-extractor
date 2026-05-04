@@ -4,6 +4,7 @@ import { join } from "path";
 import esbuild from "esbuild";
 import { setupLinux } from "./setup/linux";
 import { setupMac } from "./setup/mac";
+import { setupWindows } from "./setup/windows";
 import {
   E2E,
   EXTRACTED,
@@ -26,14 +27,15 @@ export default async function globalSetup() {
 
   switch (process.platform) {
     case "darwin":
-      await setupMac(OBSIDIAN_VERSION);
+      setupMac(OBSIDIAN_VERSION);
       break;
     case "linux":
-      await setupLinux(OBSIDIAN_VERSION);
+      setupLinux(OBSIDIAN_VERSION);
+      break;
+    case "win32":
+      setupWindows(OBSIDIAN_VERSION);
       break;
     default:
-      // When adding Windows support, ensure the electronApp fixture
-      // cleanup logic is updated
       throw new Error(`${process.platform} not supported for E2E tests`);
   }
 
@@ -47,7 +49,14 @@ function ensurePluginBuilt() {
 
   if (missing.length > 0) {
     console.log("Building plugin...");
-    execFileSync("pnpm", ["build"], { stdio: "inherit", cwd: ROOT });
+    execFileSync(
+      process.platform === "win32" ? "pnpm.cmd" : "pnpm",
+      ["build"],
+      {
+        stdio: "inherit",
+        cwd: ROOT,
+      },
+    );
   }
 }
 
