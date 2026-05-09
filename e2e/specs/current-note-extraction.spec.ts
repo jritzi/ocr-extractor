@@ -75,3 +75,15 @@ test.describe("error handling", () => {
     await expectNoCallout(page);
   });
 });
+
+test("Markdown link embed syntax (issue #51)", async ({ page }) => {
+  await seedNote(
+    page,
+    "Markdown link embed test",
+    "![sample](attachments/sample.pdf)",
+  );
+  await openNote(page, "Markdown link embed test");
+  await extractCurrentNote(page);
+
+  await expectCallout(page, MOCK_OCR_OUTPUT);
+});

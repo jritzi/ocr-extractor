@@ -250,12 +250,7 @@ export class TextExtractor {
   }
 
   private embedMoved(embed: EmbedCache, content: string) {
-    const startOffset = embed.position.start.offset;
-    const endOffset = embed.position.end.offset;
-
-    const startMatches = content.slice(startOffset, startOffset + 3) === "![[";
-    const endMatches = content.slice(endOffset - 2, endOffset) === "]]";
-
-    return !startMatches || !endMatches;
+    const { start, end } = embed.position;
+    return content.slice(start.offset, end.offset) !== embed.original;
   }
 }
