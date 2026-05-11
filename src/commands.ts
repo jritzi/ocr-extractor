@@ -21,6 +21,8 @@ function addExtractCurrentNoteCommand(plugin: OcrExtractorPlugin) {
 
         return true;
       }
+
+      return false;
     },
   });
 }
@@ -37,6 +39,8 @@ function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
 
         return true;
       }
+
+      return false;
     },
   });
 }
@@ -53,6 +57,8 @@ function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
 
         return true;
       }
+
+      return false;
     },
   });
 }
