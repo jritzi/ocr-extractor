@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -26,6 +28,11 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm build
+
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: "main.js,manifest.json,styles.css"
 
       - name: Create release
         env:
