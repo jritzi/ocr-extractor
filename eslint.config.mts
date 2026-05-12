@@ -39,6 +39,10 @@ export default defineConfig([
       },
     },
     rules: {
+      // Remove once https://github.com/obsidianmd/eslint-plugin/pull/147 is in a release
+      "import/no-nodejs-modules": "off",
+      "obsidianmd/no-nodejs-modules": "error",
+
       "@typescript-eslint/member-ordering": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -64,8 +68,11 @@ export default defineConfig([
       "no-console": "off",
       "no-restricted-globals": "off",
       "obsidianmd/hardcoded-config-path": "off",
+      "obsidianmd/no-global-this": "off",
+      "obsidianmd/no-nodejs-modules": "off",
       "obsidianmd/prefer-active-doc": "off",
       "obsidianmd/prefer-active-window-timers": "off",
+      "obsidianmd/prefer-window-timers": "off",
       "obsidianmd/rule-custom-message": "off",
       "obsidianmd/ui/sentence-case": "off",
     },
