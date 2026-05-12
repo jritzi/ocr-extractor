@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-require-imports, import/no-nodejs-modules -- Node modules are only loaded (with require()) when Platform.isDesktop */
-
 import type { SecretStorage, SettingGroup } from "obsidian";
 import { Platform } from "obsidian";
 import { OcrService, UserFacingError } from "./ocr-service";
 import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
-import { assert } from "../utils/assert";
 import {
   showErrorNotice,
   showLoadingNotice,
@@ -30,16 +27,22 @@ export class CustomCommandService extends OcrService {
 
   constructor(settings: PluginSettings, secretStorage: SecretStorage) {
     super(settings, secretStorage);
-    assert(Platform.isDesktop, "Service only instantiated on desktop");
 
-    this.fs = require("fs/promises") as typeof this.fs;
-    this.os = require("os") as typeof this.os;
-    this.path = require("path") as typeof this.path;
-    this.crypto = require("crypto") as typeof this.crypto;
-    const util = require("util") as typeof import("util");
-    const childProcess =
-      require("child_process") as typeof import("child_process");
-    this.execAsync = util.promisify(childProcess.exec);
+    if (Platform.isDesktop) {
+      /* eslint-disable @typescript-eslint/no-require-imports */
+      this.fs = require("fs/promises") as typeof this.fs;
+      this.os = require("os") as typeof this.os;
+      this.path = require("path") as typeof this.path;
+      this.crypto = require("crypto") as typeof this.crypto;
+      const util = require("util") as typeof import("util");
+      const childProcess =
+        require("child_process") as typeof import("child_process");
+      /* eslint-enable @typescript-eslint/no-require-imports */
+
+      this.execAsync = util.promisify(childProcess.exec);
+    } else {
+      throw new Error("Service is only available on desktop");
+    }
   }
 
   static getLabel() {
