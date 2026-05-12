@@ -27,7 +27,7 @@ export async function convertPdfToImages(data: Uint8Array) {
   return mapPdfPages(data, async (pdfPage) => {
     const viewport = pdfPage.getViewport({ scale: 2.0 });
 
-    const canvas = activeDocument.createElement("canvas");
+    const canvas = createEl("canvas");
     const canvasContext = canvas.getContext("2d")!;
     canvas.width = viewport.width;
     canvas.height = viewport.height;
