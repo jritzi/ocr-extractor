@@ -57,7 +57,7 @@ export function migrateSettings(
     }
 
     secretStorage.setSecret(mistralSecret, settings.mistralApiKey);
-    const { mistralApiKey: _removedKey, ...rest } = settings;
+    const { mistralApiKey, ...rest } = settings;
     settings = { ...rest, mistralSecret };
   }
 
