@@ -1,6 +1,7 @@
 import type { SecretStorage, SettingGroup } from "obsidian";
 import { Platform } from "obsidian";
 import { OcrService, UserFacingError } from "./ocr-service";
+import { assert } from "../utils/assert";
 import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
 import {
@@ -15,34 +16,21 @@ import { t } from "../i18n";
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 const TEST_TEXT = "OCR test";
 
+interface NodeModules {
+  fs: typeof import("fs/promises");
+  os: typeof import("os");
+  path: typeof import("path");
+  crypto: typeof import("crypto");
+  util: typeof import("util");
+  childProcess: typeof import("child_process");
+}
+
 export class CustomCommandService extends OcrService {
-  private readonly fs: typeof import("fs/promises");
-  private readonly os: typeof import("os");
-  private readonly path: typeof import("path");
-  private readonly crypto: typeof import("crypto");
-  private readonly execAsync: (
-    cmd: string,
-    opts: import("child_process").ExecOptions,
-  ) => Promise<{ stdout: string; stderr: string }>;
+  private nodeModules?: NodeModules;
 
   constructor(settings: PluginSettings, secretStorage: SecretStorage) {
     super(settings, secretStorage);
-
-    if (Platform.isDesktop) {
-      /* eslint-disable @typescript-eslint/no-require-imports */
-      this.fs = require("fs/promises") as typeof this.fs;
-      this.os = require("os") as typeof this.os;
-      this.path = require("path") as typeof this.path;
-      this.crypto = require("crypto") as typeof this.crypto;
-      const util = require("util") as typeof import("util");
-      const childProcess =
-        require("child_process") as typeof import("child_process");
-      /* eslint-enable @typescript-eslint/no-require-imports */
-
-      this.execAsync = util.promisify(childProcess.exec);
-    } else {
-      throw new Error("Service is only available on desktop");
-    }
+    assert(Platform.isDesktop, "Service is only available on desktop");
   }
 
   static getLabel() {
@@ -161,11 +149,8 @@ export class CustomCommandService extends OcrService {
       return pages.length > 0 ? pages : null;
     }
 
-    const text = await this.processFile(
-      data,
-      command,
-      this.path.extname(filename),
-    );
+    const { path } = await this.getNodeModules();
+    const text = await this.processFile(data, command, path.extname(filename));
     return text ? [text] : null;
   }
 
@@ -182,17 +167,15 @@ export class CustomCommandService extends OcrService {
     command: string,
     extension: string,
   ) {
-    const { inputPath, outputPath } = this.getTmpPaths(extension);
+    const { fs } = await this.getNodeModules();
+    const { inputPath, outputPath } = await this.getTmpPaths(extension);
 
     try {
-      await this.fs.writeFile(inputPath, data);
+      await fs.writeFile(inputPath, data);
       await this.runCommand(command, inputPath, outputPath);
       return await this.readOutput(outputPath);
     } finally {
-      await Promise.allSettled([
-        this.fs.unlink(inputPath),
-        this.fs.unlink(outputPath),
-      ]);
+      await Promise.allSettled([fs.unlink(inputPath), fs.unlink(outputPath)]);
     }
   }
 
@@ -201,16 +184,14 @@ export class CustomCommandService extends OcrService {
    * sanitizing the input extension, to prevent command injection from
    * unsafe characters in original filenames.
    */
-  private getTmpPaths(extension: string) {
-    const uuid = this.crypto.randomUUID();
+  private async getTmpPaths(extension: string) {
+    const { os, path, crypto } = await this.getNodeModules();
+    const uuid = crypto.randomUUID();
     const sanitizedExt = extension.replace(/[^a-zA-Z0-9]/g, "");
 
     return {
-      inputPath: this.path.join(
-        this.os.tmpdir(),
-        `input-${uuid}.${sanitizedExt}`,
-      ),
-      outputPath: this.path.join(this.os.tmpdir(), `output-${uuid}.md`),
+      inputPath: path.join(os.tmpdir(), `input-${uuid}.${sanitizedExt}`),
+      outputPath: path.join(os.tmpdir(), `output-${uuid}.md`),
     };
   }
 
@@ -219,13 +200,16 @@ export class CustomCommandService extends OcrService {
     inputPath: string,
     outputPath: string,
   ) {
+    const { util, childProcess } = await this.getNodeModules();
+    const execAsync = util.promisify(childProcess.exec);
+
     // Quote paths to handle spaces in tmp path (e.g. on Windows)
     const resolvedCommand = command
       .replace(/\{input}/g, `"${inputPath}"`)
       .replace(/\{output}/g, `"${outputPath}"`);
 
     try {
-      await this.execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT });
+      await execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT });
     } catch (error) {
       const { killed, code, message, stderr } = error as {
         killed?: boolean;
@@ -248,11 +232,32 @@ export class CustomCommandService extends OcrService {
   }
 
   private async readOutput(outputPath: string) {
+    const { fs } = await this.getNodeModules();
     try {
-      return await this.fs.readFile(outputPath, "utf-8");
+      return await fs.readFile(outputPath, "utf-8");
     } catch {
       // Skip attachment if no output file produced
       return null;
     }
+  }
+
+  private async getNodeModules() {
+    if (!this.nodeModules) {
+      if (Platform.isDesktop) {
+        const [fs, os, path, crypto, util, childProcess] = await Promise.all([
+          import("fs/promises"),
+          import("os"),
+          import("path"),
+          import("crypto"),
+          import("util"),
+          import("child_process"),
+        ]);
+        this.nodeModules = { fs, os, path, crypto, util, childProcess };
+      } else {
+        throw new Error("Service is only available on desktop");
+      }
+    }
+
+    return this.nodeModules;
   }
 }
