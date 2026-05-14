@@ -3,6 +3,7 @@ import { OcrService } from "./ocr-service";
 import { toDataUrl } from "../utils/encoding";
 import { convertPdfToImages, isPdf } from "../utils/pdf";
 import { t } from "../i18n";
+import { raceAbort } from "../utils/async";
 
 export class TesseractService extends OcrService {
   private worker: Worker | null = null;
@@ -26,9 +27,10 @@ export class TesseractService extends OcrService {
     data: Uint8Array,
     mimeType: string,
     _filename: string,
+    signal: AbortSignal,
   ) {
     if (isPdf(mimeType)) {
-      return this.extractPdfPages(data);
+      return this.extractPdfPages(data, signal);
     }
 
     const text = await this.recognize(toDataUrl(data, mimeType));
@@ -43,12 +45,20 @@ export class TesseractService extends OcrService {
     return result.data.text;
   }
 
-  private async extractPdfPages(data: Uint8Array) {
+  private async extractPdfPages(data: Uint8Array, signal: AbortSignal) {
     const images = await convertPdfToImages(data);
     const pages: string[] = [];
 
     for (const image of images) {
-      pages.push(await this.recognize(toDataUrl(image, "image/png")));
+      if (signal.aborted) break;
+
+      const text = await raceAbort(
+        this.recognize(toDataUrl(image, "image/png")),
+        signal,
+      );
+      if (text === null) break;
+
+      pages.push(text);
     }
 
     return pages;

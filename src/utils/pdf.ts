@@ -13,7 +13,7 @@ export function isPdf(mimeType: string) {
 /**
  * Returns text from a PDF's text layer as an array of one string per page.
  */
-export async function getPdfTextContent(data: Uint8Array): Promise<string[]> {
+export async function getPdfTextContent(data: Uint8Array) {
   return mapPdfPages(data, async (page) => {
     const textContent = await page.getTextContent();
     return textContent.items

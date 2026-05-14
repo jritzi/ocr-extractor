@@ -2,8 +2,7 @@ import type { SecretStorage, SettingGroup } from "obsidian";
 import { SecretComponent } from "obsidian";
 import { Mistral } from "@mistralai/mistralai";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
-import { UserFacingError, OcrService } from "./ocr-service";
-import { withRetries } from "../utils/async";
+import { OcrService, UserFacingError } from "./ocr-service";
 import { toDataUrl } from "../utils/encoding";
 import { warnSkipped } from "../utils/logging";
 import type OcrExtractorPlugin from "../../main";
@@ -41,6 +40,7 @@ export class MistralService extends OcrService {
     data: Uint8Array,
     mimeType: string,
     filename: string,
+    signal: AbortSignal,
   ) {
     const apiKey =
       this.secretStorage.getSecret(this.settings.mistralSecret) ?? "";
@@ -54,18 +54,16 @@ export class MistralService extends OcrService {
       : ({ type: "document_url", documentUrl: url } as const);
 
     try {
-      const ocrResponse = await withRetries(
-        () =>
-          mistral.ocr.process({
-            model: "mistral-ocr-latest",
-            document,
-            // Do not extract images
-            imageLimit: 0,
-            imageMinSize: 0,
-            includeImageBase64: false,
-          }),
-        // Retry on 5xx server errors, not 4xx client errors
-        (error) => !(error instanceof MistralError) || error.statusCode >= 500,
+      const ocrResponse = await mistral.ocr.process(
+        {
+          model: "mistral-ocr-latest",
+          document,
+          // Do not extract images
+          imageLimit: 0,
+          imageMinSize: 0,
+          includeImageBase64: false,
+        },
+        { signal, retries: { strategy: "backoff" } },
       );
 
       return ocrResponse.pages.map((page) => page.markdown);

@@ -80,7 +80,11 @@ export class CustomCommandService extends OcrService {
     const loadingNotice = showLoadingNotice(t("notices.testingCommand"));
 
     try {
-      const result = await service.processOcr(testPng, "test.png");
+      const result = await service.processOcr(
+        testPng,
+        "test.png",
+        new AbortController().signal,
+      );
       if (!result) {
         showErrorNotice(t("notices.testNoOutput"));
       } else if (result.trim() === TEST_TEXT) {
@@ -132,6 +136,7 @@ export class CustomCommandService extends OcrService {
     data: Uint8Array,
     mimeType: string,
     filename: string,
+    signal: AbortSignal,
   ) {
     const command = this.getCustomCommand();
 
@@ -140,7 +145,9 @@ export class CustomCommandService extends OcrService {
       const pages: string[] = [];
 
       for (const imageData of images) {
-        const text = await this.processFile(imageData, command, "png");
+        if (signal.aborted) break;
+
+        const text = await this.processFile(imageData, command, "png", signal);
         if (text) {
           pages.push(text);
         }
@@ -150,7 +157,12 @@ export class CustomCommandService extends OcrService {
     }
 
     const { path } = await this.getNodeModules();
-    const text = await this.processFile(data, command, path.extname(filename));
+    const text = await this.processFile(
+      data,
+      command,
+      path.extname(filename),
+      signal,
+    );
     return text ? [text] : null;
   }
 
@@ -166,13 +178,14 @@ export class CustomCommandService extends OcrService {
     data: Uint8Array,
     command: string,
     extension: string,
+    signal: AbortSignal,
   ) {
     const { fs } = await this.getNodeModules();
     const { inputPath, outputPath } = await this.getTmpPaths(extension);
 
     try {
       await fs.writeFile(inputPath, data);
-      await this.runCommand(command, inputPath, outputPath);
+      await this.runCommand(command, inputPath, outputPath, signal);
       return await this.readOutput(outputPath);
     } finally {
       await Promise.allSettled([fs.unlink(inputPath), fs.unlink(outputPath)]);
@@ -199,6 +212,7 @@ export class CustomCommandService extends OcrService {
     command: string,
     inputPath: string,
     outputPath: string,
+    signal: AbortSignal,
   ) {
     const { util, childProcess } = await this.getNodeModules();
     const execAsync = util.promisify(childProcess.exec);
@@ -209,8 +223,10 @@ export class CustomCommandService extends OcrService {
       .replace(/\{output}/g, `"${outputPath}"`);
 
     try {
-      await execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT });
+      await execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT, signal });
     } catch (error) {
+      if (signal.aborted) throw error;
+
       const { killed, code, message, stderr } = error as {
         killed?: boolean;
         code?: number;
