@@ -8,9 +8,6 @@ import { includeIgnoreFile } from "@eslint/compat";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// @ts-expect-error — plugin lacks type declarations
-import noUnsanitized from "eslint-plugin-no-unsanitized";
-
 export default defineConfig([
   includeIgnoreFile(
     path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".gitignore"),
@@ -22,16 +19,9 @@ export default defineConfig([
     "e2e/mock-ocr/*.js",
   ]),
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- plugin lacks types
-  noUnsanitized.configs.recommended,
-  eslintConfigPrettier,
-
-  ...obsidianmd.configs.recommendedWithLocalesEn,
-
   {
     files: ["**/*.{ts,mts,cts}"],
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked],
-    plugins: { obsidianmd },
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
@@ -39,15 +29,24 @@ export default defineConfig([
       },
     },
     rules: {
-      // Remove once https://github.com/obsidianmd/eslint-plugin/pull/147 is in a release
-      "import/no-nodejs-modules": "off",
-      "obsidianmd/no-nodejs-modules": "error",
-
       "@typescript-eslint/member-ordering": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", ignoreRestSiblings: true },
       ],
+    },
+  },
+
+  // Obsidian-specific rules
+  {
+    files: ["src/**/*.ts"],
+    ignores: ["src/**/*.test.ts"],
+    extends: obsidianmd.configs.recommendedWithLocalesEn,
+    rules: {
+      // Remove once https://github.com/obsidianmd/eslint-plugin/pull/147 is in a release
+      "import/no-nodejs-modules": "off",
+      "obsidianmd/no-nodejs-modules": "error",
+
       "obsidianmd/ui/sentence-case": [
         "error",
         {
@@ -59,22 +58,5 @@ export default defineConfig([
     },
   },
 
-  // Disable Obsidian-specific rules outside src/
-  {
-    files: ["**/*.{ts,mts,cts}"],
-    ignores: ["src/**"],
-    rules: {
-      "import/no-nodejs-modules": "off",
-      "no-console": "off",
-      "no-restricted-globals": "off",
-      "obsidianmd/hardcoded-config-path": "off",
-      "obsidianmd/no-global-this": "off",
-      "obsidianmd/no-nodejs-modules": "off",
-      "obsidianmd/prefer-active-doc": "off",
-      "obsidianmd/prefer-active-window-timers": "off",
-      "obsidianmd/prefer-window-timers": "off",
-      "obsidianmd/rule-custom-message": "off",
-      "obsidianmd/ui/sentence-case": "off",
-    },
-  },
+  eslintConfigPrettier,
 ]);
