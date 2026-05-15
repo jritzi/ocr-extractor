@@ -1,5 +1,6 @@
 import { expect, test } from "../../fixtures";
 import { expectHttpRequest, mockHttp } from "../../helpers/http";
+import { MISTRAL_URL, mistralSuccessResponse } from "../../helpers/mistral";
 import {
   clickModalButton,
   getModal,
@@ -12,28 +13,7 @@ import {
   extractCurrentNote,
 } from "../../helpers/plugin";
 
-const MISTRAL_URL = "https://api.mistral.ai/v1/ocr";
 const MOCK_RESPONSE = "Mistral extracted text";
-
-function successResponse() {
-  return {
-    model: "mistral-ocr-latest",
-    document_annotation: null,
-    pages: [
-      {
-        index: 0,
-        markdown: MOCK_RESPONSE,
-        images: [],
-        tables: [],
-        hyperlinks: [],
-        header: null,
-        footer: null,
-        dimensions: { dpi: 72, height: 100, width: 100 },
-      },
-    ],
-    usage_info: { pages_processed: 1, doc_size_bytes: 100 },
-  };
-}
 
 test.use({ settings: { ocrService: "mistral", mistralSecret: "mistral-key" } });
 
@@ -44,7 +24,13 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("PDF extraction (document_url)", async ({ page }) => {
-  await mockHttp(page, "POST", MISTRAL_URL, 200, successResponse());
+  await mockHttp(
+    page,
+    "POST",
+    MISTRAL_URL,
+    200,
+    mistralSuccessResponse(MOCK_RESPONSE),
+  );
 
   await seedNote(page, "Note", "![[attachments/sample.pdf]]");
   await openNote(page, "Note");
@@ -64,7 +50,13 @@ test("PDF extraction (document_url)", async ({ page }) => {
 });
 
 test("image extraction (image_url)", async ({ page }) => {
-  await mockHttp(page, "POST", MISTRAL_URL, 200, successResponse());
+  await mockHttp(
+    page,
+    "POST",
+    MISTRAL_URL,
+    200,
+    mistralSuccessResponse(MOCK_RESPONSE),
+  );
 
   await seedNote(page, "Note", "![[attachments/sample.png]]");
   await openNote(page, "Note");

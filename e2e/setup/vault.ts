@@ -7,7 +7,7 @@ import {
 } from "fs";
 import { join } from "path";
 import type { Page } from "@playwright/test";
-import type { PluginSettings } from "../../src/settings";
+import type { StoredSettings } from "../../src/settings";
 import { E2E, ROOT } from "./utils";
 
 const TEST_VAULT = join(E2E, "test-vault");
@@ -28,10 +28,7 @@ export function createUserData(tmpUserData: string, tmpVault: string) {
   );
 }
 
-export function setupPlugin(
-  tmpVault: string,
-  settings: Partial<PluginSettings>,
-) {
+export function setupPlugin(tmpVault: string, settings: StoredSettings) {
   const pluginDir = join(tmpVault, ".obsidian", "plugins", "ocr-extractor");
   mkdirSync(pluginDir, { recursive: true });
   copyFileSync(join(ROOT, "main.js"), join(pluginDir, "main.js"));
