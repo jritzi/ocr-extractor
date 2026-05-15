@@ -1,4 +1,6 @@
 minimumReleaseAge: 2880
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
 
 peerDependencyRules:
   allowedVersions:
