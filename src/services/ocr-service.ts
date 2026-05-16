@@ -42,10 +42,10 @@ export abstract class OcrService {
     }
 
     if (isPdf(mimeType) && this.settings.useEmbeddedText) {
-      const result = this.joinPages(await getPdfTextContent(data));
-      if (result) {
-        return result;
-      }
+      const pages = await raceAbort(getPdfTextContent(data), signal);
+      if (pages === null) return null;
+      const result = this.joinPages(pages);
+      if (result) return result;
     }
 
     const pages = await raceAbort(
