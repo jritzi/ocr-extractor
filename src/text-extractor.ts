@@ -13,7 +13,7 @@ import {
   isManagedCallout,
   migrateCallouts,
 } from "./utils/callout";
-import { batchPromises, withCancellation } from "./utils/async";
+import { batchPromises } from "./utils/async";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
@@ -153,9 +153,10 @@ export class TextExtractor {
       } else {
         const binary = await this.app.vault.readBinary(embedFile);
         const data = new Uint8Array(binary);
-        markdown = await withCancellation(
-          this.service.processOcr(data, embedFile.name),
-          () => this.plugin.statusManager.isCanceling(),
+        markdown = await this.service.processOcr(
+          data,
+          embedFile.name,
+          this.plugin.statusManager.getSignal(),
         );
         if (markdown === null) {
           skippedEmbeds.push(embed);

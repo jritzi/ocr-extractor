@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-require-imports, import/no-nodejs-modules -- Node modules are only loaded (with require()) when Platform.isDesktop */
-
 import type { SecretStorage, SettingGroup } from "obsidian";
 import { Platform } from "obsidian";
 import { OcrService, UserFacingError } from "./ocr-service";
 import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
-import { assert } from "../utils/assert";
 import {
   showErrorNotice,
   showLoadingNotice,
@@ -30,16 +27,19 @@ export class CustomCommandService extends OcrService {
 
   constructor(settings: PluginSettings, secretStorage: SecretStorage) {
     super(settings, secretStorage);
-    assert(Platform.isDesktop, "Service only instantiated on desktop");
 
-    this.fs = require("fs/promises") as typeof this.fs;
-    this.os = require("os") as typeof this.os;
-    this.path = require("path") as typeof this.path;
-    this.crypto = require("crypto") as typeof this.crypto;
-    const util = require("util") as typeof import("util");
-    const childProcess =
-      require("child_process") as typeof import("child_process");
-    this.execAsync = util.promisify(childProcess.exec);
+    if (Platform.isDesktop) {
+      this.fs = require("fs/promises") as typeof this.fs;
+      this.os = require("os") as typeof this.os;
+      this.path = require("path") as typeof this.path;
+      this.crypto = require("crypto") as typeof this.crypto;
+      const util = require("util") as typeof import("util");
+      const childProcess =
+        require("child_process") as typeof import("child_process");
+      this.execAsync = util.promisify(childProcess.exec);
+    } else {
+      throw new Error("Service is only available on desktop");
+    }
   }
 
   static getLabel() {
@@ -89,7 +89,11 @@ export class CustomCommandService extends OcrService {
     const loadingNotice = showLoadingNotice(t("notices.testingCommand"));
 
     try {
-      const result = await service.processOcr(testPng, "test.png");
+      const result = await service.processOcr(
+        testPng,
+        "test.png",
+        new AbortController().signal,
+      );
       if (!result) {
         showErrorNotice(t("notices.testNoOutput"));
       } else if (result.trim() === TEST_TEXT) {
@@ -115,7 +119,7 @@ export class CustomCommandService extends OcrService {
   }
 
   private static async createTestImage() {
-    const canvas = activeDocument.createElement("canvas");
+    const canvas = createEl("canvas");
     canvas.width = 200;
     canvas.height = 50;
     const ctx = canvas.getContext("2d")!;
@@ -141,6 +145,7 @@ export class CustomCommandService extends OcrService {
     data: Uint8Array,
     mimeType: string,
     filename: string,
+    signal: AbortSignal,
   ) {
     const command = this.getCustomCommand();
 
@@ -149,7 +154,9 @@ export class CustomCommandService extends OcrService {
       const pages: string[] = [];
 
       for (const imageData of images) {
-        const text = await this.processFile(imageData, command, "png");
+        if (signal.aborted) break;
+
+        const text = await this.processFile(imageData, command, "png", signal);
         if (text) {
           pages.push(text);
         }
@@ -162,6 +169,7 @@ export class CustomCommandService extends OcrService {
       data,
       command,
       this.path.extname(filename),
+      signal,
     );
     return text ? [text] : null;
   }
@@ -178,12 +186,13 @@ export class CustomCommandService extends OcrService {
     data: Uint8Array,
     command: string,
     extension: string,
+    signal: AbortSignal,
   ) {
     const { inputPath, outputPath } = this.getTmpPaths(extension);
 
     try {
       await this.fs.writeFile(inputPath, data);
-      await this.runCommand(command, inputPath, outputPath);
+      await this.runCommand(command, inputPath, outputPath, signal);
       return await this.readOutput(outputPath);
     } finally {
       await Promise.allSettled([
@@ -215,6 +224,7 @@ export class CustomCommandService extends OcrService {
     command: string,
     inputPath: string,
     outputPath: string,
+    signal: AbortSignal,
   ) {
     // Quote paths to handle spaces in tmp path (e.g. on Windows)
     const resolvedCommand = command
@@ -222,8 +232,13 @@ export class CustomCommandService extends OcrService {
       .replace(/\{output}/g, `"${outputPath}"`);
 
     try {
-      await this.execAsync(resolvedCommand, { timeout: COMMAND_TIMEOUT });
+      await this.execAsync(resolvedCommand, {
+        timeout: COMMAND_TIMEOUT,
+        signal,
+      });
     } catch (error) {
+      if (signal.aborted) throw error;
+
       const { killed, code, message, stderr } = error as {
         killed?: boolean;
         code?: number;

@@ -9,7 +9,7 @@ import { execFileSync } from "child_process";
 import { mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import type { PluginSettings } from "../src/settings";
+import type { StoredSettings } from "../src/settings";
 import { E2E, EXTRACTED } from "./setup/utils";
 import {
   copyTestVault,
@@ -33,9 +33,14 @@ export const MOCK_OCR_COMMANDS = {
 // preventing Playwright from connecting)
 const OBSIDIAN_EXTRACTED = join(EXTRACTED, "main.js");
 
+function truncate(text: string) {
+  return text.length > 500 ? `${text.slice(0, 500)}... (truncated)` : text;
+}
+
 interface ObsidianFixtures {
   mockOcrOutput: string;
-  settings: Partial<PluginSettings>;
+  settings: StoredSettings;
+  allowErrors: boolean;
   electronApp: ElectronApplication;
   page: Page;
 }
@@ -43,6 +48,7 @@ interface ObsidianFixtures {
 export const test = base.extend<ObsidianFixtures>({
   mockOcrOutput: [MOCK_OCR_OUTPUT, { option: true }],
   settings: [{}, { option: true }],
+  allowErrors: [false, { option: true }],
 
   electronApp: async ({ mockOcrOutput, settings }, use) => {
     const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
@@ -103,8 +109,20 @@ export const test = base.extend<ObsidianFixtures>({
     }
   },
 
-  page: async ({ electronApp }, use) => {
+  page: async ({ electronApp, allowErrors }, use) => {
     const page = await electronApp.firstWindow();
+    let hasConsoleErrors = false;
+
+    page.on("console", (message) => {
+      if (message.type() === "error") {
+        hasConsoleErrors = true;
+        if (!allowErrors) console.error(truncate(message.text()));
+      }
+    });
+    page.on("pageerror", (error) => {
+      hasConsoleErrors = true;
+      if (!allowErrors) console.error(truncate(error.stack ?? error.message));
+    });
 
     // Always shown when opening a fresh vault with community plugins
     await page
@@ -115,10 +133,13 @@ export const test = base.extend<ObsidianFixtures>({
     await closeModal(page);
 
     await injectHttpInterceptor(page);
-
     await use(page);
 
     await expectNoUnexpectedRequests(page);
+    expect(
+      allowErrors || !hasConsoleErrors,
+      "Unexpected console errors (see above)",
+    ).toBe(true);
   },
 });
 

@@ -13,7 +13,7 @@ export function isPdf(mimeType: string) {
 /**
  * Returns text from a PDF's text layer as an array of one string per page.
  */
-export async function getPdfTextContent(data: Uint8Array): Promise<string[]> {
+export async function getPdfTextContent(data: Uint8Array) {
   return mapPdfPages(data, async (page) => {
     const textContent = await page.getTextContent();
     return textContent.items
@@ -27,7 +27,7 @@ export async function convertPdfToImages(data: Uint8Array) {
   return mapPdfPages(data, async (pdfPage) => {
     const viewport = pdfPage.getViewport({ scale: 2.0 });
 
-    const canvas = activeDocument.createElement("canvas");
+    const canvas = createEl("canvas");
     const canvasContext = canvas.getContext("2d")!;
     canvas.width = viewport.width;
     canvas.height = viewport.height;

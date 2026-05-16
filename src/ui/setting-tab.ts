@@ -27,7 +27,7 @@ export class SettingTab extends PluginSettingTab {
   }
 
   private addServiceDropdown(group: SettingGroup) {
-    const description = activeDocument.createDocumentFragment();
+    const description = createFragment();
     description.appendText(t("settings.ocrServiceDesc") + " ");
     description.createEl("a", {
       text: t("settings.ocrServiceDocLink"),

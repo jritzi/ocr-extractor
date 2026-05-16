@@ -4,6 +4,7 @@ import type OcrExtractorPlugin from "../../main";
 import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
 import { getPdfTextContent, isPdf } from "../utils/pdf";
+import { raceAbort } from "../utils/async";
 
 /**
  * Errors with a message intended to be shown directly to the user (as opposed
@@ -31,7 +32,7 @@ export abstract class OcrService {
    * Main entry point called by the plugin to extract text. Subclasses should
    * not override this (they should implement `extractPages()` instead).
    */
-  async processOcr(data: Uint8Array, filename: string): Promise<string | null> {
+  async processOcr(data: Uint8Array, filename: string, signal: AbortSignal) {
     const fileType = await fileTypeFromBuffer(data);
     const mimeType = fileType?.mime;
 
@@ -41,13 +42,16 @@ export abstract class OcrService {
     }
 
     if (isPdf(mimeType) && this.settings.useEmbeddedText) {
-      const result = this.joinPages(await getPdfTextContent(data));
-      if (result) {
-        return result;
-      }
+      const pages = await raceAbort(getPdfTextContent(data), signal);
+      if (pages === null) return null;
+      const result = this.joinPages(pages);
+      if (result) return result;
     }
 
-    const pages = await this.extractPages(data, mimeType, filename);
+    const pages = await raceAbort(
+      this.extractPages(data, mimeType, filename, signal),
+      signal,
+    );
     if (pages === null) {
       return null;
     }
@@ -83,5 +87,6 @@ export abstract class OcrService {
     data: Uint8Array,
     mimeType: string,
     filename: string,
+    signal: AbortSignal,
   ): Promise<string[] | null>;
 }

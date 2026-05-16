@@ -1,5 +1,3 @@
-export class CancelError extends Error {}
-
 /**
  * Split an array of tasks (functions returning a promise) into batches,
  * executing tasks within each batch in parallel
@@ -18,65 +16,21 @@ export async function batchPromises<T>(
 }
 
 /**
- * Retry a task with exponential backoff starting at 1 second. Only retries if
- * shouldRetry returns true (defaults to retrying all errors).
+ * Race a promise against an AbortSignal, returning null if the signal is
+ * aborted first.
  */
-export async function withRetries<T>(
-  task: () => Promise<T>,
-  shouldRetry: (error: unknown) => boolean = () => true,
-  retryCount = 3,
-) {
-  let lastError: unknown;
+export async function raceAbort<T>(promise: Promise<T>, signal: AbortSignal) {
+  if (signal.aborted) return null;
 
-  for (let attempt = 0; attempt <= retryCount; attempt++) {
-    if (attempt > 0) {
-      const delay = 1_000 * Math.pow(2, attempt - 1);
-      await new Promise((resolve) => activeWindow.setTimeout(resolve, delay));
-    }
-
-    try {
-      return await task();
-    } catch (error) {
-      lastError = error;
-      if (!shouldRetry(error)) {
-        throw error;
-      }
-    }
-  }
-
-  throw lastError;
-}
-
-/**
- * Execute a promise, checking `shouldCancel` every second to see if it should
- * be interrupted. Returns the promise result, or `null` if canceled.
- */
-export async function withCancellation<T>(
-  promise: Promise<T>,
-  shouldCancel: () => boolean,
-): Promise<T | null> {
-  let intervalId: number | undefined;
-  let resolveCleanup: ((value: null) => void) | undefined;
-
-  const cancelPromise = new Promise<null>((resolve, reject) => {
-    resolveCleanup = resolve;
-    intervalId = activeWindow.setInterval(() => {
-      if (shouldCancel()) {
-        reject(new CancelError());
-      }
-    }, 1_000);
+  let onAbort!: () => void;
+  const cancelPromise = new Promise<null>((resolve) => {
+    onAbort = () => resolve(null);
+    signal.addEventListener("abort", onAbort, { once: true });
   });
 
   try {
     return await Promise.race([promise, cancelPromise]);
-  } catch (e: unknown) {
-    if (e instanceof CancelError) {
-      return null;
-    } else {
-      throw e;
-    }
   } finally {
-    activeWindow.clearInterval(intervalId);
-    resolveCleanup?.(null);
+    signal.removeEventListener("abort", onAbort);
   }
 }

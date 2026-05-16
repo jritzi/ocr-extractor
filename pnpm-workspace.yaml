@@ -1,10 +1,12 @@
-onlyBuiltDependencies:
-  - electron
-  - esbuild
-  - tesseract.js
-
 minimumReleaseAge: 2880
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
 
 peerDependencyRules:
   allowedVersions:
     eslint-plugin-obsidianmd>obsidian: ">=1.8.7"
+
+allowBuilds:
+  electron: true
+  esbuild: true
+  tesseract.js: true

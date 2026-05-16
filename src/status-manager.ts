@@ -9,11 +9,11 @@ export type Status = "idle" | "processing" | "canceling";
 
 export class StatusManager {
   private status: Status = "idle";
-
   private readonly app: App;
   private readonly statusBarItem: HTMLElement;
   private readonly statusBarTextSpan: HTMLElement;
   private statusModal: StatusModal | null = null;
+  private abortController = new AbortController();
 
   constructor(plugin: OcrExtractorPlugin) {
     this.app = plugin.app;
@@ -34,6 +34,10 @@ export class StatusManager {
     };
   }
 
+  getSignal() {
+    return this.abortController.signal;
+  }
+
   isIdle() {
     return this.status === "idle";
   }
@@ -47,6 +51,7 @@ export class StatusManager {
   }
 
   setProcessingSingleNote() {
+    this.abortController = new AbortController();
     this.status = "processing";
     this.statusModal = new StatusModal(this.app, () => {
       this.statusModal = null;
@@ -57,6 +62,7 @@ export class StatusManager {
   }
 
   setProcessingAllNotes(totalNotes: number) {
+    this.abortController = new AbortController();
     this.status = "processing";
     this.statusBarTextSpan.setText(
       t("status.extractingNote", { current: 1, total: totalNotes }),
@@ -80,6 +86,7 @@ export class StatusManager {
     }
 
     this.status = "canceling";
+    this.abortController.abort();
     this.statusBarTextSpan.setText(t("status.canceling"));
     this.statusBarItem.show();
     debugLog("Status set to canceling");

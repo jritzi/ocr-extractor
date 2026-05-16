@@ -5,7 +5,7 @@ declare global {
 }
 
 export function debugLog(message: string) {
-  if (activeWindow.ocrExtractorDebugLoggingEnabled) {
+  if (window.ocrExtractorDebugLoggingEnabled) {
     console.debug(message);
   }
 }

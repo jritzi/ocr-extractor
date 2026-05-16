@@ -57,7 +57,10 @@ test.describe("loading and cancellation", () => {
 });
 
 test.describe("error handling", () => {
-  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.error } });
+  test.use({
+    settings: { customCommand: MOCK_OCR_COMMANDS.error },
+    allowErrors: true,
+  });
 
   test("error message", async ({ page }) => {
     await seedNote(page, "Extraction test", "![[attachments/sample.pdf]]");
