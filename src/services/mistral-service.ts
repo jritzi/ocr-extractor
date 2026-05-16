@@ -63,7 +63,18 @@ export class MistralService extends OcrService {
           imageMinSize: 0,
           includeImageBase64: false,
         },
-        { signal, retries: { strategy: "backoff" } },
+        {
+          signal,
+          retries: {
+            strategy: "backoff",
+            backoff: {
+              initialInterval: 500,
+              maxInterval: 10000,
+              exponent: 1.5,
+              maxElapsedTime: 10000,
+            },
+          },
+        },
       );
 
       return ocrResponse.pages.map((page) => page.markdown);
