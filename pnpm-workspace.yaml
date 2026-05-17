@@ -2,6 +2,10 @@ minimumReleaseAge: 2880
 blockExoticSubdeps: true
 trustPolicy: no-downgrade
 
+# https://github.com/pnpm/pnpm/issues/10622
+trustPolicyExclude:
+  - semver
+
 peerDependencyRules:
   allowedVersions:
     eslint-plugin-obsidianmd>obsidian: ">=1.8.7"

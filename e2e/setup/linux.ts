@@ -1,10 +1,15 @@
 import { execFileSync } from "child_process";
-import { mkdtempSync, rmSync } from "fs";
+import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
-import { getDownloadUrl, prepareAsars, verifyElectronVersion } from "./utils";
+import {
+  getBundledElectronVersion,
+  getElectronVersionFile,
+  getObsidianDownloadUrl,
+  extractObsidianApp,
+} from "./utils";
 
-export function setupLinux(obsidianVersion: string) {
+export function downloadLinuxObsidian(obsidianVersion: string) {
   const arch = process.arch === "arm64" ? "arm64" : "x64";
   const tarRoot = `obsidian-${obsidianVersion}`;
   const tarFilename =
@@ -17,7 +22,12 @@ export function setupLinux(obsidianVersion: string) {
     const tarFile = join(tmpDir, tarFilename);
     execFileSync(
       "curl",
-      ["-fL", "-o", tarFile, getDownloadUrl(obsidianVersion, tarFilename)],
+      [
+        "-fL",
+        "-o",
+        tarFile,
+        getObsidianDownloadUrl(obsidianVersion, tarFilename),
+      ],
       { stdio: "inherit" },
     );
 
@@ -39,8 +49,11 @@ export function setupLinux(obsidianVersion: string) {
       { stdio: "inherit" },
     );
 
-    prepareAsars(join(extractedDir, "resources"));
-    verifyElectronVersion(join(extractedDir, "obsidian"));
+    extractObsidianApp(join(extractedDir, "resources"), obsidianVersion);
+    writeFileSync(
+      getElectronVersionFile(obsidianVersion),
+      getBundledElectronVersion(join(extractedDir, "obsidian")),
+    );
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
   }

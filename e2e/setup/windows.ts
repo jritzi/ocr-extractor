@@ -1,10 +1,15 @@
 import { execFileSync } from "child_process";
-import { mkdtempSync, rmSync } from "fs";
+import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
-import { getDownloadUrl, prepareAsars, verifyElectronVersion } from "./utils";
+import {
+  getBundledElectronVersion,
+  getElectronVersionFile,
+  getObsidianDownloadUrl,
+  extractObsidianApp,
+} from "./utils";
 
-export function setupWindows(obsidianVersion: string) {
+export function downloadWindowsObsidian(obsidianVersion: string) {
   const exeFilename = `Obsidian-${obsidianVersion}.exe`;
   const tmpDir = mkdtempSync(join(tmpdir(), "obsidian-setup-"));
   const tmpExe = join(tmpDir, exeFilename);
@@ -15,7 +20,12 @@ export function setupWindows(obsidianVersion: string) {
     console.log(`Downloading ${exeFilename}...`);
     execFileSync(
       "curl",
-      ["-fL", "-o", tmpExe, getDownloadUrl(obsidianVersion, exeFilename)],
+      [
+        "-fL",
+        "-o",
+        tmpExe,
+        getObsidianDownloadUrl(obsidianVersion, exeFilename),
+      ],
       { stdio: "inherit" },
     );
 
@@ -42,8 +52,11 @@ export function setupWindows(obsidianVersion: string) {
       { stdio: "inherit" },
     );
 
-    prepareAsars(resourcesDir);
-    verifyElectronVersion(join(tmpDir, "Obsidian.exe"));
+    extractObsidianApp(resourcesDir, obsidianVersion);
+    writeFileSync(
+      getElectronVersionFile(obsidianVersion),
+      getBundledElectronVersion(join(tmpDir, "Obsidian.exe")),
+    );
   } finally {
     rmSync(tmpDir, { recursive: true, force: true });
   }

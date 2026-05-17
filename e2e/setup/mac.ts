@@ -1,15 +1,16 @@
 import { execFileSync } from "child_process";
-import { mkdirSync, mkdtempSync, rmSync } from "fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 import {
-  prepareAsars,
-  getDownloadUrl,
-  verifyElectronVersion,
-  EXTRACTED,
+  getBundledElectronVersion,
+  getElectronVersionFile,
+  getObsidianDownloadUrl,
+  getObsidianCacheDir,
+  extractObsidianApp,
 } from "./utils";
 
-export function setupMac(obsidianVersion: string) {
+export function downloadMacObsidian(obsidianVersion: string) {
   const dmgFilename = `Obsidian-${obsidianVersion}.dmg`;
   const tmpDir = mkdtempSync(join(tmpdir(), "obsidian-setup-"));
   const tmpDmg = join(tmpDir, dmgFilename);
@@ -19,7 +20,12 @@ export function setupMac(obsidianVersion: string) {
     console.log(`Downloading ${dmgFilename}...`);
     execFileSync(
       "curl",
-      ["-fL", "-o", tmpDmg, getDownloadUrl(obsidianVersion, dmgFilename)],
+      [
+        "-fL",
+        "-o",
+        tmpDmg,
+        getObsidianDownloadUrl(obsidianVersion, dmgFilename),
+      ],
       { stdio: "inherit" },
     );
 
@@ -41,8 +47,11 @@ export function setupMac(obsidianVersion: string) {
         "Contents",
         "Resources",
       );
-      prepareAsars(resources);
-      execFileSync("xattr", ["-cr", EXTRACTED], { stdio: "inherit" });
+      console.log("Extracting...");
+      extractObsidianApp(resources, obsidianVersion);
+      execFileSync("xattr", ["-cr", getObsidianCacheDir(obsidianVersion)], {
+        stdio: "inherit",
+      });
 
       const electronBinary = join(
         mountPoint,
@@ -54,7 +63,10 @@ export function setupMac(obsidianVersion: string) {
         "A",
         "Electron Framework",
       );
-      verifyElectronVersion(electronBinary);
+      writeFileSync(
+        getElectronVersionFile(obsidianVersion),
+        getBundledElectronVersion(electronBinary),
+      );
     } finally {
       execFileSync("hdiutil", ["detach", mountPoint, "-quiet"]);
     }

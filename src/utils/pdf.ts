@@ -3,8 +3,9 @@ import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs";
 
-const workerBlob = new Blob([pdfjsWorker], { type: "application/javascript" });
-GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+GlobalWorkerOptions.workerSrc = URL.createObjectURL(
+  new Blob([pdfjsWorker], { type: "application/javascript" }),
+);
 
 export function isPdf(mimeType: string) {
   return mimeType === "application/pdf";

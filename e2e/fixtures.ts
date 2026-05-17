@@ -10,7 +10,12 @@ import { mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import type { StoredSettings } from "../src/settings";
-import { E2E, EXTRACTED } from "./setup/utils";
+import {
+  E2E,
+  getCachedElectronVersion,
+  getElectronExecutable,
+  getObsidianCacheDir,
+} from "./setup/utils";
 import {
   copyTestVault,
   createUserData,
@@ -18,7 +23,7 @@ import {
   setupPlugin,
 } from "./setup/vault";
 import { expectNoUnexpectedRequests } from "./helpers/http";
-import { closeModal } from "./helpers/obsidian";
+import { LATEST_VERSION } from "./versions";
 
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
 
@@ -28,16 +33,13 @@ export const MOCK_OCR_COMMANDS = {
   error: `node "${join(E2E, "mock-ocr", "error.js")}" {input} {output}`,
 };
 
-// Obsidian app extracted during globalSetup (run via the local electron binary
-// because Obsidian's bundled electron has the Node inspector disabled,
-// preventing Playwright from connecting)
-const OBSIDIAN_EXTRACTED = join(EXTRACTED, "main.js");
-
 function truncate(text: string) {
   return text.length > 500 ? `${text.slice(0, 500)}... (truncated)` : text;
 }
 
-interface ObsidianFixtures {
+export interface ObsidianFixtures {
+  obsidianVersion: string;
+  electronVersion: string | undefined;
   mockOcrOutput: string;
   settings: StoredSettings;
   allowErrors: boolean;
@@ -46,11 +48,16 @@ interface ObsidianFixtures {
 }
 
 export const test = base.extend<ObsidianFixtures>({
+  obsidianVersion: [LATEST_VERSION.obsidian, { option: true }],
+  electronVersion: [undefined, { option: true }],
   mockOcrOutput: [MOCK_OCR_OUTPUT, { option: true }],
   settings: [{}, { option: true }],
   allowErrors: [false, { option: true }],
 
-  electronApp: async ({ mockOcrOutput, settings }, use) => {
+  electronApp: async (
+    { obsidianVersion, electronVersion, mockOcrOutput, settings },
+    use,
+  ) => {
     const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
     const tmpVault = join(tmpBase, "vault");
     const tmpUserData = join(tmpBase, "user-data");
@@ -66,8 +73,11 @@ export const test = base.extend<ObsidianFixtures>({
       });
 
       app = await electron.launch({
+        executablePath: getElectronExecutable(
+          electronVersion ?? getCachedElectronVersion(obsidianVersion),
+        ),
         args: [
-          OBSIDIAN_EXTRACTED,
+          join(getObsidianCacheDir(obsidianVersion), "main.js"),
           `--user-data-dir=${tmpUserData}`,
           "--no-sandbox",
         ],
@@ -129,8 +139,9 @@ export const test = base.extend<ObsidianFixtures>({
       .getByRole("button", { name: "Trust author and enable plugins" })
       .click();
 
-    // Close "Community plugins" settings
-    await closeModal(page);
+    const settingsModal = page.locator(".modal.mod-settings");
+    await settingsModal.locator(".modal-close-button").click();
+    await expect(settingsModal).not.toBeVisible();
 
     await injectHttpInterceptor(page);
     await use(page);

@@ -25,7 +25,7 @@ data.json
 # E2E
 e2e/test-results/
 e2e/playwright-report/
-e2e/obsidian-extracted/
+e2e/cache/
 e2e/setup/http-interceptor.js
 
 # Misc
