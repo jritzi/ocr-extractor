@@ -112,10 +112,12 @@ export function downloadElectron(electronVersion: string) {
 }
 
 export function getBundledElectronVersion(binary: string) {
-  return execFileSync(binary, ["--version"])
-    .toString()
-    .trim()
-    .replace(/^v/, "");
+  const content = readFileSync(binary, "latin1");
+  const match = content.match(/Electron\/([\d.]+)/);
+  if (!match) {
+    throw new Error("Could not determine bundled Electron version.");
+  }
+  return match[1];
 }
 
 export function getCachedElectronVersion(obsidianVersion: string) {
