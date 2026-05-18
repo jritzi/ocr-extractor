@@ -103,7 +103,7 @@ function pruneStaleCache() {
   if (existsSync(obsidianCacheDir)) {
     for (const entry of readdirSync(obsidianCacheDir)) {
       if (!obsidianVersions.has(entry)) {
-        console.log(`Removing stale cache: ${entry}`);
+        console.log(`Removing stale Obsidian cache: ${entry}`);
         rmSync(join(obsidianCacheDir, entry), { recursive: true, force: true });
       }
     }
@@ -113,7 +113,7 @@ function pruneStaleCache() {
   if (existsSync(electronCacheDir)) {
     for (const entry of readdirSync(electronCacheDir)) {
       if (!electronVersions.has(entry)) {
-        console.log(`Removing stale cache: ${entry}`);
+        console.log(`Removing stale Electron cache: ${entry}`);
         rmSync(join(electronCacheDir, entry), { recursive: true, force: true });
       }
     }
