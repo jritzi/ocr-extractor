@@ -31,14 +31,25 @@
     "customCommand": "自定义命令"
   },
   "modals": {
-    "extractingText": "正在提取附件中的文本…",
     "cancel": "取消",
     "ok": "确定",
-    "extractedWarning_one": "已从 {{count}} 个附件中提取文本。已跳过以下内容：",
-    "extractedWarning_other": "已从 {{count}} 个附件中提取文本。已跳过以下内容：",
-    "extractAllTitle": "是否从所有笔记中提取文本？",
-    "extractAllWarning": "在从所有笔记的附件中提取文本之前，请确保您的仓库已经备份。",
-    "extract": "提取"
+    "dismiss": "关闭",
+    "installerUpdate": {
+      "title": "需要安装程序更新",
+      "body": "OCR Extractor 需要更新版本的 Obsidian 安装程序才能正常工作。请下载并安装最新版 Obsidian（无需先卸载）。",
+      "download": "下载 Obsidian",
+      "learnMore": "了解更多"
+    },
+    "extractAll": {
+      "title": "是否从所有笔记中提取文本？",
+      "warning": "在从所有笔记的附件中提取文本之前，请确保您的仓库已经备份。",
+      "extract": "提取"
+    },
+    "status": {
+      "title": "正在提取附件中的文本…",
+      "warning_one": "已从 {{count}} 个附件中提取文本。已跳过以下内容：",
+      "warning_other": "已从 {{count}} 个附件中提取文本。已跳过以下内容："
+    }
   },
   "status": {
     "extractingNote": "正在提取第 {{current}}/{{total}} 个笔记的文本",

@@ -31,14 +31,25 @@
     "customCommand": "Comando personalizado"
   },
   "modals": {
-    "extractingText": "Extrayendo texto de los archivos adjuntos...",
     "cancel": "Cancelar",
     "ok": "ACEPTAR",
-    "extractedWarning_one": "Texto extraído de {{count}} archivo adjunto. Se omitieron los siguientes:",
-    "extractedWarning_other": "Texto extraído de {{count}} archivos adjuntos. Se omitieron los siguientes:",
-    "extractAllTitle": "¿Extraer texto de todas las notas?",
-    "extractAllWarning": "Asegúrese de tener una copia de seguridad de su vault antes de extraer texto de los archivos adjuntos en todas las notas.",
-    "extract": "Extraer"
+    "dismiss": "Descartar",
+    "installerUpdate": {
+      "title": "Se requiere actualización del instalador",
+      "body": "OCR Extractor requiere una versión más reciente del instalador de Obsidian para funcionar correctamente. Por favor, descarga e instala la última versión de Obsidian (no necesitas desinstalar primero).",
+      "download": "Descargar Obsidian",
+      "learnMore": "Más información"
+    },
+    "extractAll": {
+      "title": "¿Extraer texto de todas las notas?",
+      "warning": "Asegúrate de tener una copia de seguridad de tu vault antes de extraer texto de los archivos adjuntos en todas las notas.",
+      "extract": "Extraer"
+    },
+    "status": {
+      "title": "Extrayendo texto de los archivos adjuntos...",
+      "warning_one": "Texto extraído de {{count}} archivo adjunto. Se omitieron los siguientes:",
+      "warning_other": "Texto extraído de {{count}} archivos adjuntos. Se omitieron los siguientes:"
+    }
   },
   "status": {
     "extractingNote": "Extrayendo el texto en la nota {{current}}/{{total}}",
@@ -61,7 +72,7 @@
     "testFailedUnexpected": "Prueba fallida: error inesperado"
   },
   "errors": {
-    "unauthorized": "No autorizado, verifique su clave API",
+    "unauthorized": "No autorizado, verifica tu clave API",
     "noCustomCommand": "No se ha configurado ningún comando personalizado",
     "commandTimeout": "El comando personalizado expiró",
     "commandFailed": "El comando personalizado falló con el código de salida {{code}} (ver consola para más detalles)",

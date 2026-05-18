@@ -31,14 +31,25 @@
     "customCommand": "Commande personnalisée"
   },
   "modals": {
-    "extractingText": "Extraction du texte des pièces jointes…",
     "cancel": "Annuler",
     "ok": "OK",
-    "extractedWarning_one": "Texte extrait de {{count}} pièce jointe. Les éléments suivants ont été ignorés :",
-    "extractedWarning_other": "Texte extrait de {{count}} pièces jointes. Les éléments suivants ont été ignorés :",
-    "extractAllTitle": "Extraire le texte de toutes les notes ?",
-    "extractAllWarning": "Assurez-vous de sauvegarder votre coffre-fort avant d’extraire le texte des pièces jointes et de l’insérer dans toutes les notes.",
-    "extract": "Extraire"
+    "dismiss": "Ignorer",
+    "installerUpdate": {
+      "title": "Mise à jour de l’installateur requise",
+      "body": "OCR Extractor nécessite une version plus récente de l’installateur Obsidian pour fonctionner correctement. Veuillez télécharger et installer la dernière version d’Obsidian (il n’est pas nécessaire de désinstaller auparavant).",
+      "download": "Télécharger Obsidian",
+      "learnMore": "En savoir plus"
+    },
+    "extractAll": {
+      "title": "Extraire le texte de toutes les notes ?",
+      "warning": "Assurez-vous de sauvegarder votre coffre-fort avant d’extraire le texte des pièces jointes et de l’insérer dans toutes les notes.",
+      "extract": "Extraire"
+    },
+    "status": {
+      "title": "Extraction du texte des pièces jointes…",
+      "warning_one": "Texte extrait de {{count}} pièce jointe. Les éléments suivants ont été ignorés :",
+      "warning_other": "Texte extrait de {{count}} pièces jointes. Les éléments suivants ont été ignorés :"
+    }
   },
   "status": {
     "extractingNote": "Extraction du texte dans la note {{current}}/{{total}}",
