@@ -21,7 +21,7 @@ export class StatusModal extends Modal {
     this.modalEl.addClass("is-loading");
 
     this.messageEl = this.contentEl.createEl("p", {
-      text: t("modals.extractingText"),
+      text: t("modals.status.title"),
     });
 
     new Setting(this.contentEl).addButton((button) => {
@@ -35,7 +35,7 @@ export class StatusModal extends Modal {
 
     this.messageEl.empty();
     this.messageEl.createDiv({
-      text: t("modals.extractedWarning", { count: extractedCount }),
+      text: t("modals.status.warning", { count: extractedCount }),
     });
     const list = this.messageEl.createEl("ul");
     for (const embed of skippedEmbeds) {

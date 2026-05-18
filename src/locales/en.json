@@ -31,14 +31,25 @@
     "customCommand": "Custom command"
   },
   "modals": {
-    "extractingText": "Extracting text from attachments...",
     "cancel": "Cancel",
     "ok": "OK",
-    "extractedWarning_one": "Text extracted from {{count}} attachment. The following were skipped:",
-    "extractedWarning_other": "Text extracted from {{count}} attachments. The following were skipped:",
-    "extractAllTitle": "Extract text from all notes?",
-    "extractAllWarning": "Make sure you have a backup of your vault before extracting text from attachments in all notes.",
-    "extract": "Extract"
+    "dismiss": "Dismiss",
+    "installerUpdate": {
+      "title": "Installer update required",
+      "body": "OCR Extractor requires a newer Obsidian installer version to work correctly. Please download and install the latest Obsidian (you do not need to uninstall first).",
+      "download": "Download Obsidian",
+      "learnMore": "Learn more"
+    },
+    "extractAll": {
+      "title": "Extract text from all notes?",
+      "warning": "Make sure you have a backup of your vault before extracting text from attachments in all notes.",
+      "extract": "Extract"
+    },
+    "status": {
+      "title": "Extracting text from attachments...",
+      "warning_one": "Text extracted from {{count}} attachment. The following were skipped:",
+      "warning_other": "Text extracted from {{count}} attachments. The following were skipped:"
+    }
   },
   "status": {
     "extractingNote": "Extracting text in note {{current}}/{{total}}",

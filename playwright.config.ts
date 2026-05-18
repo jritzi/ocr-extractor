@@ -1,10 +1,9 @@
 import { availableParallelism } from "os";
 import { defineConfig } from "@playwright/test";
+import type { ObsidianFixtures } from "./e2e/fixtures";
+import { versions } from "./e2e/versions";
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
-export default defineConfig({
+export default defineConfig<ObsidianFixtures>({
   globalSetup: "./e2e/global-setup.ts",
 
   testDir: "./e2e",
@@ -32,4 +31,13 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
   },
+
+  projects: versions.map(({ name, obsidian, electron }) => ({
+    name,
+    use: { obsidianVersion: obsidian, electronVersion: electron },
+    testMatch:
+      name === "old-installer"
+        ? ["**/old-installer-version.spec.ts"]
+        : undefined,
+  })),
 });

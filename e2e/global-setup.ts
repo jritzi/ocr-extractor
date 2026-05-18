@@ -1,45 +1,29 @@
 import { execFileSync } from "child_process";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readdirSync, rmSync } from "fs";
 import { join } from "path";
 import esbuild from "esbuild";
-import { setupLinux } from "./setup/linux";
-import { setupMac } from "./setup/mac";
-import { setupWindows } from "./setup/windows";
+import { downloadLinuxObsidian } from "./setup/linux";
+import { downloadMacObsidian } from "./setup/mac";
+import { downloadWindowsObsidian } from "./setup/windows";
 import {
+  CACHE,
+  getCachedElectronVersion,
+  downloadElectron,
   E2E,
-  EXTRACTED,
-  getInstalledElectronVersion,
+  getElectronVersionFile,
   ROOT,
 } from "./setup/utils";
-
-// The pinned Obsidian release to test against
-const OBSIDIAN_VERSION = "1.12.7";
-
-const VERSION_FILE = join(EXTRACTED, ".obsidian-version");
+import { versions } from "./versions";
 
 export default async function globalSetup() {
   ensurePluginBuilt();
   await bundleHttpInterceptor();
 
-  if (!needsSetup()) return;
-
-  console.log(`Setting up Obsidian ${OBSIDIAN_VERSION}...`);
-
-  switch (process.platform) {
-    case "darwin":
-      setupMac(OBSIDIAN_VERSION);
-      break;
-    case "linux":
-      setupLinux(OBSIDIAN_VERSION);
-      break;
-    case "win32":
-      setupWindows(OBSIDIAN_VERSION);
-      break;
-    default:
-      throw new Error(`${process.platform} not supported for E2E tests`);
+  for (const { obsidian, electron } of versions) {
+    downloadDependencies(obsidian, electron);
   }
 
-  writeFileSync(VERSION_FILE, versionFileContent());
+  pruneStaleCache();
 }
 
 function ensurePluginBuilt() {
@@ -69,11 +53,69 @@ async function bundleHttpInterceptor() {
   });
 }
 
-function versionFileContent() {
-  return `Obsidian: ${OBSIDIAN_VERSION}\nElectron: ${getInstalledElectronVersion()}`;
+function downloadDependencies(
+  obsidianVersion: string,
+  electronOverride: string | undefined,
+) {
+  const electronVersionFile = getElectronVersionFile(obsidianVersion);
+
+  if (!existsSync(electronVersionFile)) {
+    downloadObsidian(obsidianVersion);
+  }
+
+  downloadElectron(
+    electronOverride ?? getCachedElectronVersion(obsidianVersion),
+  );
 }
 
-function needsSetup() {
-  if (!existsSync(VERSION_FILE)) return true;
-  return readFileSync(VERSION_FILE, "utf-8").trim() !== versionFileContent();
+function downloadObsidian(version: string) {
+  switch (process.platform) {
+    case "darwin":
+      downloadMacObsidian(version);
+      break;
+    case "linux":
+      downloadLinuxObsidian(version);
+      break;
+    case "win32":
+      downloadWindowsObsidian(version);
+      break;
+    default:
+      throw new Error(`${process.platform} not supported for E2E tests`);
+  }
+}
+
+function pruneStaleCache() {
+  const obsidianVersions = new Set(versions.map((version) => version.obsidian));
+
+  const electronVersions = new Set<string>();
+  for (const version of versions) {
+    if (version.electron) {
+      electronVersions.add(version.electron);
+    } else {
+      const electronVersionFile = getElectronVersionFile(version.obsidian);
+      if (existsSync(electronVersionFile)) {
+        electronVersions.add(getCachedElectronVersion(version.obsidian));
+      }
+    }
+  }
+
+  const obsidianCacheDir = join(CACHE, "obsidian");
+  if (existsSync(obsidianCacheDir)) {
+    for (const entry of readdirSync(obsidianCacheDir)) {
+      if (!obsidianVersions.has(entry)) {
+        console.log(`Removing stale Obsidian cache: ${entry}`);
+        rmSync(join(obsidianCacheDir, entry), { recursive: true, force: true });
+      }
+    }
+  }
+
+  const electronCacheDir = join(CACHE, "electron");
+  if (existsSync(electronCacheDir)) {
+    for (const entry of readdirSync(electronCacheDir)) {
+      if (!electronVersions.has(entry)) {
+        console.log(`Removing stale Electron cache: ${entry}`);
+        rmSync(join(electronCacheDir, entry), { recursive: true, force: true });
+      }
+    }
+  }
 }

@@ -1,4 +1,6 @@
-import { getLanguage, Plugin } from "obsidian";
+import { getLanguage, Platform, Plugin } from "obsidian";
+import { InstallerUpdateModal } from "./src/ui/installer-update-modal";
+import { isElectronBelowMinimum } from "./src/min-electron-version";
 import { SettingTab } from "./src/ui/setting-tab";
 import {
   DEFAULT_SETTINGS,
@@ -14,6 +16,7 @@ import { TextExtractor } from "./src/text-extractor";
 import { addCommands } from "./src/commands";
 import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
+import { assert } from "./src/utils/assert";
 
 export const OCR_SERVICES = {
   tesseract: TesseractService,
@@ -32,6 +35,8 @@ export default class OcrExtractorPlugin extends Plugin {
     await setLanguage(getLanguage());
     await this.loadSettings();
     this.addSettingTab(new SettingTab(this.app, this));
+
+    this.checkInstallerVersion();
 
     this.statusManager = new StatusManager(this);
     this.extractor = new TextExtractor(this);
@@ -68,5 +73,15 @@ export default class OcrExtractorPlugin extends Plugin {
 
     // Apply defaults last to avoid interfering with migrations
     this.settings = { ...DEFAULT_SETTINGS, ...newSettings };
+  }
+
+  private checkInstallerVersion() {
+    if (!Platform.isDesktop) return;
+    const electronVersion = process.versions.electron;
+    assert(electronVersion !== undefined, "Always defined on desktop");
+
+    if (isElectronBelowMinimum(electronVersion)) {
+      new InstallerUpdateModal(this.app).open();
+    }
   }
 }

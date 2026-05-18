@@ -4,9 +4,9 @@ import { t } from "../i18n";
 export class ConfirmExtractAllModal extends Modal {
   constructor(app: App, onSubmit: () => void) {
     super(app);
-    this.setTitle(t("modals.extractAllTitle"));
+    this.setTitle(t("modals.extractAll.title"));
 
-    new Setting(this.contentEl).setName(t("modals.extractAllWarning"));
+    this.contentEl.createEl("p", { text: t("modals.extractAll.warning") });
 
     new Setting(this.contentEl)
       .addButton((btn) =>
@@ -14,7 +14,7 @@ export class ConfirmExtractAllModal extends Modal {
       )
       .addButton((btn) =>
         btn
-          .setButtonText(t("modals.extract"))
+          .setButtonText(t("modals.extractAll.extract"))
           .setCta()
           .onClick(() => {
             this.close();
