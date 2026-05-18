@@ -80,6 +80,7 @@ export const test = base.extend<ObsidianFixtures>({
           join(getObsidianCacheDir(obsidianVersion), "main.js"),
           `--user-data-dir=${tmpUserData}`,
           "--no-sandbox",
+          "--use-mock-keychain",
         ],
         env: { ...process.env, MOCK_OCR_OUTPUT: mockOcrOutput },
       });

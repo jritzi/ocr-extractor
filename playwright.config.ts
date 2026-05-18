@@ -35,5 +35,9 @@ export default defineConfig<ObsidianFixtures>({
   projects: versions.map(({ name, obsidian, electron }) => ({
     name,
     use: { obsidianVersion: obsidian, electronVersion: electron },
+    testMatch:
+      name === "old-installer"
+        ? ["**/old-installer-version.spec.ts"]
+        : undefined,
   })),
 });
