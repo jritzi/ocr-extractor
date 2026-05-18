@@ -2,7 +2,6 @@ import { execFileSync } from "child_process";
 import { existsSync, readdirSync, rmSync } from "fs";
 import { join } from "path";
 import esbuild from "esbuild";
-import type { FullConfig } from "@playwright/test";
 import { downloadLinuxObsidian } from "./setup/linux";
 import { downloadMacObsidian } from "./setup/mac";
 import { downloadWindowsObsidian } from "./setup/windows";
@@ -16,18 +15,11 @@ import {
 } from "./setup/utils";
 import { versions } from "./versions";
 
-export default async function globalSetup(config: FullConfig) {
+export default async function globalSetup() {
   ensurePluginBuilt();
   await bundleHttpInterceptor();
 
-  const activeProjectNames = new Set(
-    config.projects.map((project) => project.name),
-  );
-  const activeVersions = versions.filter((version) =>
-    activeProjectNames.has(version.name),
-  );
-
-  for (const { obsidian, electron } of activeVersions) {
+  for (const { obsidian, electron } of versions) {
     downloadDependencies(obsidian, electron);
   }
 
