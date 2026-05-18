@@ -47,7 +47,7 @@ export function downloadMacObsidian(obsidianVersion: string) {
         "Contents",
         "Resources",
       );
-      console.log("Extracting...");
+      console.log("Extracting Obsidian...");
       extractObsidianApp(resources, obsidianVersion);
       execFileSync("xattr", ["-cr", getObsidianCacheDir(obsidianVersion)], {
         stdio: "inherit",

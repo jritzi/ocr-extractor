@@ -31,7 +31,7 @@ export function downloadLinuxObsidian(obsidianVersion: string) {
       { stdio: "inherit" },
     );
 
-    console.log("Extracting...");
+    console.log("Extracting Obsidian...");
     const extractedDir = join(tmpDir, tarRoot);
     execFileSync(
       "tar",
