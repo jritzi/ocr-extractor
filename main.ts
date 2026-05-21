@@ -34,13 +34,13 @@ export default class OcrExtractorPlugin extends Plugin {
   async onload() {
     await setLanguage(getLanguage());
     await this.loadSettings();
+    this.statusManager = new StatusManager(this);
+    this.extractor = new TextExtractor(this);
     this.addSettingTab(new SettingTab(this.app, this));
+    addCommands(this);
 
     this.app.workspace.onLayoutReady(() => {
       this.checkInstallerVersion();
-      this.statusManager = new StatusManager(this);
-      this.extractor = new TextExtractor(this);
-      addCommands(this);
       registerAutoExtractEvents(this);
     });
   }
