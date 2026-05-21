@@ -5,7 +5,7 @@ import {
   migrateCallouts,
 } from "./callout";
 
-describe("callout utils", () => {
+describe("callout.ts", () => {
   describe("migrateCallouts", () => {
     it("migrates legacy callout headers", () => {
       const content = "> [!summary]- Extracted text\n> content";

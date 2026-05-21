@@ -4,24 +4,29 @@ import es from "./locales/es.json";
 import fr from "./locales/fr.json";
 import zh from "./locales/zh.json";
 
+export const defaultNS = "translation" as const;
+
+export const resources = {
+  en: { translation: en },
+  es: { translation: es },
+  fr: { translation: fr },
+  zh: { translation: zh },
+};
+
 const i18n = i18next.createInstance();
 
 // Synchronous since resources are provided inline (no async backend)
 void i18n.init({
   lng: "en",
   fallbackLng: "en",
+  defaultNS,
   interpolation: {
     // Translated strings are inserted via Obsidian API methods, not
     // innerHTML, so HTML escaping is not needed (and would cause literal
     // values like "&amp;" in the UI).
     escapeValue: false,
   },
-  resources: {
-    en: { translation: en },
-    es: { translation: es },
-    fr: { translation: fr },
-    zh: { translation: zh },
-  },
+  resources,
 });
 
 export function setLanguage(lng: string) {

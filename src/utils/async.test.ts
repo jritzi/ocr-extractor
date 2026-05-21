@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { raceAbort } from "./async";
 
-describe("async utils", () => {
+describe("async.ts", () => {
   describe("raceAbort", () => {
     it("resolves with the value when the promise settles first", async () => {
       const controller = new AbortController();
