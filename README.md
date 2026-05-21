@@ -15,11 +15,11 @@ Click on the [ribbon](https://help.obsidian.md/ribbon) icon (or use the [command
 1. Extract text in current note
 2. Extract text in all notes (not available on mobile)
 
-<img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/master/images/ribbon.png" alt="Ribbon menu options" width="600" />
+<img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/main/images/ribbon.png" alt="Ribbon menu options" width="600" />
 
 When extracting from all notes, you can see the progress in the [status bar](https://help.obsidian.md/status-bar), or click it and select "Cancel" to cancel the operation.
 
-<img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/master/images/status.png" alt="Status bar info" width="600" />
+<img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/main/images/status.png" alt="Status bar info" width="600" />
 
 ## OCR services
 
