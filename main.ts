@@ -1,6 +1,6 @@
 import { getLanguage, Platform, Plugin } from "obsidian";
-import { InstallerUpdateModal } from "./src/ui/installer-update-modal";
 import { isElectronBelowMinimum } from "./src/min-electron-version";
+import { InstallerUpdateModal } from "./src/ui/installer-update-modal";
 import { SettingTab } from "./src/ui/setting-tab";
 import {
   DEFAULT_SETTINGS,
@@ -35,12 +35,12 @@ export default class OcrExtractorPlugin extends Plugin {
     await setLanguage(getLanguage());
     await this.loadSettings();
     this.addSettingTab(new SettingTab(this.app, this));
-    addCommands(this);
 
     this.app.workspace.onLayoutReady(() => {
       this.checkInstallerVersion();
       this.statusManager = new StatusManager(this);
       this.extractor = new TextExtractor(this);
+      addCommands(this);
       registerAutoExtractEvents(this);
     });
   }
