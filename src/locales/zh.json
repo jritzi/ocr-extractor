@@ -4,7 +4,7 @@
     "title": "提取的文本"
   },
   "commands": {
-    "extractCurrentNote": "在当前笔记中提取文本",
+    "extractActiveNote": "在活动笔记中提取文本",
     "extractNote": "在笔记中提取文本",
     "extractFolder": "在文件夹中提取文本",
     "extractAllNotes": "在所有笔记中提取文本",
@@ -62,7 +62,7 @@
     "cancel": "取消"
   },
   "notices": {
-    "cancelled": "已取消文本提取",
+    "canceled": "已取消文本提取",
     "completeExtracted": "文本提取完成。已提取：{{count}}",
     "completeExtractedSkipped": "文本提取完成。已提取：{{extracted}}，已跳过：{{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}：提取正在进行中，新附件已跳过",
