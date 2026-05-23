@@ -19,7 +19,7 @@ export function registerActions(plugin: OcrExtractorPlugin) {
 
 function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
   plugin.addCommand({
-    id: "extract-current-note",
+    id: "extract-current-note", // uses old name, but must be stable across versions
     name: t("commands.extractActiveNote"),
     checkCallback: (checking: boolean) => {
       if (plugin.extractor.canProcessActiveFile()) {
