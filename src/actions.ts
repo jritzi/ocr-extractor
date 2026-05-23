@@ -1,11 +1,19 @@
-import { Menu, Platform } from "obsidian";
+import { Menu, Platform, TFile, TFolder } from "obsidian";
+import { isMarkdown } from "./utils/file";
 import OcrExtractorPlugin from "../main";
 import { t } from "./i18n";
 
-export function addCommands(plugin: OcrExtractorPlugin) {
+const PLUGIN_ICON = "scan-text";
+
+export function registerActions(plugin: OcrExtractorPlugin) {
   addExtractActiveNoteCommand(plugin);
+  addExtractFolderCommand(plugin);
   addExtractAllNotesCommand(plugin);
   addCancelExtractionCommand(plugin);
+
+  addExtractNoteMenuItem(plugin);
+  addExtractFolderMenuItem(plugin);
+
   addRibbonIcon(plugin);
 }
 
@@ -27,12 +35,30 @@ function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
   });
 }
 
+function addExtractFolderCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "extract-folder",
+    name: t("commands.extractFolder"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.extractor.canProcessMultipleFiles()) {
+        if (!checking) {
+          plugin.extractor.processFolder();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
+}
+
 function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
   plugin.addCommand({
     id: "extract-all-notes",
     name: t("commands.extractAllNotes"),
     checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessAllFiles()) {
+      if (plugin.extractor.canProcessMultipleFiles()) {
         if (!checking) {
           plugin.extractor.processAllFiles();
         }
@@ -63,8 +89,40 @@ function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
   });
 }
 
+function addExtractNoteMenuItem(plugin: OcrExtractorPlugin) {
+  plugin.registerEvent(
+    plugin.app.workspace.on("file-menu", (menu, file) => {
+      if (!(file instanceof TFile) || !isMarkdown(file)) return;
+      if (!plugin.extractor.canProcessSingleFile()) return;
+
+      menu.addItem((item) =>
+        item
+          .setTitle(t("commands.extractNote"))
+          .setIcon(PLUGIN_ICON)
+          .onClick(() => plugin.extractor.processSingleFile(file)),
+      );
+    }),
+  );
+}
+
+function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
+  plugin.registerEvent(
+    plugin.app.workspace.on("file-menu", (menu, file) => {
+      if (!(file instanceof TFolder)) return;
+      if (!plugin.extractor.canProcessMultipleFiles()) return;
+
+      menu.addItem((item) =>
+        item
+          .setTitle(t("commands.extractFolder"))
+          .setIcon(PLUGIN_ICON)
+          .onClick(() => plugin.extractor.processFolder(file)),
+      );
+    }),
+  );
+}
+
 function addRibbonIcon(plugin: OcrExtractorPlugin) {
-  plugin.addRibbonIcon("scan-text", t("pluginName"), (event) => {
+  plugin.addRibbonIcon(PLUGIN_ICON, t("pluginName"), (event) => {
     const menu = new Menu();
 
     if (!(event.currentTarget instanceof Element)) {
@@ -81,8 +139,15 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
     if (Platform.isDesktop) {
       menu.addItem((item) =>
         item
+          .setTitle(t("commands.extractFolder"))
+          .setDisabled(!plugin.extractor.canProcessMultipleFiles())
+          .onClick(() => plugin.extractor.processFolder()),
+      );
+
+      menu.addItem((item) =>
+        item
           .setTitle(t("commands.extractAllNotes"))
-          .setDisabled(!plugin.extractor.canProcessAllFiles())
+          .setDisabled(!plugin.extractor.canProcessMultipleFiles())
           .onClick(() => plugin.extractor.processAllFiles()),
       );
     }

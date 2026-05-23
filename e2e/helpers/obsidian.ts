@@ -1,11 +1,25 @@
 import { expect, Page } from "@playwright/test";
 
-export async function seedNote(page: Page, name: string, content = "") {
+export async function createFolder(page: Page, folder: string) {
   await page.evaluate(
-    async ({ name, content }) => {
-      await app.vault.create(`${name}.md`, content);
+    async ({ folder }) => {
+      await app.vault.createFolder(folder);
     },
-    { name, content },
+    { folder },
+  );
+}
+
+export async function seedNote(
+  page: Page,
+  name: string,
+  { folder, content = "" }: { folder?: string; content?: string } = {},
+) {
+  await page.evaluate(
+    async ({ folder, name, content }) => {
+      const path = folder ? `${folder}/${name}.md` : `${name}.md`;
+      await app.vault.create(path, content);
+    },
+    { folder, name, content },
   );
 }
 

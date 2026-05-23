@@ -8,8 +8,8 @@ import {
 } from "../helpers/plugin";
 
 test("successful extraction", async ({ page }) => {
-  await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
-  await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
+  await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
+  await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
   await extractAllNotes(page);
 
   await expect(
@@ -24,12 +24,10 @@ test("successful extraction", async ({ page }) => {
 });
 
 test("warning about skipped attachments", async ({ page }) => {
-  await seedNote(
-    page,
-    "Note 1",
-    "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
-  );
-  await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
+  await seedNote(page, "Note 1", {
+    content: "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
+  });
+  await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
   await extractAllNotes(page);
 
   await expect(
@@ -47,8 +45,8 @@ test.describe("loading and cancellation", () => {
   test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.slow } });
 
   test("loading message and cancellation", async ({ page }) => {
-    await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
-    await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
+    await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
     await extractAllNotes(page);
 
     await expect(
@@ -76,8 +74,8 @@ test.describe("error handling", () => {
   });
 
   test("error message", async ({ page }) => {
-    await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
-    await seedNote(page, "Note 2", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
+    await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
     await extractAllNotes(page);
 
     await expect(

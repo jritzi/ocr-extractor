@@ -44,7 +44,7 @@ test.describe("busy notice", () => {
   });
 
   test("notice if extraction is already in progress", async ({ page }) => {
-    await seedNote(page, "Note 1", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
 
     await extractAllNotes(page);
 
