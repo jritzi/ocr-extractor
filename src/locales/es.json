@@ -5,6 +5,8 @@
   },
   "commands": {
     "extractCurrentNote": "Extraer texto de la nota actual",
+    "extractNote": "Extraer texto en la nota",
+    "extractFolder": "Extraer texto en la carpeta",
     "extractAllNotes": "Extraer texto de todas las notas",
     "cancelExtraction": "Cancelar extracción"
   },
@@ -39,6 +41,9 @@
       "body": "OCR Extractor requiere una versión más reciente del instalador de Obsidian para funcionar correctamente. Por favor, descarga e instala la última versión de Obsidian (no necesitas desinstalar primero).",
       "download": "Descargar Obsidian",
       "learnMore": "Más información"
+    },
+    "selectFolder": {
+      "placeholder": "Selecciona una carpeta..."
     },
     "extractAll": {
       "title": "¿Extraer texto de todas las notas?",

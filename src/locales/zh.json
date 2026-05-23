@@ -5,6 +5,8 @@
   },
   "commands": {
     "extractCurrentNote": "在当前笔记中提取文本",
+    "extractNote": "在笔记中提取文本",
+    "extractFolder": "在文件夹中提取文本",
     "extractAllNotes": "在所有笔记中提取文本",
     "cancelExtraction": "取消提取"
   },
@@ -40,13 +42,16 @@
       "download": "下载 Obsidian",
       "learnMore": "了解更多"
     },
+    "selectFolder": {
+      "placeholder": "选择一个文件夹……"
+    },
     "extractAll": {
       "title": "是否从所有笔记中提取文本？",
       "warning": "在从所有笔记的附件中提取文本之前，请确保您的仓库已经备份。",
       "extract": "提取"
     },
     "status": {
-      "title": "正在提取附件中的文本…",
+      "title": "正在提取附件中的文本……",
       "warning_one": "已从 {{count}} 个附件中提取文本。已跳过以下内容：",
       "warning_other": "已从 {{count}} 个附件中提取文本。已跳过以下内容："
     }
@@ -64,7 +69,7 @@
     "mobileServiceFallback": "{{pluginName}}：移动端不支持自定义命令，正在改用 Tesseract",
     "mobileServiceFallbackSetting": "{{pluginName}}：移动端不支持自定义命令，将改用 Tesseract",
     "fileChanged": "处理期间文件被更改，正在跳过 ({{path}})",
-    "testingCommand": "正在测试自定义命令…",
+    "testingCommand": "正在测试自定义命令……",
     "testSucceeded": "测试成功",
     "testNoOutput": "命令执行成功，但未生成输出文件",
     "testOutputMismatch": "命令执行成功，但输出 (\"{{actual}}\") 与预期 (\"{{expected}}\") 不符。",
