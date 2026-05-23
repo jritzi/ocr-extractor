@@ -4,10 +4,10 @@
     "title": "Texte extrait"
   },
   "commands": {
-    "extractCurrentNote": "Extraire le texte de la note actuelle",
+    "extractActiveNote": "Extraire le texte dans la note active",
     "extractNote": "Extraire le texte dans la note",
     "extractFolder": "Extraire le texte dans le dossier",
-    "extractAllNotes": "Extraire le texte de toutes les notes",
+    "extractAllNotes": "Extraire le texte dans toutes les notes",
     "cancelExtraction": "Annuler l'extraction"
   },
   "settings": {
@@ -62,7 +62,7 @@
     "cancel": "Annuler"
   },
   "notices": {
-    "cancelled": "Extraction de texte annulée",
+    "canceled": "Extraction de texte annulée",
     "completeExtracted": "Extraction du texte terminée. Extraits : {{count}}",
     "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}} : Extraction déjà en cours, nouvelle pièce jointe ignorée",
