@@ -57,7 +57,7 @@ test.describe("loading and cancellation", () => {
 
     await cancelExtraction(page);
 
-    await expect(page.getByText("Cancelled text extraction")).toBeVisible();
+    await expect(page.getByText("Canceled text extraction")).toBeVisible();
 
     await openNote(page, "Note 1");
     await expectNoCallout(page);

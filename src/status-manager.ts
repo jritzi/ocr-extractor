@@ -92,7 +92,7 @@ export class StatusManager {
     debugLog("Status set to canceling");
   }
 
-  setCancelled() {
+  setCanceled() {
     this.status = "idle";
     this.statusBarTextSpan.setText("");
     this.statusBarItem.hide();
@@ -102,8 +102,8 @@ export class StatusManager {
       this.statusModal = null;
     }
 
-    showNotice(t("notices.cancelled"));
-    debugLog("Status set to idle (cancelled)");
+    showNotice(t("notices.canceled"));
+    debugLog("Status set to idle (canceled)");
   }
 
   setComplete(extractedCount: number, skippedEmbeds: EmbedCache[]) {

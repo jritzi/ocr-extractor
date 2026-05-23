@@ -6,7 +6,7 @@ import { t } from "./i18n";
 const PLUGIN_ICON = "scan-text";
 
 export function registerActions(plugin: OcrExtractorPlugin) {
-  addExtractCurrentNoteCommand(plugin);
+  addExtractActiveNoteCommand(plugin);
   addExtractFolderCommand(plugin);
   addExtractAllNotesCommand(plugin);
   addCancelExtractionCommand(plugin);
@@ -17,10 +17,10 @@ export function registerActions(plugin: OcrExtractorPlugin) {
   addRibbonIcon(plugin);
 }
 
-function addExtractCurrentNoteCommand(plugin: OcrExtractorPlugin) {
+function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
   plugin.addCommand({
-    id: "extract-current-note",
-    name: t("commands.extractCurrentNote"),
+    id: "extract-current-note", // uses old name, but must be stable across versions
+    name: t("commands.extractActiveNote"),
     checkCallback: (checking: boolean) => {
       if (plugin.extractor.canProcessActiveFile()) {
         if (!checking) {
@@ -131,7 +131,7 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
 
     menu.addItem((item) =>
       item
-        .setTitle(t("commands.extractCurrentNote"))
+        .setTitle(t("commands.extractActiveNote"))
         .setDisabled(!plugin.extractor.canProcessActiveFile())
         .onClick(() => plugin.extractor.processActiveFile()),
     );

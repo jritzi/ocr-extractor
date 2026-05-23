@@ -140,7 +140,7 @@ export class TextExtractor {
       }
 
       if (this.plugin.statusManager.isCanceling()) {
-        this.plugin.statusManager.setCancelled();
+        this.plugin.statusManager.setCanceled();
       } else {
         this.plugin.statusManager.setComplete(totalExtracted, allSkippedEmbeds);
       }

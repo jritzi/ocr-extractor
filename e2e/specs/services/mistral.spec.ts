@@ -10,7 +10,7 @@ import {
 import {
   expectCallout,
   expectNoCallout,
-  extractCurrentNote,
+  extractActiveNote,
 } from "../../helpers/plugin";
 
 const MOCK_RESPONSE = "Mistral extracted text";
@@ -34,7 +34,7 @@ test("PDF extraction (document_url)", async ({ page }) => {
 
   await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
   await openNote(page, "Note");
-  await extractCurrentNote(page);
+  await extractActiveNote(page);
 
   await expectHttpRequest(page, "POST", MISTRAL_URL, {
     model: "mistral-ocr-latest",
@@ -60,7 +60,7 @@ test("image extraction (image_url)", async ({ page }) => {
 
   await seedNote(page, "Note", { content: "![[attachments/sample.png]]" });
   await openNote(page, "Note");
-  await extractCurrentNote(page);
+  await extractActiveNote(page);
 
   await expectHttpRequest(page, "POST", MISTRAL_URL, {
     model: "mistral-ocr-latest",
@@ -80,7 +80,7 @@ test("unauthorized error on 401", async ({ page }) => {
 
   await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
   await openNote(page, "Note");
-  await extractCurrentNote(page);
+  await extractActiveNote(page);
 
   const modal = getModal(page);
   await expect(
@@ -96,7 +96,7 @@ for (const status of [400, 422]) {
 
     await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
     await openNote(page, "Note");
-    await extractCurrentNote(page);
+    await extractActiveNote(page);
 
     const modal = getModal(page);
     await expect(
@@ -113,7 +113,7 @@ for (const status of [400, 422]) {
 test("skipped attachment on unsupported file type", async ({ page }) => {
   await seedNote(page, "Note", { content: "![[attachments/sample.xml]]" });
   await openNote(page, "Note");
-  await extractCurrentNote(page);
+  await extractActiveNote(page);
 
   const modal = getModal(page);
   await expect(
