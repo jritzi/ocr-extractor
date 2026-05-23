@@ -68,7 +68,7 @@ export class StatusManager {
       t("status.extractingNote", { current: 0, total: totalNotes }),
     );
     this.statusBarItem.show();
-    debugLog("Status set to processing (all notes)");
+    debugLog("Status set to processing (multiple notes)");
   }
 
   updateProgress(notesProcessed: number, totalNotes: number) {

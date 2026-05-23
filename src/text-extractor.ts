@@ -106,6 +106,7 @@ export class TextExtractor {
   }
 
   private startExtractingFiles(files: TFile[]) {
+    if (files.length === 0) return;
     this.plugin.statusManager.setProcessingMultipleNotes(files.length);
     void this.runExtraction(files);
   }
