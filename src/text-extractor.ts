@@ -1,16 +1,32 @@
-import OcrExtractorPlugin, {OCR_SERVICES} from "../main";
-import {EmbedCache, getLinkpath, MarkdownView, Platform, TFile, TFolder,} from "obsidian";
-import {OcrService, UserFacingError} from "./services/ocr-service";
-import {formatCalloutToInsert, insertWithBlankLines, isManagedCallout, migrateCallouts,} from "./utils/callout";
-import {batchPromises} from "./utils/async";
-import {assert} from "./utils/assert";
-import {debugLog, warnSkipped} from "./utils/logging";
-import {showErrorNotice, showNotice} from "./utils/notice";
-import {shouldUseMobileServiceFallback} from "./settings";
-import {isObsidianNative, markdownFilesInFolder, resolveEmbedPath,} from "./utils/file";
-import {ConfirmExtractAllModal} from "./ui/confirm-extract-all-modal";
-import {SelectFolderModal} from "./ui/select-folder-modal";
-import {t} from "./i18n";
+import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
+import {
+  EmbedCache,
+  getLinkpath,
+  MarkdownView,
+  Platform,
+  TFile,
+  TFolder,
+} from "obsidian";
+import { OcrService, UserFacingError } from "./services/ocr-service";
+import {
+  formatCalloutToInsert,
+  insertWithBlankLines,
+  isManagedCallout,
+  migrateCallouts,
+} from "./utils/callout";
+import { batchPromises } from "./utils/async";
+import { assert } from "./utils/assert";
+import { debugLog, warnSkipped } from "./utils/logging";
+import { showErrorNotice, showNotice } from "./utils/notice";
+import { shouldUseMobileServiceFallback } from "./settings";
+import {
+  isObsidianNative,
+  markdownFilesInFolder,
+  resolveEmbedPath,
+} from "./utils/file";
+import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
+import { SelectFolderModal } from "./ui/select-folder-modal";
+import { t } from "./i18n";
 
 export class TextExtractor {
   private app = this.plugin.app;
