@@ -5,6 +5,7 @@
   },
   "commands": {
     "extractCurrentNote": "Extract text in current note",
+    "extractNote": "Extract text in note",
     "extractFolder": "Extract text in folder",
     "extractAllNotes": "Extract text in all notes",
     "cancelExtraction": "Cancel extraction"

@@ -1,4 +1,5 @@
-import { Menu, Platform, TFolder } from "obsidian";
+import { Menu, Platform, TFile, TFolder } from "obsidian";
+import { isMarkdown } from "./utils/file";
 import OcrExtractorPlugin from "../main";
 import { t } from "./i18n";
 
@@ -10,6 +11,7 @@ export function registerActions(plugin: OcrExtractorPlugin) {
   addExtractAllNotesCommand(plugin);
   addCancelExtractionCommand(plugin);
 
+  addExtractNoteMenuItem(plugin);
   addExtractFolderMenuItem(plugin);
 
   addRibbonIcon(plugin);
@@ -85,6 +87,22 @@ function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
       return false;
     },
   });
+}
+
+function addExtractNoteMenuItem(plugin: OcrExtractorPlugin) {
+  plugin.registerEvent(
+    plugin.app.workspace.on("file-menu", (menu, file) => {
+      if (!(file instanceof TFile) || !isMarkdown(file)) return;
+      if (!plugin.extractor.canProcessSingleFile()) return;
+
+      menu.addItem((item) =>
+        item
+          .setTitle(t("commands.extractNote"))
+          .setIcon(PLUGIN_ICON)
+          .onClick(() => plugin.extractor.processSingleFile(file)),
+      );
+    }),
+  );
 }
 
 function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
