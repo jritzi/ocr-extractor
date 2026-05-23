@@ -4,8 +4,10 @@
     "title": "Texte extrait"
   },
   "commands": {
-    "extractCurrentNote": "Extraire le texte de la note actuelle",
-    "extractAllNotes": "Extraire le texte de toutes les notes",
+    "extractActiveNote": "Extraire le texte dans la note active",
+    "extractNote": "Extraire le texte dans la note",
+    "extractFolder": "Extraire le texte dans le dossier",
+    "extractAllNotes": "Extraire le texte dans toutes les notes",
     "cancelExtraction": "Annuler l'extraction"
   },
   "settings": {
@@ -40,13 +42,16 @@
       "download": "Télécharger Obsidian",
       "learnMore": "En savoir plus"
     },
+    "selectFolder": {
+      "placeholder": "Sélectionner un dossier..."
+    },
     "extractAll": {
       "title": "Extraire le texte de toutes les notes ?",
       "warning": "Assurez-vous de sauvegarder votre coffre-fort avant d’extraire le texte des pièces jointes et de l’insérer dans toutes les notes.",
       "extract": "Extraire"
     },
     "status": {
-      "title": "Extraction du texte des pièces jointes…",
+      "title": "Extraction du texte des pièces jointes...",
       "warning_one": "Texte extrait de {{count}} pièce jointe. Les éléments suivants ont été ignorés :",
       "warning_other": "Texte extrait de {{count}} pièces jointes. Les éléments suivants ont été ignorés :"
     }
@@ -57,7 +62,7 @@
     "cancel": "Annuler"
   },
   "notices": {
-    "cancelled": "Extraction de texte annulée",
+    "canceled": "Extraction de texte annulée",
     "completeExtracted": "Extraction du texte terminée. Extraits : {{count}}",
     "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}} : Extraction déjà en cours, nouvelle pièce jointe ignorée",

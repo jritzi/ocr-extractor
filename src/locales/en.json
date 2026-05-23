@@ -4,7 +4,9 @@
     "title": "Extracted text"
   },
   "commands": {
-    "extractCurrentNote": "Extract text in current note",
+    "extractActiveNote": "Extract text in active note",
+    "extractNote": "Extract text in note",
+    "extractFolder": "Extract text in folder",
     "extractAllNotes": "Extract text in all notes",
     "cancelExtraction": "Cancel extraction"
   },
@@ -40,6 +42,9 @@
       "download": "Download Obsidian",
       "learnMore": "Learn more"
     },
+    "selectFolder": {
+      "placeholder": "Select a folder..."
+    },
     "extractAll": {
       "title": "Extract text from all notes?",
       "warning": "Make sure you have a backup of your vault before extracting text from attachments in all notes.",
@@ -57,7 +62,7 @@
     "cancel": "Cancel"
   },
   "notices": {
-    "cancelled": "Cancelled text extraction",
+    "canceled": "Canceled text extraction",
     "completeExtracted": "Text extraction complete. Extracted: {{count}}",
     "completeExtractedSkipped": "Text extraction complete. Extracted: {{extracted}}, skipped: {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",

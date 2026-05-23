@@ -2,7 +2,7 @@ import { test } from "../fixtures";
 import { mockHttp } from "../helpers/http";
 import { MISTRAL_URL, mistralSuccessResponse } from "../helpers/mistral";
 import { openNote, seedNote } from "../helpers/obsidian";
-import { expectCallout, extractCurrentNote } from "../helpers/plugin";
+import { expectCallout, extractActiveNote } from "../helpers/plugin";
 
 const MOCK_RESPONSE = "Extracted text after migration";
 
@@ -19,9 +19,9 @@ test.describe("<1.2.0: Add ocrService", () => {
       200,
       mistralSuccessResponse(MOCK_RESPONSE),
     );
-    await seedNote(page, "Note", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
     await openNote(page, "Note");
-    await extractCurrentNote(page);
+    await extractActiveNote(page);
     await expectCallout(page, MOCK_RESPONSE);
   });
 });
@@ -39,9 +39,9 @@ test.describe("<2.0.0: Migrate mistralApiKey to mistralSecret (SecretStorage)", 
       200,
       mistralSuccessResponse(MOCK_RESPONSE),
     );
-    await seedNote(page, "Note", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
     await openNote(page, "Note");
-    await extractCurrentNote(page);
+    await extractActiveNote(page);
     await expectCallout(page, MOCK_RESPONSE);
   });
 });

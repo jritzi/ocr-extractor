@@ -1,8 +1,14 @@
 import { expect, Page } from "@playwright/test";
 import { clickModalButton, runCommand } from "./obsidian";
 
-export async function extractCurrentNote(page: Page) {
-  await runCommand(page, "OCR Extractor: Extract text in current note");
+export async function extractActiveNote(page: Page) {
+  await runCommand(page, "OCR Extractor: Extract text in active note");
+}
+
+export async function extractFolder(page: Page, folderName: string) {
+  await runCommand(page, "OCR Extractor: Extract text in folder");
+  await page.getByPlaceholder("Select a folder...").fill(folderName);
+  await page.keyboard.press("Enter");
 }
 
 export async function extractAllNotes(page: Page) {

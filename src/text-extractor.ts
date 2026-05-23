@@ -5,6 +5,7 @@ import {
   MarkdownView,
   Platform,
   TFile,
+  TFolder,
 } from "obsidian";
 import { OcrService, UserFacingError } from "./services/ocr-service";
 import {
@@ -18,8 +19,13 @@ import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileServiceFallback } from "./settings";
-import { isObsidianNative, resolveEmbedPath } from "./utils/file";
+import {
+  isObsidianNative,
+  markdownFilesInFolder,
+  resolveEmbedPath,
+} from "./utils/file";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
+import { SelectFolderModal } from "./ui/select-folder-modal";
 import { t } from "./i18n";
 
 export class TextExtractor {
@@ -56,22 +62,37 @@ export class TextExtractor {
 
   processSingleFile(file: TFile) {
     assert(this.canProcessSingleFile(), "Callers check before processing");
-
-    this.plugin.statusManager.setProcessingSingleNote();
-    void this.processFiles([file]);
+    this.startExtractingFile(file);
   }
 
-  canProcessAllFiles() {
+  canProcessMultipleFiles() {
+    // Desktop-only until progress feedback added for mobile (status bar is desktop-only)
     return Platform.isDesktop && this.plugin.statusManager.isIdle();
   }
 
+  processFolder(folder?: TFolder) {
+    assert(
+      this.canProcessMultipleFiles(),
+      "Command disabled when can't process",
+    );
+
+    if (folder) {
+      this.startExtractingFiles(markdownFilesInFolder(folder));
+    } else {
+      new SelectFolderModal(this.app, (selected) => {
+        this.startExtractingFiles(markdownFilesInFolder(selected));
+      }).open();
+    }
+  }
+
   processAllFiles() {
-    assert(this.canProcessAllFiles(), "Command disabled when can't process");
+    assert(
+      this.canProcessMultipleFiles(),
+      "Command disabled when can't process",
+    );
 
     new ConfirmExtractAllModal(this.app, () => {
-      const markdownFiles = this.app.vault.getMarkdownFiles();
-      this.plugin.statusManager.setProcessingAllNotes(markdownFiles.length);
-      void this.processFiles(markdownFiles);
+      this.startExtractingFiles(this.app.vault.getMarkdownFiles());
     }).open();
   }
 
@@ -79,7 +100,18 @@ export class TextExtractor {
     return this.service.terminate();
   }
 
-  private async processFiles(files: TFile[]) {
+  private startExtractingFile(file: TFile) {
+    this.plugin.statusManager.setProcessingSingleNote();
+    void this.runExtraction([file]);
+  }
+
+  private startExtractingFiles(files: TFile[]) {
+    if (files.length === 0) return;
+    this.plugin.statusManager.setProcessingMultipleNotes(files.length);
+    void this.runExtraction(files);
+  }
+
+  private async runExtraction(files: TFile[]) {
     if (this.usingMobileServiceFallback) {
       showNotice(
         t("notices.mobileServiceFallback", { pluginName: t("pluginName") }),
@@ -108,7 +140,7 @@ export class TextExtractor {
       }
 
       if (this.plugin.statusManager.isCanceling()) {
-        this.plugin.statusManager.setCancelled();
+        this.plugin.statusManager.setCanceled();
       } else {
         this.plugin.statusManager.setComplete(totalExtracted, allSkippedEmbeds);
       }
