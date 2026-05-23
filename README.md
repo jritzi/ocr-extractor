@@ -12,7 +12,7 @@ Following Obsidian's philosophy of storing data in an open, future-proof file fo
 
 Click on the [ribbon](https://help.obsidian.md/ribbon) icon (or use the [command palette](https://help.obsidian.md/plugins/command-palette)) and select one of the two options:
 
-1. Extract text in current note
+1. Extract text in active note
 2. Extract text in all notes (not available on mobile)
 
 <img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/main/images/ribbon.png" alt="Ribbon menu options" width="600" />

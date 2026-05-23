@@ -3,16 +3,16 @@ import OcrExtractorPlugin from "../main";
 import { t } from "./i18n";
 
 export function addCommands(plugin: OcrExtractorPlugin) {
-  addExtractCurrentNoteCommand(plugin);
+  addExtractActiveNoteCommand(plugin);
   addExtractAllNotesCommand(plugin);
   addCancelExtractionCommand(plugin);
   addRibbonIcon(plugin);
 }
 
-function addExtractCurrentNoteCommand(plugin: OcrExtractorPlugin) {
+function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
   plugin.addCommand({
     id: "extract-current-note",
-    name: t("commands.extractCurrentNote"),
+    name: t("commands.extractActiveNote"),
     checkCallback: (checking: boolean) => {
       if (plugin.extractor.canProcessActiveFile()) {
         if (!checking) {
@@ -73,7 +73,7 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
 
     menu.addItem((item) =>
       item
-        .setTitle(t("commands.extractCurrentNote"))
+        .setTitle(t("commands.extractActiveNote"))
         .setDisabled(!plugin.extractor.canProcessActiveFile())
         .onClick(() => plugin.extractor.processActiveFile()),
     );
