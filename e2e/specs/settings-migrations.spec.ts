@@ -19,7 +19,7 @@ test.describe("<1.2.0: Add ocrService", () => {
       200,
       mistralSuccessResponse(MOCK_RESPONSE),
     );
-    await seedNote(page, "Note", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
     await openNote(page, "Note");
     await extractCurrentNote(page);
     await expectCallout(page, MOCK_RESPONSE);
@@ -39,7 +39,7 @@ test.describe("<2.0.0: Migrate mistralApiKey to mistralSecret (SecretStorage)", 
       200,
       mistralSuccessResponse(MOCK_RESPONSE),
     );
-    await seedNote(page, "Note", "![[attachments/sample.pdf]]");
+    await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
     await openNote(page, "Note");
     await extractCurrentNote(page);
     await expectCallout(page, MOCK_RESPONSE);

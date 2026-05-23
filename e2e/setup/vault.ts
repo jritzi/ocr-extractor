@@ -33,6 +33,7 @@ export function setupPlugin(tmpVault: string, settings: StoredSettings) {
   mkdirSync(pluginDir, { recursive: true });
   copyFileSync(join(ROOT, "main.js"), join(pluginDir, "main.js"));
   copyFileSync(join(ROOT, "manifest.json"), join(pluginDir, "manifest.json"));
+  copyFileSync(join(ROOT, "styles.css"), join(pluginDir, "styles.css"));
   writeFileSync(
     join(pluginDir, "data.json"),
     JSON.stringify(settings, null, 2),
