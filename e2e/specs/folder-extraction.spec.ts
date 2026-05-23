@@ -44,6 +44,30 @@ test("successful extraction", async ({ page }) => {
   await expectNoCallout(page);
 });
 
+test("warning about skipped attachments", async ({ page }) => {
+  await createFolder(page, "projects");
+  await seedNote(page, "Note 1", {
+    folder: "projects",
+    content: "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
+  });
+  await seedNote(page, "Note 2", {
+    folder: "projects",
+    content: "![[attachments/sample.pdf]]",
+  });
+
+  await extractFolder(page, "projects");
+
+  await expect(
+    page.getByText("Text extraction complete. Extracted: 2, skipped: 1"),
+  ).toBeVisible();
+
+  await openNote(page, "Note 1");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
+
+  await openNote(page, "Note 2");
+  await expectCallout(page, MOCK_OCR_OUTPUT);
+});
+
 test.describe("loading and cancellation", () => {
   test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.slow } });
 
@@ -69,6 +93,39 @@ test.describe("loading and cancellation", () => {
     await cancelExtraction(page);
 
     await expect(page.getByText("Canceled text extraction")).toBeVisible();
+
+    await openNote(page, "Note 1");
+    await expectNoCallout(page);
+
+    await openNote(page, "Note 2");
+    await expectNoCallout(page);
+  });
+});
+
+test.describe("error handling", () => {
+  test.use({
+    settings: { customCommand: MOCK_OCR_COMMANDS.error },
+    allowErrors: true,
+  });
+
+  test("error message", async ({ page }) => {
+    await createFolder(page, "projects");
+    await seedNote(page, "Note 1", {
+      folder: "projects",
+      content: "![[attachments/sample.pdf]]",
+    });
+    await seedNote(page, "Note 2", {
+      folder: "projects",
+      content: "![[attachments/sample.pdf]]",
+    });
+
+    await extractFolder(page, "projects");
+
+    await expect(
+      page.getByText(
+        "Custom command failed with exit code 1 (see console for details)",
+      ),
+    ).toBeVisible();
 
     await openNote(page, "Note 1");
     await expectNoCallout(page);
