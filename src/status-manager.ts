@@ -61,11 +61,11 @@ export class StatusManager {
     debugLog("Status set to processing (single note)");
   }
 
-  setProcessingAllNotes(totalNotes: number) {
+  setProcessingMultipleNotes(totalNotes: number) {
     this.abortController = new AbortController();
     this.status = "processing";
     this.statusBarTextSpan.setText(
-      t("status.extractingNote", { current: 1, total: totalNotes }),
+      t("status.extractingNote", { current: 0, total: totalNotes }),
     );
     this.statusBarItem.show();
     debugLog("Status set to processing (all notes)");

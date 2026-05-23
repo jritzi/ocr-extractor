@@ -13,7 +13,7 @@ import { TesseractService } from "./src/services/tesseract-service";
 import { MistralService } from "./src/services/mistral-service";
 import { CustomCommandService } from "./src/services/custom-command-service";
 import { TextExtractor } from "./src/text-extractor";
-import { addCommands } from "./src/commands";
+import { registerActions } from "./src/actions";
 import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
 import { assert } from "./src/utils/assert";
@@ -37,7 +37,7 @@ export default class OcrExtractorPlugin extends Plugin {
     this.statusManager = new StatusManager(this);
     this.extractor = new TextExtractor(this);
     this.addSettingTab(new SettingTab(this.app, this));
-    addCommands(this);
+    registerActions(this);
 
     this.app.workspace.onLayoutReady(() => {
       this.checkInstallerVersion();
