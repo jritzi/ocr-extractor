@@ -1,35 +1,25 @@
-import type { SecretStorage, SettingGroup } from "obsidian";
-import { SecretComponent } from "obsidian";
 import { Mistral } from "@mistralai/mistralai";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
-import { OcrService, UserFacingError } from "./ocr-service";
-import { toDataUrl } from "../utils/encoding";
-import { warnSkipped } from "../utils/logging";
-import type OcrExtractorPlugin from "../../main";
-import { PluginSettings } from "../settings";
-import { t } from "../i18n";
+import { OcrService, UserFacingError } from "../ocr-service";
+import { MistralSettingsSection } from "./mistral-settings";
+import { toDataUrl } from "../../utils/encoding";
+import { warnSkipped } from "../../utils/logging";
+import { t } from "../../i18n";
+
+const BACKOFF = {
+  initialInterval: 500,
+  maxInterval: 10000,
+  exponent: 1.5,
+  maxElapsedTime: 10000,
+};
 
 export class MistralService extends OcrService {
-  constructor(settings: PluginSettings, secretStorage: SecretStorage) {
-    super(settings, secretStorage);
-  }
-
   static getLabel() {
     return t("services.mistralOcr");
   }
 
-  static addSettings(group: SettingGroup, plugin: OcrExtractorPlugin) {
-    group.addSetting((setting) => {
-      setting
-        .setName(t("settings.mistralApiKey"))
-        .addComponent((el) =>
-          new SecretComponent(plugin.app, el)
-            .setValue(plugin.settings.mistralSecret)
-            .onChange(
-              (value) => void plugin.saveSetting("mistralSecret", value),
-            ),
-        );
-    });
+  static getSettingsSection() {
+    return MistralSettingsSection;
   }
 
   protected isMimeTypeSupported(mimeType: string) {
@@ -65,30 +55,34 @@ export class MistralService extends OcrService {
         },
         {
           signal,
-          retries: {
-            strategy: "backoff",
-            backoff: {
-              initialInterval: 500,
-              maxInterval: 10000,
-              exponent: 1.5,
-              maxElapsedTime: 10000,
-            },
-          },
+          retries: { strategy: "backoff", backoff: BACKOFF },
         },
       );
 
       return ocrResponse.pages.map((page) => page.markdown);
     } catch (error: unknown) {
       if (error instanceof MistralError) {
-        if (error.statusCode === 401) {
-          throw new UserFacingError(t("errors.unauthorized"), {
-            cause: error,
-          });
+        if (error.statusCode === 401 || error.statusCode === 403) {
+          throw new UserFacingError(t("errors.unauthorized"));
         }
 
         if (error.statusCode === 400 || error.statusCode === 422) {
           warnSkipped(filename, "file type not supported by Mistral OCR");
           return null;
+        }
+
+        if (error.statusCode === 429) {
+          throw new UserFacingError(t("errors.rateLimited"));
+        }
+
+        if (error.statusCode >= 500) {
+          console.error(
+            `Mistral server error (HTTP ${error.statusCode}):`,
+            error.message,
+          );
+          throw new UserFacingError(
+            t("errors.serverError", { status: error.statusCode }),
+          );
         }
       }
 

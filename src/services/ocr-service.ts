@@ -1,10 +1,10 @@
 import { fileTypeFromBuffer } from "file-type";
-import type { SecretStorage, SettingGroup } from "obsidian";
-import type OcrExtractorPlugin from "../../main";
+import type { SecretStorage } from "obsidian";
 import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
 import { getPdfTextContent, isPdf } from "../utils/pdf";
 import { raceAbort } from "../utils/async";
+import { OcrServiceSettingsClass } from "./ocr-service-settings";
 
 /**
  * Errors with a message intended to be shown directly to the user (as opposed
@@ -25,8 +25,9 @@ export abstract class OcrService {
     throw new Error("getLabel() not implemented");
   }
 
-  /** Add service-specific settings to the settings tab */
-  static addSettings(_group: SettingGroup, _plugin: OcrExtractorPlugin) {}
+  static getSettingsSection(): OcrServiceSettingsClass | null {
+    throw new Error("getSettingsSection() not implemented");
+  }
 
   /**
    * Main entry point called by the plugin to extract text. Subclasses should

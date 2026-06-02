@@ -75,21 +75,6 @@ test("image extraction (image_url)", async ({ page }) => {
   await expectCallout(page, MOCK_RESPONSE);
 });
 
-test("unauthorized error on 401", async ({ page }) => {
-  await mockHttp(page, "POST", MISTRAL_URL, 401, {});
-
-  await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
-  await openNote(page, "Note");
-  await extractActiveNote(page);
-
-  const modal = getModal(page);
-  await expect(
-    modal.getByText("Unauthorized, check your API key"),
-  ).toBeVisible();
-  await clickModalButton(page, "OK");
-  await expectNoCallout(page);
-});
-
 for (const status of [400, 422]) {
   test(`skipped attachment on ${status}`, async ({ page }) => {
     await mockHttp(page, "POST", MISTRAL_URL, status, {});
@@ -122,6 +107,21 @@ test("skipped attachment on unsupported file type", async ({ page }) => {
     ),
   ).toBeVisible();
   await expect(modal.getByText("sample.xml")).toBeVisible();
+  await clickModalButton(page, "OK");
+  await expectNoCallout(page);
+});
+
+test("unauthorized error on 401", async ({ page }) => {
+  await mockHttp(page, "POST", MISTRAL_URL, 401, {});
+
+  await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
+  await openNote(page, "Note");
+  await extractActiveNote(page);
+
+  const modal = getModal(page);
+  await expect(
+    modal.getByText("Unauthorized. Check your API key."),
+  ).toBeVisible();
   await clickModalButton(page, "OK");
   await expectNoCallout(page);
 });

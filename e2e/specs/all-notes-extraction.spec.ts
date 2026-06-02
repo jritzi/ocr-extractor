@@ -80,7 +80,7 @@ test.describe("error handling", () => {
 
     await expect(
       page.getByText(
-        "Custom command failed with exit code 1 (see console for details)",
+        "Custom command failed (exit code 1). Check the developer console for details.",
       ),
     ).toBeVisible();
 

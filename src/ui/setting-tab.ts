@@ -16,14 +16,19 @@ export class SettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    const group = new SettingGroup(containerEl);
-
-    this.addServiceDropdown(group);
+    const generalGroup = new SettingGroup(containerEl);
+    this.addServiceDropdown(generalGroup);
+    this.addGeneralSettings(generalGroup);
 
     const ServiceClass = OCR_SERVICES[this.plugin.settings.ocrService];
-    ServiceClass.addSettings(group, this.plugin);
+    const ServiceSettingsClass = ServiceClass.getSettingsSection();
 
-    this.addGeneralSettings(group);
+    if (ServiceSettingsClass) {
+      const serviceGroup = new SettingGroup(containerEl).setHeading(
+        ServiceClass.getLabel(),
+      );
+      new ServiceSettingsClass(serviceGroup, this.plugin).display();
+    }
   }
 
   private addServiceDropdown(group: SettingGroup) {

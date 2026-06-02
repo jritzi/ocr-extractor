@@ -20,7 +20,12 @@ export async function batchPromises<T>(
  * aborted first.
  */
 export async function raceAbort<T>(promise: Promise<T>, signal: AbortSignal) {
-  if (signal.aborted) return null;
+  if (signal.aborted) {
+    // Avoid an unhandled rejection if the abandoned task fails (below, this is
+    // taken care of by `Promise.race()`)
+    void promise.catch(() => {});
+    return null;
+  }
 
   let onAbort!: () => void;
   const cancelPromise = new Promise<null>((resolve) => {
