@@ -35,7 +35,6 @@ export class OpenAiCompatibleClient {
     if (!trimmedBaseUrl) throw new UserFacingError(t("errors.noBaseUrl"));
 
     this.model = model.trim();
-    if (!this.model) throw new UserFacingError(t("errors.noModel"));
 
     this.prompt = prompt.trim() || DEFAULT_PROMPT;
 
@@ -62,6 +61,8 @@ export class OpenAiCompatibleClient {
   }
 
   async extractText(dataUrl: string, signal: AbortSignal) {
+    if (!this.model) throw new UserFacingError(t("errors.noModel"));
+
     const completion = await this.client.chat.completions.create(
       {
         model: this.model,
