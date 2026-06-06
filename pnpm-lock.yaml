@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  ws: '>=8.20.1'
+  ws: ^8.20.1
   minimatch@8: ^8.0.6
   minimatch@9: ^9.0.7
   fast-uri: ^3.1.2
@@ -2121,7 +2121,7 @@ packages:
   openai@6.42.0:
     resolution: {integrity: sha512-1WFEt/uXMXOLhYRNkgJWo08Y2YNvNwpVU72K7ibrWgWpNOXd4VojXLbe6SQ4bLiUQ3Y8jz4IiyVkylJCL1DtZg==}
     peerDependencies:
-      ws: '>=8.20.1'
+      ws: ^8.20.1
       zod: ^3.25 || ^4.0
     peerDependenciesMeta:
       ws:
