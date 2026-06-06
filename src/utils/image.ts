@@ -59,8 +59,11 @@ export async function resizeImage(
 }
 
 export async function canvasToPng(canvas: HTMLCanvasElement) {
-  const blob = await new Promise<Blob>((resolve) =>
-    canvas.toBlob((b) => resolve(b!), "image/png"),
+  const blob = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("canvas.toBlob failed"))),
+      "image/png",
+    ),
   );
   return new Uint8Array(await blob.arrayBuffer());
 }

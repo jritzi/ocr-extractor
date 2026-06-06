@@ -65,7 +65,7 @@ export class CustomCommandRunner {
     return {
       inputPath: this.path.join(
         this.os.tmpdir(),
-        `input-${uuid}.${sanitizedExt}`,
+        sanitizedExt ? `input-${uuid}.${sanitizedExt}` : `input-${uuid}`,
       ),
       outputPath: this.path.join(this.os.tmpdir(), `output-${uuid}.md`),
     };

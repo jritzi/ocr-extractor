@@ -58,11 +58,11 @@ export class CustomCommandSettingsSection extends OcrServiceSettings {
       return;
     }
 
-    const testPng = await createTestImage();
     const runner = new CustomCommandRunner();
     const loadingNotice = showLoadingNotice(t("notices.testingCommand"));
 
     try {
+      const testPng = await createTestImage();
       const result = await runner.run(
         testPng,
         command,
