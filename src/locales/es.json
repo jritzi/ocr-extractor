@@ -32,8 +32,8 @@
     "testTooltip": "Probar con una imagen de ejemplo",
     "convertPdfs": "Convertir archivos PDF a imágenes",
     "convertPdfsDesc": "Convertir las páginas del PDF a imágenes PNG antes de procesarlas",
-    "useEmbeddedText": "Usar texto de PDF incrustado",
-    "useEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo en lugar de extraerlo con OCR",
+    "preferEmbeddedText": "Preferir texto incrustado en PDF",
+    "preferEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo; de lo contrario, extrae con OCR",
     "autoExtractAttachments": "Extraer archivos adjuntos automáticamente",
     "autoExtractAttachmentsDesc": "Extrae texto automáticamente cuando se agrega un nuevo archivo adjunto a una nota"
   },
