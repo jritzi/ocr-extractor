@@ -75,8 +75,8 @@ export class SettingTab extends PluginSettingTab {
   private addGeneralSettings(group: SettingGroup) {
     group.addSetting((setting) => {
       setting
-        .setName(t("settings.useEmbeddedText"))
-        .setDesc(t("settings.useEmbeddedTextDesc"))
+        .setName(t("settings.preferEmbeddedText"))
+        .setDesc(t("settings.preferEmbeddedTextDesc"))
         .addToggle((toggle) =>
           toggle
             .setValue(this.plugin.settings.useEmbeddedText)
