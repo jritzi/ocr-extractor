@@ -23,7 +23,6 @@
     "openAiCompatibleModel": "Model",
     "refreshModels": "Refresh model list",
     "modelNotFound": "{{model}} (not found)",
-    "modelsLoading": "Loading...",
     "modelNone": "None",
     "openAiCompatibleApiKeyDesc": "Usually only required for cloud services",
     "openAiCompatiblePrompt": "Prompt",

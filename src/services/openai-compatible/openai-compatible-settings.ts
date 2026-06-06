@@ -1,5 +1,6 @@
-import type { DropdownComponent } from "obsidian";
+import type { ButtonComponent, DropdownComponent } from "obsidian";
 import { debounce, SecretComponent } from "obsidian";
+import { APIConnectionError, APIConnectionTimeoutError } from "openai";
 import { OcrServiceSettings } from "../ocr-service-settings";
 import { UserFacingError } from "../ocr-service";
 import {
@@ -19,6 +20,8 @@ import { t } from "../../i18n";
 
 export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
   private modelDropdown?: DropdownComponent;
+  private refreshButton?: ButtonComponent;
+  private testButton?: ButtonComponent;
   private readonly refreshModelsDebounced = debounce(
     () => void this.refreshModels(),
     300,
@@ -50,18 +53,20 @@ export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
               void this.plugin.saveSetting("openAiCompatibleModel", value),
           );
         })
-        .addButton((button) =>
+        .addButton((button) => {
+          this.refreshButton = button;
           button
             .setIcon("refresh-cw")
             .setTooltip(t("settings.refreshModels"))
-            .onClick(() => void this.refreshModels(true)),
-        )
-        .addButton((button) =>
+            .onClick(() => void this.refreshModels(true));
+        })
+        .addButton((button) => {
+          this.testButton = button;
           button
             .setButtonText(t("settings.test"))
             .setTooltip(t("settings.testTooltip"))
-            .onClick(() => void this.testConnection()),
-        );
+            .onClick(() => void this.testConnection());
+        });
 
       void this.refreshModels();
     });
@@ -96,36 +101,45 @@ export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
     });
   }
 
+  private setLoading(isLoading: boolean) {
+    this.modelDropdown?.setDisabled(isLoading);
+    this.refreshButton?.setDisabled(isLoading);
+    this.testButton?.setDisabled(isLoading);
+  }
+
   private async refreshModels(notifyOnError = false) {
     assert(this.modelDropdown, "Always set before this function is called");
-    this.modelDropdown.selectEl.empty();
-    this.modelDropdown.addOption("", t("settings.modelsLoading"));
-    this.modelDropdown.setDisabled(true);
+    this.setLoading(true);
+    this.refreshButton?.buttonEl.addClass("ocr-extractor-spinning");
 
-    const models = await this.fetchModels();
-    const savedModel = this.plugin.settings.openAiCompatibleModel;
+    try {
+      const models = await this.fetchModels();
+      const savedModel = this.plugin.settings.openAiCompatibleModel;
 
-    this.modelDropdown.selectEl.empty();
-    this.modelDropdown.addOption("", t("settings.modelNone"));
+      this.modelDropdown.selectEl.empty();
+      this.modelDropdown.addOption("", t("settings.modelNone"));
 
-    if (!models) {
-      if (savedModel) this.modelDropdown.addOption(savedModel, savedModel);
-      if (notifyOnError) showErrorNotice(t("notices.modelsLoadFailed"));
-    } else {
-      if (savedModel && !models.includes(savedModel)) {
-        this.modelDropdown.addOption(
-          savedModel,
-          t("settings.modelNotFound", { model: savedModel }),
-        );
+      if (!models) {
+        if (savedModel) this.modelDropdown.addOption(savedModel, savedModel);
+        if (notifyOnError) showErrorNotice(t("notices.modelsLoadFailed"));
+      } else {
+        if (savedModel && !models.includes(savedModel)) {
+          this.modelDropdown.addOption(
+            savedModel,
+            t("settings.modelNotFound", { model: savedModel }),
+          );
+        }
+
+        for (const modelId of models) {
+          this.modelDropdown.addOption(modelId, modelId);
+        }
       }
 
-      for (const modelId of models) {
-        this.modelDropdown.addOption(modelId, modelId);
-      }
+      this.modelDropdown.setValue(savedModel || "");
+    } finally {
+      this.setLoading(false);
+      this.refreshButton?.buttonEl.removeClass("ocr-extractor-spinning");
     }
-
-    this.modelDropdown.setDisabled(false);
-    this.modelDropdown.setValue(savedModel || "");
   }
 
   private async fetchModels() {
@@ -133,13 +147,13 @@ export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
 
     try {
       return await this.createClient().listModels();
-    } catch (error) {
-      console.error("Failed to list OpenAI-compatible models:", error);
+    } catch {
       return null;
     }
   }
 
   private async testConnection() {
+    this.setLoading(true);
     const loadingNotice = showLoadingNotice(t("notices.testingConnection"));
 
     try {
@@ -163,11 +177,21 @@ export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
     } catch (error) {
       if (error instanceof UserFacingError) {
         showErrorNotice(t("notices.testFailed", { message: error.message }));
+      } else if (
+        error instanceof APIConnectionTimeoutError ||
+        error instanceof APIConnectionError
+      ) {
+        showErrorNotice(
+          t("notices.testFailed", {
+            message: t("errors.openAiCompatibleConnectionFailed"),
+          }),
+        );
       } else {
         console.error("OpenAI-compatible connection test failed:", error);
         showErrorNotice(t("notices.testFailedUnexpected"));
       }
     } finally {
+      this.setLoading(false);
       loadingNotice.hide();
     }
   }
