@@ -8,6 +8,7 @@
     "extractNote": "在笔记中提取文本",
     "extractFolder": "在文件夹中提取文本",
     "extractAllNotes": "在所有笔记中提取文本",
+    "extractSelection": "在选定的笔记中提取文本",
     "cancelExtraction": "取消提取"
   },
   "settings": {
@@ -102,6 +103,6 @@
     "openAiCompatibleRequestFailed": "请求失败（HTTP {{status}}）。详情请查看开发者控制台。",
     "noCustomCommand": "未配置自定义命令",
     "commandTimeout": "自定义命令超时",
-    "commandFailed": "自定义命令执行失败，错误代码为 {{code}}。详情请查看控制台。"
+    "commandFailed": "自定义命令执行失败（退出代码 {{code}}）。详情请查看开发者控制台。"
   }
 }
