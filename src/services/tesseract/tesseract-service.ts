@@ -3,6 +3,7 @@ import { OcrService } from "../ocr-service";
 import { toDataUrl } from "../../utils/encoding";
 import { resizeImage } from "../../utils/image";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
+import { warnSkipped } from "../../utils/logging";
 import { t } from "../../i18n";
 import { raceAbort } from "../../utils/async";
 
@@ -37,17 +38,23 @@ export class TesseractService extends OcrService {
   protected async extractPages(
     data: Uint8Array,
     mimeType: string,
-    _filename: string,
+    filename: string,
     signal: AbortSignal,
   ) {
     if (isPdf(mimeType)) {
       return this.extractPdfPages(data, signal);
     }
 
-    const dataUrl = await resizeImage(data, mimeType, {
-      minDimension: TESSERACT_MIN_DIMENSION,
-      maxDimension: TESSERACT_MAX_DIMENSION,
-    });
+    let dataUrl: string;
+    try {
+      dataUrl = await resizeImage(data, mimeType, {
+        minDimension: TESSERACT_MIN_DIMENSION,
+        maxDimension: TESSERACT_MAX_DIMENSION,
+      });
+    } catch {
+      warnSkipped(filename, "could not resize image");
+      return null;
+    }
     const text = await this.recognize(dataUrl);
     return [text];
   }

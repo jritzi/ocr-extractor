@@ -62,7 +62,9 @@ export class OpenAiCompatibleClient {
       timeout: 10_000,
       maxRetries: 0,
     });
-    return response.data.map((model) => model.id).sort();
+    return response.data
+      .map((model) => model.id)
+      .sort((first, second) => first.localeCompare(second));
   }
 
   /**

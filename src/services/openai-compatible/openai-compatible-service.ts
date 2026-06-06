@@ -45,16 +45,14 @@ export class OpenAiCompatibleService extends OcrService {
       for (const imageData of images) {
         if (signal.aborted) break;
 
-        const text = await this.extractImage(
-          client,
+        const text = await client.extractText(
           toDataUrl(imageData, "image/png"),
-          filename,
           signal,
         );
         if (text) pages.push(text);
       }
 
-      return pages.length > 0 ? pages : null;
+      return pages;
     } else {
       let dataUrl: string;
       try {
@@ -62,24 +60,11 @@ export class OpenAiCompatibleService extends OcrService {
           maxDimension: MAX_IMAGE_DIMENSION,
         });
       } catch {
-        warnSkipped(filename, `could not resize image (${mimeType})`);
+        warnSkipped(filename, "could not resize image");
         return null;
       }
-      const text = await this.extractImage(client, dataUrl, filename, signal);
-      return text ? [text] : null;
+      const text = await client.extractText(dataUrl, signal);
+      return text ? [text] : [];
     }
-  }
-
-  private async extractImage(
-    client: OpenAiCompatibleClient,
-    dataUrl: string,
-    filename: string,
-    signal: AbortSignal,
-  ) {
-    const text = await client.extractText(dataUrl, signal);
-    if (text === null) {
-      warnSkipped(filename, "request rejected by model");
-    }
-    return text;
   }
 }

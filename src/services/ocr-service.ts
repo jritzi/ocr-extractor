@@ -82,7 +82,7 @@ export abstract class OcrService {
 
   /**
    * Extract text from the document and return it as an array of strings
-   * (one per page), or null to skip the file.
+   * (one per page), or null (and log a reason) to skip the file.
    */
   protected abstract extractPages(
     data: Uint8Array,

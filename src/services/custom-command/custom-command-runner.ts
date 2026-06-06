@@ -1,5 +1,6 @@
 import { Platform } from "obsidian";
 import { UserFacingError } from "../ocr-service";
+import { debugLog } from "../../utils/logging";
 import { t } from "../../i18n";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
@@ -111,11 +112,18 @@ export class CustomCommandRunner {
   }
 
   private async readOutput(outputPath: string) {
+    let output: string;
     try {
-      return await this.fs.readFile(outputPath, "utf-8");
+      output = await this.fs.readFile(outputPath, "utf-8");
     } catch {
       // Skip attachment if no output file produced
+      debugLog("Custom command produced no output file");
       return null;
     }
+
+    if (!output.trim()) {
+      debugLog("Custom command output file was empty");
+    }
+    return output;
   }
 }

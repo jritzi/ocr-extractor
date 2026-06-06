@@ -50,13 +50,13 @@ export class CustomCommandService extends OcrService {
         if (text) pages.push(text);
       }
 
-      return pages.length > 0 ? pages : null;
+      return pages;
     }
 
     const dotIndex = filename.lastIndexOf(".");
     const extension = dotIndex !== -1 ? filename.slice(dotIndex) : "";
     const text = await this.runner.run(data, command, extension, signal);
-    return text ? [text] : null;
+    return text ? [text] : [];
   }
 
   private getCommand() {
