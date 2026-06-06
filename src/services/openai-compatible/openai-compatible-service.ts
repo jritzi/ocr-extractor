@@ -1,9 +1,4 @@
-import {
-  APIConnectionError,
-  APIConnectionTimeoutError,
-  APIError,
-} from "openai";
-import { OcrService, UserFacingError } from "../ocr-service";
+import { OcrService } from "../ocr-service";
 import { OpenAiCompatibleClient } from "./openai-compatible-client";
 import { OpenAiCompatibleSettingsSection } from "./openai-compatible-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
@@ -81,51 +76,10 @@ export class OpenAiCompatibleService extends OcrService {
     filename: string,
     signal: AbortSignal,
   ) {
-    try {
-      return await client.extractText(dataUrl, signal);
-    } catch (error) {
-      if (signal.aborted) throw error;
-
-      if (
-        error instanceof APIConnectionTimeoutError ||
-        error instanceof APIConnectionError
-      ) {
-        throw new UserFacingError(t("errors.openAiCompatibleConnectionFailed"));
-      }
-
-      if (error instanceof APIError) {
-        if (error.status === 400 || error.status === 422) {
-          warnSkipped(
-            filename,
-            `request rejected by model (HTTP ${error.status}): ${error.message}`,
-          );
-          return null;
-        } else if (error.status === 401 || error.status === 403) {
-          throw new UserFacingError(t("errors.unauthorized"));
-        } else if (error.status === 404) {
-          throw new UserFacingError(t("errors.openAiCompatibleNotFound"));
-        } else if (error.status === 429) {
-          throw new UserFacingError(t("errors.rateLimited"));
-        } else if (error.status >= 500) {
-          console.error(
-            `OpenAI-compatible server error (HTTP ${error.status}):`,
-            error.message,
-          );
-          throw new UserFacingError(
-            t("errors.serverError", { status: error.status }),
-          );
-        } else {
-          console.error(
-            `OpenAI-compatible request failed (HTTP ${error.status}):`,
-            error.message,
-          );
-          throw new UserFacingError(
-            t("errors.openAiCompatibleRequestFailed", { status: error.status }),
-          );
-        }
-      }
-
-      throw error;
+    const text = await client.extractText(dataUrl, signal);
+    if (text === null) {
+      warnSkipped(filename, "request rejected by model");
     }
+    return text;
   }
 }

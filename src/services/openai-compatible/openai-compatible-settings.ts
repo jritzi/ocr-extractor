@@ -1,6 +1,5 @@
 import type { ButtonComponent, DropdownComponent } from "obsidian";
 import { debounce, SecretComponent } from "obsidian";
-import { APIConnectionError, APIConnectionTimeoutError } from "openai";
 import { OcrServiceSettings } from "../ocr-service-settings";
 import { UserFacingError } from "../ocr-service";
 import {
@@ -164,28 +163,22 @@ export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
         new AbortController().signal,
       );
 
-      if (result.toLowerCase().includes(TEST_IMAGE_TEXT.toLowerCase())) {
-        showSuccessNotice(t("notices.testSucceeded"));
-      } else {
+      if (
+        result === null ||
+        !result.toLowerCase().includes(TEST_IMAGE_TEXT.toLowerCase())
+      ) {
         showNotice(
           t("notices.testMismatch", {
             expected: TEST_IMAGE_TEXT,
-            actual: result,
+            actual: result ?? "",
           }),
         );
+      } else {
+        showSuccessNotice(t("notices.testSucceeded"));
       }
     } catch (error) {
       if (error instanceof UserFacingError) {
         showErrorNotice(t("notices.testFailed", { message: error.message }));
-      } else if (
-        error instanceof APIConnectionTimeoutError ||
-        error instanceof APIConnectionError
-      ) {
-        showErrorNotice(
-          t("notices.testFailed", {
-            message: t("errors.openAiCompatibleConnectionFailed"),
-          }),
-        );
       } else {
         console.error("OpenAI-compatible connection test failed:", error);
         showErrorNotice(t("notices.testFailedUnexpected"));
