@@ -7,12 +7,17 @@ const PLUGIN_ICON = "scan-text";
 
 export function registerActions(plugin: OcrExtractorPlugin) {
   addExtractActiveNoteCommand(plugin);
-  addExtractFolderCommand(plugin);
-  addExtractAllNotesCommand(plugin);
-  addCancelExtractionCommand(plugin);
-
   addExtractNoteMenuItem(plugin);
+  addExtractEditorMenuItem(plugin);
+
+  addExtractFolderCommand(plugin);
   addExtractFolderMenuItem(plugin);
+
+  addExtractAllNotesCommand(plugin);
+
+  addExtractSelectionMenuItem(plugin);
+
+  addCancelExtractionCommand(plugin);
 
   addRibbonIcon(plugin);
 }
@@ -25,60 +30,6 @@ function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
       if (plugin.extractor.canProcessActiveFile()) {
         if (!checking) {
           plugin.extractor.processActiveFile();
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-  });
-}
-
-function addExtractFolderCommand(plugin: OcrExtractorPlugin) {
-  plugin.addCommand({
-    id: "extract-folder",
-    name: t("commands.extractFolder"),
-    checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessMultipleFiles()) {
-        if (!checking) {
-          plugin.extractor.processFolder();
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-  });
-}
-
-function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
-  plugin.addCommand({
-    id: "extract-all-notes",
-    name: t("commands.extractAllNotes"),
-    checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessMultipleFiles()) {
-        if (!checking) {
-          plugin.extractor.processAllFiles();
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-  });
-}
-
-function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
-  plugin.addCommand({
-    id: "cancel-extraction",
-    name: t("commands.cancelExtraction"),
-    checkCallback: (checking: boolean) => {
-      if (plugin.statusManager.isProcessing()) {
-        if (!checking) {
-          plugin.statusManager.setCanceling();
         }
 
         return true;
@@ -105,6 +56,40 @@ function addExtractNoteMenuItem(plugin: OcrExtractorPlugin) {
   );
 }
 
+function addExtractEditorMenuItem(plugin: OcrExtractorPlugin) {
+  plugin.registerEvent(
+    plugin.app.workspace.on("editor-menu", (menu, _editor, { file }) => {
+      if (!file || !isMarkdown(file)) return;
+      if (!plugin.extractor.canProcessSingleFile()) return;
+
+      menu.addItem((item) =>
+        item
+          .setTitle(t("commands.extractNote"))
+          .setIcon(PLUGIN_ICON)
+          .onClick(() => plugin.extractor.processSingleFile(file)),
+      );
+    }),
+  );
+}
+
+function addExtractFolderCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "extract-folder",
+    name: t("commands.extractFolder"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.extractor.canProcessMultipleFiles()) {
+        if (!checking) {
+          plugin.extractor.processFolder();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
+}
+
 function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("file-menu", (menu, file) => {
@@ -119,6 +104,61 @@ function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
       );
     }),
   );
+}
+
+function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "extract-all-notes",
+    name: t("commands.extractAllNotes"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.extractor.canProcessMultipleFiles()) {
+        if (!checking) {
+          plugin.extractor.processAllFiles();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
+}
+
+function addExtractSelectionMenuItem(plugin: OcrExtractorPlugin) {
+  plugin.registerEvent(
+    plugin.app.workspace.on("files-menu", (menu, files) => {
+      const markdownFiles = files.filter(
+        (file): file is TFile => file instanceof TFile && isMarkdown(file),
+      );
+      if (markdownFiles.length === 0) return;
+      if (!plugin.extractor.canProcessMultipleFiles()) return;
+
+      menu.addItem((item) =>
+        item
+          .setTitle(t("commands.extractSelection"))
+          .setIcon(PLUGIN_ICON)
+          .onClick(() => plugin.extractor.processSelection(markdownFiles)),
+      );
+    }),
+  );
+}
+
+function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "cancel-extraction",
+    name: t("commands.cancelExtraction"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.statusManager.isProcessing()) {
+        if (!checking) {
+          plugin.statusManager.setCanceling();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
 }
 
 function addRibbonIcon(plugin: OcrExtractorPlugin) {

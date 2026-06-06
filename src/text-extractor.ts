@@ -96,6 +96,14 @@ export class TextExtractor {
     }).open();
   }
 
+  processSelection(files: TFile[]) {
+    assert(
+      this.canProcessMultipleFiles(),
+      "Command disabled when can't process",
+    );
+    this.startExtractingFiles(files);
+  }
+
   cleanup() {
     return this.service.terminate();
   }
