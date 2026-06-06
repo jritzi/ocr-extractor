@@ -45,7 +45,7 @@ export async function convertPdfToImages(
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       await pdfPage.render({ canvasContext, viewport, canvas }).promise;
-      return canvasToPng(canvas);
+      return await canvasToPng(canvas);
     } finally {
       canvas.width = 0; // free the pixel buffer
     }
