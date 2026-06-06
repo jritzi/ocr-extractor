@@ -97,5 +97,9 @@ export async function createTestImage() {
   context.font = "24px sans-serif";
   context.fillText(TEST_IMAGE_TEXT, 10, 34);
 
-  return canvasToPng(canvas);
+  try {
+    return await canvasToPng(canvas);
+  } finally {
+    canvas.width = 0; // free the pixel buffer
+  }
 }

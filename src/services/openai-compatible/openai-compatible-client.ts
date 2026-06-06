@@ -47,8 +47,8 @@ export class OpenAiCompatibleClient {
       baseURL: trimmedBaseUrl,
       apiKey: apiKey || PLACEHOLDER_API_KEY,
       timeout: 120_000, // 2 minutes
-      // This isn't dangerous because Obsidian runs in Electron (not a
-      // regular browser), so the key stays local.
+      // Required to run outside Node. Obsidian is a local Electron/mobile app,
+      // not a public web app in a browser, so the threat model is different.
       dangerouslyAllowBrowser: true,
     });
   }
