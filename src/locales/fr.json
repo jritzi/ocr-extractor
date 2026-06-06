@@ -8,6 +8,7 @@
     "extractNote": "Extraire le texte dans la note",
     "extractFolder": "Extraire le texte dans le dossier",
     "extractAllNotes": "Extraire le texte dans toutes les notes",
+    "extractSelection": "Extraire le texte dans les notes sélectionnées",
     "cancelExtraction": "Annuler l'extraction"
   },
   "settings": {
