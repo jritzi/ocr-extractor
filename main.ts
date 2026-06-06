@@ -9,9 +9,10 @@ import {
   StoredSettings,
 } from "./src/settings";
 import { setLanguage } from "./src/i18n";
-import { TesseractService } from "./src/services/tesseract-service";
-import { MistralService } from "./src/services/mistral-service";
-import { CustomCommandService } from "./src/services/custom-command-service";
+import { TesseractService } from "./src/services/tesseract/tesseract-service";
+import { MistralService } from "./src/services/mistral/mistral-service";
+import { OpenAiCompatibleService } from "./src/services/openai-compatible/openai-compatible-service";
+import { CustomCommandService } from "./src/services/custom-command/custom-command-service";
 import { TextExtractor } from "./src/text-extractor";
 import { registerActions } from "./src/actions";
 import { registerAutoExtractEvents } from "./src/auto-extract";
@@ -21,6 +22,7 @@ import { assert } from "./src/utils/assert";
 export const OCR_SERVICES = {
   tesseract: TesseractService,
   mistral: MistralService,
+  openAiCompatible: OpenAiCompatibleService,
   customCommand: CustomCommandService,
 } as const;
 

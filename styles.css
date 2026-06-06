@@ -4,8 +4,11 @@
   }
 }
 
-.ocr-extractor-status-bar svg {
+.ocr-extractor-spinning svg {
   animation: ocr-extractor-spin 1s linear infinite;
+}
+
+.ocr-extractor-status-bar svg {
   margin-right: 4px;
 }
 

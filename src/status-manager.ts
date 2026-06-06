@@ -18,7 +18,10 @@ export class StatusManager {
   constructor(plugin: OcrExtractorPlugin) {
     this.app = plugin.app;
     this.statusBarItem = plugin.addStatusBarItem();
-    this.statusBarItem.addClass("ocr-extractor-status-bar");
+    this.statusBarItem.addClass(
+      "ocr-extractor-status-bar",
+      "ocr-extractor-spinning",
+    );
     setIcon(this.statusBarItem, "loader-circle");
     this.statusBarTextSpan = this.statusBarItem.createSpan();
     this.statusBarItem.hide();

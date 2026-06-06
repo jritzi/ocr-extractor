@@ -2,6 +2,7 @@ import type { PDFPageProxy } from "pdfjs-dist";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs";
+import { canvasToPng } from "./image";
 
 GlobalWorkerOptions.workerSrc = URL.createObjectURL(
   new Blob([pdfjsWorker], { type: "application/javascript" }),
@@ -24,20 +25,30 @@ export async function getPdfTextContent(data: Uint8Array) {
   });
 }
 
-export async function convertPdfToImages(data: Uint8Array) {
+/**
+ * Renders each PDF page to a PNG, scaling so the longest side fits within
+ * `maxDimension`.
+ */
+export async function convertPdfToImages(
+  data: Uint8Array,
+  maxDimension: number,
+) {
   return mapPdfPages(data, async (pdfPage) => {
-    const viewport = pdfPage.getViewport({ scale: 2.0 });
+    const baseViewport = pdfPage.getViewport({ scale: 1 });
+    const longestBaseSide = Math.max(baseViewport.width, baseViewport.height);
+    const scale = maxDimension / longestBaseSide;
+    const viewport = pdfPage.getViewport({ scale });
 
     const canvas = createEl("canvas");
-    const canvasContext = canvas.getContext("2d")!;
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    await pdfPage.render({ canvasContext, viewport, canvas }).promise;
-
-    const blob = await new Promise<Blob>((resolve) =>
-      canvas.toBlob((b) => resolve(b!), "image/png"),
-    );
-    return new Uint8Array(await blob.arrayBuffer());
+    try {
+      const canvasContext = canvas.getContext("2d")!;
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await pdfPage.render({ canvasContext, viewport, canvas }).promise;
+      return await canvasToPng(canvas);
+    } finally {
+      canvas.width = 0; // free the pixel buffer
+    }
   });
 }
 

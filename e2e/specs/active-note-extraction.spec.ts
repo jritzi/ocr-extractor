@@ -74,7 +74,7 @@ test.describe("error handling", () => {
     const modal = page.locator(".modal");
     await expect(
       modal.getByText(
-        "Error: Custom command failed with exit code 1 (see console for details)",
+        "Error: Custom command failed (exit code 1). Check the developer console for details.",
       ),
     ).toBeVisible();
 

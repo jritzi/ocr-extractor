@@ -4,9 +4,17 @@ import type { OCR_SERVICES } from "../main";
 
 export interface PluginSettings {
   ocrService: keyof typeof OCR_SERVICES;
+
   mistralSecret: string;
+
+  openAiCompatibleBaseUrl: string;
+  openAiCompatibleModel: string;
+  openAiCompatibleSecret: string;
+  openAiCompatiblePrompt: string;
+
   customCommand: string;
   customCommandConvertPdfs: boolean;
+
   useEmbeddedText: boolean;
   autoExtractAttachments: boolean;
 }
@@ -22,6 +30,10 @@ export type StoredSettings = Partial<PluginSettings> & DeprecatedSettings;
 export const DEFAULT_SETTINGS: PluginSettings = {
   ocrService: "tesseract",
   mistralSecret: "",
+  openAiCompatibleBaseUrl: "",
+  openAiCompatibleModel: "",
+  openAiCompatibleSecret: "",
+  openAiCompatiblePrompt: "",
   customCommand: "",
   customCommandConvertPdfs: false,
   useEmbeddedText: false,

@@ -33,5 +33,13 @@ describe("async.ts", () => {
         await raceAbort(new Promise(() => {}), controller.signal),
       ).toBeNull();
     });
+
+    it("returns null without surfacing a rejection when already aborted", async () => {
+      const controller = new AbortController();
+      controller.abort();
+      await expect(
+        raceAbort(Promise.reject(new Error("boom")), controller.signal),
+      ).resolves.toBeNull();
+    });
   });
 });

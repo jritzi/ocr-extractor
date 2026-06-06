@@ -1,4 +1,4 @@
-import { MOCK_OCR_OUTPUT, test } from "../fixtures";
+import { expect, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import { openNote, seedNote } from "../helpers/obsidian";
 import { expectCallout, extractActiveNote } from "../helpers/plugin";
 
@@ -20,7 +20,8 @@ test.describe("setting on", () => {
     await openNote(page, "Note");
     await extractActiveNote(page);
 
-    await expectCallout(page, "Sample PDF");
+    await page.locator(".callout").click();
+    await expect(page.locator(".callout-content")).toContainText("Sample PDF");
   });
 
   test("falling back to OCR when PDF has no embedded text", async ({

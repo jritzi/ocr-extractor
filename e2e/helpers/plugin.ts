@@ -28,19 +28,17 @@ export async function openPluginSettings(page: Page) {
     .click();
 }
 
+export function settingItem(page: Page, label: string) {
+  return page.locator(".setting-item").filter({ hasText: label });
+}
+
 export async function toggleSetting(page: Page, label: string) {
-  await page
-    .locator(".setting-item")
-    .filter({ hasText: label })
-    .locator(".checkbox-container")
-    .click();
+  await settingItem(page, label).getByRole("checkbox").click();
 }
 
 export async function expectCallout(page: Page, expectedText: string) {
   await page.locator(".callout").click();
-  await expect(
-    page.locator(".callout-content").getByText(expectedText),
-  ).toBeVisible();
+  await expect(page.locator(".callout-content")).toHaveText(expectedText);
 }
 
 /**
