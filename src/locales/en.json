@@ -8,6 +8,7 @@
     "extractNote": "Extract text in note",
     "extractFolder": "Extract text in folder",
     "extractAllNotes": "Extract text in all notes",
+    "extractSelection": "Extract text in selected notes",
     "cancelExtraction": "Cancel extraction"
   },
   "settings": {
