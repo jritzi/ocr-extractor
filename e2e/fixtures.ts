@@ -33,6 +33,11 @@ export const MOCK_OCR_COMMANDS = {
   error: `node "${join(E2E, "mock-ocr", "error.js")}" {input} {output}`,
 };
 
+// Minimal typing for the Electron app object inside Playwright's evaluate context
+interface ElectronApp {
+  removeAsDefaultProtocolClient: (protocol: string) => void;
+}
+
 function truncate(text: string) {
   return text.length > 500 ? `${text.slice(0, 500)}... (truncated)` : text;
 }
@@ -83,6 +88,11 @@ export const test = base.extend<ObsidianFixtures>({
           "--use-mock-keychain",
         ],
         env: { ...process.env, MOCK_OCR_OUTPUT: mockOcrOutput },
+      });
+
+      // Stop E2E Electron from stealing obsidian:// handlers from the real app
+      await app.evaluate(({ app: electronApp }) => {
+        (electronApp as ElectronApp).removeAsDefaultProtocolClient("obsidian");
       });
 
       await use(app);
