@@ -56,7 +56,7 @@ Then, enter your **API key** in the plugin settings.
 
 ### OpenAI-compatible API
 
-This option allows you to use any AI model (LLM), either locally (e.g. with [Ollama](https://ollama.com) or [LM Studio](https://lmstudio.ai)), or via a cloud provider like [OpenRouter](https://openrouter.ai). This requires more setup, has higher system requirements, and is often slower, but it can allow you to get great results without ever sending attachments to a third-party service.
+This option allows you to use any AI model (LLM), either locally (e.g. with [Ollama](https://ollama.com) or [LM Studio](https://lmstudio.ai)), or via a cloud provider like [OpenRouter](https://openrouter.ai). This requires more setup, has higher system requirements, and is often slower, but, when used with a local model, it can allow you to get great results without ever sending attachments to a third-party service.
 
 **Example (Ollama with glm-ocr):**
 
