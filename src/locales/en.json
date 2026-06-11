@@ -8,6 +8,7 @@
     "extractNote": "Extract text in note",
     "extractFolder": "Extract text in folder",
     "extractAllNotes": "Extract text in all notes",
+    "extractSelection": "Extract text in selected notes",
     "cancelExtraction": "Cancel extraction"
   },
   "settings": {
@@ -31,8 +32,8 @@
     "testTooltip": "Test with a sample image",
     "convertPdfs": "Convert PDFs to images",
     "convertPdfsDesc": "Convert PDF pages to PNG images before processing",
-    "useEmbeddedText": "Use embedded PDF text",
-    "useEmbeddedTextDesc": "When a PDF already contains embedded text, use it instead of extracting with OCR",
+    "preferEmbeddedText": "Prefer embedded PDF text",
+    "preferEmbeddedTextDesc": "When a PDF already contains embedded text, use it; otherwise, extract with OCR",
     "autoExtractAttachments": "Auto-extract attachments",
     "autoExtractAttachmentsDesc": "Automatically extract text when a new attachment is added to a note"
   },
