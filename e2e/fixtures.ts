@@ -35,7 +35,7 @@ export const MOCK_OCR_COMMANDS = {
 
 // Minimal typing for the Electron app object inside Playwright's evaluate context
 interface ElectronApp {
-  removeAsDefaultProtocolClient: (protocol: string) => void;
+  removeAsDefaultProtocolClient: (protocol: string) => boolean;
 }
 
 function truncate(text: string) {
