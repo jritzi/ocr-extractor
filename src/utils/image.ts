@@ -41,7 +41,7 @@ export async function resizeImage(
     let height = bitmap.height;
 
     // Halve repeatedly to avoid aliasing on large reductions
-    while (width > targetWidth * 2 && height > targetHeight * 2) {
+    while (width > targetWidth * 2 || height > targetHeight * 2) {
       const previous = source;
       width = Math.round(width / 2);
       height = Math.round(height / 2);

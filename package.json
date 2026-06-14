@@ -21,7 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "@electron/asar": "^4.1.2",
-    "@eslint/compat": "^2.1.0",
+    "@eslint/config-helpers": "^0.6.0",
     "@eslint/js": "^9.39.2",
     "@mswjs/interceptors": "^0.41.6",
     "@playwright/test": "^1.60.0",
