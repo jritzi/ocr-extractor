@@ -1,14 +1,14 @@
 import { availableParallelism } from "os";
 import { defineConfig } from "@playwright/test";
-import type { ObsidianFixtures } from "./e2e-tests/fixtures";
-import { versions } from "./e2e-tests/versions";
+import type { ObsidianFixtures } from "./fixtures";
+import { versions } from "./versions";
 
 export default defineConfig<ObsidianFixtures>({
-  globalSetup: "./e2e-tests/global-setup.ts",
+  globalSetup: "./global-setup.ts",
 
-  testDir: "./e2e-tests",
+  testDir: ".",
   testMatch: "**/*.spec.ts",
-  outputDir: "./e2e-tests/test-results",
+  outputDir: "./test-results",
 
   /* Fail the build on CI if you accidentally committed a test marked test.only */
   forbidOnly: !!process.env.CI,
@@ -23,7 +23,7 @@ export default defineConfig<ObsidianFixtures>({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   /* 'html' generates a browsable report; 'list' is simpler for local dev */
   reporter: process.env.CI
-    ? [["html", { outputFolder: "./e2e-tests/playwright-report" }]]
+    ? [["html", { outputFolder: "./playwright-report" }]]
     : "list",
 
   /* Shared settings for all tests. See https://playwright.dev/docs/api/class-testoptions */
