@@ -90,8 +90,8 @@ jobs:
       - name: Cache E2E artifacts
         uses: actions/cache@v5
         with:
-          path: e2e/cache
-          key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'e2e/versions.ts') }}
+          path: e2e-tests/cache
+          key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
 
       - name: Run E2E tests
         run: xvfb-run --auto-servernum pnpm test:e2e
@@ -128,8 +128,8 @@ jobs:
       - name: Cache E2E artifacts
         uses: actions/cache@v5
         with:
-          path: e2e/cache
-          key: e2e-cache-${{ runner.os }}-all-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'e2e/versions.ts') }}
+          path: e2e-tests/cache
+          key: e2e-cache-${{ runner.os }}-all-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
 
       - name: Run E2E tests (all versions)
         run: xvfb-run --auto-servernum pnpm test:e2e:all
@@ -161,8 +161,8 @@ jobs:
       - name: Cache E2E artifacts
         uses: actions/cache@v5
         with:
-          path: e2e/cache
-          key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'e2e/versions.ts') }}
+          path: e2e-tests/cache
+          key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
 
       - name: Run E2E tests
         run: pnpm test:e2e
@@ -194,8 +194,8 @@ jobs:
       - name: Cache E2E artifacts
         uses: actions/cache@v5
         with:
-          path: e2e/cache
-          key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e/global-setup.ts', 'e2e/setup/**', 'e2e/versions.ts') }}
+          path: e2e-tests/cache
+          key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
 
       - name: Run E2E tests
         run: pnpm test:e2e

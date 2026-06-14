@@ -23,10 +23,10 @@ data.json
 .DS_Store
 
 # E2E
-e2e/test-results/
-e2e/playwright-report/
-e2e/cache/
-e2e/setup/http-interceptor.js
+e2e-tests/test-results/
+e2e-tests/playwright-report/
+e2e-tests/cache/
+e2e-tests/setup/http-interceptor.js
 
 # Misc
 TODO.md

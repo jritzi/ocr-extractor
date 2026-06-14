@@ -14,7 +14,7 @@ import { tmpdir } from "os";
 import { execFileSync } from "child_process";
 
 export const ROOT = join(__dirname, "../..");
-export const E2E = join(ROOT, "e2e");
+export const E2E = join(ROOT, "e2e-tests");
 export const CACHE = join(E2E, "cache");
 const arch = process.arch === "arm64" ? "arm64" : "x64";
 
