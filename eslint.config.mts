@@ -16,7 +16,7 @@ export default defineConfig([
     "**/*.json",
     "esbuild.config.mjs",
     "version-bump.mjs",
-    "e2e/mock-ocr/*.js",
+    "e2e-tests/mock-ocr/*.js",
   ]),
 
   {
