@@ -33,6 +33,8 @@ jobs:
         run: pnpm lint
 
       - name: Build
+        env:
+          STRICT_LICENSES: "1"
         run: pnpm build
 
   test:

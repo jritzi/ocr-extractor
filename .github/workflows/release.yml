@@ -25,6 +25,8 @@ jobs:
           cache: "pnpm"
 
       - name: Build plugin
+        env:
+          STRICT_LICENSES: "1"
         run: |
           pnpm install --frozen-lockfile
           pnpm build

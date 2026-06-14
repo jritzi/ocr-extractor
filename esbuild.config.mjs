@@ -16,12 +16,24 @@ const appendLicenses = {
   name: "append-licenses",
   setup(build) {
     build.onEnd(async () => {
-      const licenses = await getLicenseFileText("./package.json");
-      const prefixed = licenses
-        .replace(/\*\//g, "*\\/")
-        .split("\n")
-        .map((line) => (line ? ` * ${line}` : " *"))
-        .join("\n");
+      let prefixed;
+      try {
+        const licenses = await getLicenseFileText("./package.json");
+        prefixed = licenses
+          .replace(/\*\//g, "*\\/")
+          .split("\n")
+          .map((line) => (line ? ` * ${line}` : " *"))
+          .join("\n");
+      } catch (error) {
+        // Fail on error for CI/releases, gracefully warn for the Community
+        // scanner that doesn't do a full `pnpm install` and would otherwise
+        // fail to build.
+        if (process.env.STRICT_LICENSES) {
+          throw error;
+        }
+        console.warn("Skipping third-party license bundling:", error);
+        return;
+      }
       const outfile = build.initialOptions.outfile;
       const output = await fs.promises.readFile(outfile, "utf8");
       await fs.promises.writeFile(
