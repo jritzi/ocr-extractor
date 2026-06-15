@@ -1,0 +1,7 @@
+#!/bin/sh
+# Regenerate the third-party license file whenever the lockfile is changed
+if git diff --cached --name-only | grep -q '^pnpm-lock\.yaml$'; then
+  echo "Regenerating THIRD_PARTY_LICENSES.txt"
+  pnpm generate-licenses || exit 1
+  git add THIRD_PARTY_LICENSES.txt
+fi
