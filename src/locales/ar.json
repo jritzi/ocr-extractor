@@ -1,0 +1,112 @@
+{
+  "pluginName": "OCR Extractor",
+  "callouts": {
+    "title": "النص المستخرج"
+  },
+  "commands": {
+    "extractActiveNote": "استخراج النص في الملاحظة النشطة",
+    "extractNote": "استخراج النص في الملاحظة",
+    "extractFolder": "استخراج النص في المجلد",
+    "extractAllNotes": "استخراج النص في جميع الملاحظات",
+    "extractSelection": "استخراج النص في الملاحظات المحددة",
+    "cancelExtraction": "إلغاء الاستخراج"
+  },
+  "settings": {
+    "ocrService": "خدمة OCR",
+    "ocrServiceDesc": "راجع الوثائق لمزيد من التفاصيل:",
+    "ocrServiceDocLink": "خدمات OCR",
+    "apiKey": "مفتاح API",
+    "command": "الأمر",
+    "commandDesc": "أمر الصدفة الذي سيتم تنفيذه (لأجهزة سطح المكتب فقط، سيتم استخدام Tesseract بدلاً منه على الجوال)، باستخدام {input} و {output} لمسارات الملفات",
+    "commandPlaceholder": "command.sh -i {input} -o {output}",
+    "openAiCompatibleBaseUrl": "عنوان URL الأساسي",
+    "openAiCompatibleBaseUrlDesc": "(مثلاً: http://localhost:11434/v1)",
+    "openAiCompatibleModel": "النموذج",
+    "refreshModels": "تحديث قائمة النماذج",
+    "modelNotFound": "{{model}} (غير موجود)",
+    "modelNone": "لا شيء",
+    "openAiCompatibleApiKeyDesc": "عادة ما يُطلب فقط للخدمات السحابية",
+    "openAiCompatiblePrompt": "موجّه",
+    "openAiCompatiblePromptDesc": "تجاوز التعليمات الافتراضية المرسلة إلى النموذج",
+    "test": "اختبار",
+    "testTooltip": "اختبر باستخدام صورة نموذجية",
+    "convertPdfs": "تحويل ملفات PDF إلى صور",
+    "convertPdfsDesc": "تحويل صفحات PDF إلى صور PNG قبل المعالجة",
+    "preferEmbeddedText": "تفضيل نص PDF المضمّن",
+    "preferEmbeddedTextDesc": "عندما يحتوي ملف PDF على نص مضمّن، سيتم استخدامه؛ وإلا سيتم الاستخراج باستخدام OCR",
+    "autoExtractAttachments": "استخراج المرفقات تلقائياً",
+    "autoExtractAttachmentsDesc": "استخراج النص تلقائياً عند إضافة مرفق جديد للملاحظة"
+  },
+  "services": {
+    "tesseract": "Tesseract",
+    "mistralOcr": "Mistral OCR",
+    "openAiCompatibleApi": "API متوافقة مع OpenAI",
+    "customCommand": "أمر مخصص"
+  },
+  "modals": {
+    "cancel": "إلغاء",
+    "ok": "موافق",
+    "dismiss": "تجاهل",
+    "installerUpdate": {
+      "title": "مطلوب تحديث للمثبِّت",
+      "body": "يتطلب OCR Extractor إصدارًا أحدث من مثبِّت Obsidian ليعمل بشكل صحيح. يرجى تنزيل وتثبيت أحدث إصدار من Obsidian (لا تحتاج إلى إزالة التثبيت أولاً).",
+      "download": "تحميل Obsidian",
+      "learnMore": "المزيد من المعلومات"
+    },
+    "selectFolder": {
+      "placeholder": "اختر مجلدًا..."
+    },
+    "extractAll": {
+      "title": "هل تريد استخراج النص من جميع الملاحظات؟",
+      "warning": "تأكد من وجود نسخة احتياطية من خزنتك قبل استخراج النص من المرفقات في جميع الملاحظات.",
+      "extract": "استخراج"
+    },
+    "status": {
+      "title": "جارٍ استخراج النص من المرفقات...",
+      "warning_zero": "تم استخراج نص من {{count}} من المرفقات. العناصر التالية تم تخطيها:",
+      "warning_one": "تم استخراج نص من {{count}} من المرفق. العناصر التالية تم تخطيها:",
+      "warning_two": "تم استخراج نص من {{count}} من المرفقين. العناصر التالية تم تخطيها:",
+      "warning_few": "تم استخراج نص من {{count}} من المرفقات. العناصر التالية تم تخطيها:",
+      "warning_many": "تم استخراج نص من {{count}} من المرفقات. العناصر التالية تم تخطيها:",
+      "warning_other": "تم استخراج نص من {{count}} من المرفقات. العناصر التالية تم تخطيها:"
+    }
+  },
+  "status": {
+    "extractingNote": "جارٍ استخراج النص في الملاحظة {{current}}/{{total}}",
+    "canceling": "جارٍ الإلغاء",
+    "cancel": "إلغاء"
+  },
+  "notices": {
+    "canceled": "تم إلغاء استخراج النص",
+    "completeExtracted": "اكتمل استخراج النص. تم الاستخراج: {{count}}",
+    "completeExtractedSkipped": "اكتمل استخراج النص. تم الاستخراج: {{extracted}}، تم التخطي: {{skipped}}",
+    "autoExtractSkippedWhileBusy": "{{pluginName}}: عملية الاستخراج جارية بالفعل، تم تخطي المرفق الجديد",
+    "fileChanged": "تم تغيير الملف أثناء المعالجة، سيتم التخطي ({{path}})",
+    "mobileServiceFallback": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيتم استخدام Tesseract",
+    "mobileServiceFallbackSetting": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيتم استخدام Tesseract بدلاً من ذلك",
+    "testSucceeded": "نجح الاختبار",
+    "testFailed": "فشل الاختبار: {{message}}",
+    "testFailedUnexpected": "فشل الاختبار: خطأ غير متوقع",
+    "modelsLoadFailed": "تعذر تحميل النماذج. تحقق من عنوان URL الأساسي وحالة الخادم.",
+    "testingConnection": "جارٍ اختبار الاتصال...",
+    "testingCommand": "جارٍ اختبار الأمر المخصص...",
+    "testNoOutput": "نجح الأمر ولكن لم يتم إنشاء ملف المخرجات",
+    "testMismatch": "الناتج (\"{{actual}}\") لا يطابق المتوقع (\"{{expected}}\")."
+  },
+  "errors": {
+    "unauthorized": "غير مخول. تحقق من مفتاح API الخاص بك.",
+    "rateLimited": "تم تجاوز حد المعدل",
+    "serverError": "أرجع الخادم خطأ (HTTP {{status}}). حاول مرة أخرى لاحقاً.",
+    "extractionFailed": "فشل استخراج النص. تحقق من وحدة تحكم المطوّر لمزيد من التفاصيل.",
+    "error": "خطأ: {{message}}",
+    "noBaseUrl": "لم يتم تكوين عنوان URL الأساسي",
+    "noModel": "لم يتم تكوين النموذج",
+    "openAiCompatibleNotFound": "النموذج أو نقطة النهاية غير موجودة. تحقق من عنوان URL الأساسي واسم النموذج.",
+    "openAiCompatibleConnectionFailed": "تعذر الاتصال بالخادم. تحقق من عنوان URL الأساسي وحالة الخادم.",
+    "openAiCompatibleResponseTruncated": "استجابة النموذج قُطعت. جرب نموذجًا آخر.",
+    "openAiCompatibleRequestFailed": "فشل الطلب (HTTP {{status}}). راجع وحدة تحكم المطوّر لمزيد من التفاصيل.",
+    "noCustomCommand": "لم يتم تكوين أمر مخصص",
+    "commandTimeout": "انتهت مهلة الأمر المخصص",
+    "commandFailed": "فشل الأمر المخصص (رمز الخروج {{code}}). تحقق من وحدة تحكم المطوّر لمزيد من التفاصيل."
+  }
+}
