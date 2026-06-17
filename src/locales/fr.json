@@ -58,7 +58,7 @@
     },
     "extractAll": {
       "title": "Extraire le texte de toutes les notes ?",
-      "warning": "Assurez-vous de sauvegarder votre coffre-fort avant d’extraire le texte des pièces jointes et de l’insérer dans toutes les notes.",
+      "warning": "Assurez-vous de disposer d’une sauvegarde de votre coffre avant d’extraire le texte des pièces jointes dans toutes les notes.",
       "extract": "Extraire"
     },
     "status": {

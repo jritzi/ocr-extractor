@@ -45,7 +45,7 @@
   },
   "modals": {
     "cancel": "Cancelar",
-    "ok": "ACEPTAR",
+    "ok": "Aceptar",
     "dismiss": "Descartar",
     "installerUpdate": {
       "title": "Se requiere actualización del instalador",
@@ -58,7 +58,7 @@
     },
     "extractAll": {
       "title": "¿Extraer texto de todas las notas?",
-      "warning": "Asegúrate de tener una copia de seguridad de tu vault antes de extraer texto de los archivos adjuntos en todas las notas.",
+      "warning": "Asegúrate de tener una copia de seguridad de tu bóveda antes de extraer texto de los archivos adjuntos en todas las notas.",
       "extract": "Extraer"
     },
     "status": {
