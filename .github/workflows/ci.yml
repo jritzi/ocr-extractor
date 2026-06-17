@@ -32,9 +32,15 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Verify third-party licenses
+        run: |
+          pnpm generate-licenses
+          if [ -n "$(git status --porcelain -- THIRD_PARTY_LICENSES.txt)" ]; then
+            echo "::error::THIRD_PARTY_LICENSES.txt is missing or out of date. Run 'pnpm generate-licenses' and commit the result."
+            exit 1
+          fi
+
       - name: Build
-        env:
-          STRICT_LICENSES: "1"
         run: pnpm build
 
   test:
