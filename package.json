@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "prepare": "git config core.hooksPath .githooks || true",
+    "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
     "test": "vitest",

@@ -35,10 +35,10 @@ jobs:
       - name: Verify third-party licenses
         run: |
           pnpm generate-licenses
-          git diff --exit-code THIRD_PARTY_LICENSES.txt || {
-            echo "::error::THIRD_PARTY_LICENSES.txt is out of date. Run 'pnpm generate-licenses' and commit the result."
+          if [ -n "$(git status --porcelain -- THIRD_PARTY_LICENSES.txt)" ]; then
+            echo "::error::THIRD_PARTY_LICENSES.txt is missing or out of date. Run 'pnpm generate-licenses' and commit the result."
             exit 1
-          }
+          fi
 
       - name: Build
         run: pnpm build
