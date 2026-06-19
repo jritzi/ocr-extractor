@@ -34,7 +34,7 @@ export class TextExtractor {
   private readonly usingMobileEngineFallback: boolean = false;
 
   constructor(private plugin: OcrExtractorPlugin) {
-    let engineName = plugin.settings.ocrService;
+    let engineName = plugin.settings.ocrEngine;
     if (shouldUseMobileEngineFallback(plugin.settings)) {
       this.usingMobileEngineFallback = true;
       engineName = "tesseract";

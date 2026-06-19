@@ -20,7 +20,7 @@ export class SettingTab extends PluginSettingTab {
     this.addEngineDropdown(generalGroup);
     this.addGeneralSettings(generalGroup);
 
-    const EngineClass = OCR_ENGINES[this.plugin.settings.ocrService];
+    const EngineClass = OCR_ENGINES[this.plugin.settings.ocrEngine];
     const EngineSettingsClass = EngineClass.getSettingsSection();
 
     if (EngineSettingsClass) {
@@ -49,13 +49,13 @@ export class SettingTab extends PluginSettingTab {
           }
 
           dropdown
-            .setValue(this.plugin.settings.ocrService)
+            .setValue(this.plugin.settings.ocrEngine)
             .onChange((value) => {
-              const newOcrEngine = value as PluginSettings["ocrService"];
+              const newOcrEngine = value as PluginSettings["ocrEngine"];
               if (
                 shouldUseMobileEngineFallback({
                   ...this.plugin.settings,
-                  ocrService: newOcrEngine,
+                  ocrEngine: newOcrEngine,
                 })
               ) {
                 showNotice(
@@ -65,7 +65,7 @@ export class SettingTab extends PluginSettingTab {
                 );
               }
 
-              void this.plugin.saveSetting("ocrService", newOcrEngine);
+              void this.plugin.saveSetting("ocrEngine", newOcrEngine);
               this.display(); // Re-render settings with new engine
             });
         });
@@ -79,9 +79,10 @@ export class SettingTab extends PluginSettingTab {
         .setDesc(t("settings.preferEmbeddedTextDesc"))
         .addToggle((toggle) =>
           toggle
-            .setValue(this.plugin.settings.useEmbeddedText)
+            .setValue(this.plugin.settings.preferEmbeddedText)
             .onChange(
-              (value) => void this.plugin.saveSetting("useEmbeddedText", value),
+              (value) =>
+                void this.plugin.saveSetting("preferEmbeddedText", value),
             ),
         );
     });

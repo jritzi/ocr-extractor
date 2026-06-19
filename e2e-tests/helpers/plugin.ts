@@ -41,6 +41,11 @@ export async function expectCallout(page: Page, expectedText: string) {
   await expect(page.locator(".callout-content")).toHaveText(expectedText);
 }
 
+export async function expectCalloutContains(page: Page, expectedText: string) {
+  await page.locator(".callout").click();
+  await expect(page.locator(".callout-content")).toContainText(expectedText);
+}
+
 /**
  * Confirm that a callout has not been added. Only call after another
  * expectation confirms that extraction has been attempted (otherwise this may

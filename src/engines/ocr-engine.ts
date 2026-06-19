@@ -42,7 +42,7 @@ export abstract class OcrEngine {
       return null;
     }
 
-    if (isPdf(mimeType) && this.settings.useEmbeddedText) {
+    if (isPdf(mimeType) && this.settings.preferEmbeddedText) {
       const pages = await raceAbort(getPdfTextContent(data), signal);
       if (pages === null) return null;
       const result = this.joinPages(pages);

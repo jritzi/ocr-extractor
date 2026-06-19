@@ -72,7 +72,7 @@ export const test = base.extend<ObsidianFixtures>({
       copyTestVault(tmpVault);
       createUserData(tmpUserData, tmpVault);
       setupPlugin(tmpVault, {
-        ocrService: "customCommand",
+        ocrEngine: "customCommand",
         customCommand: MOCK_OCR_COMMANDS.fast,
         ...settings,
       });

@@ -14,7 +14,7 @@ function modelsResponse(ids: string[]) {
 
 test.use({
   settings: {
-    ocrService: "openAiCompatible",
+    ocrEngine: "openAiCompatible",
     openAiCompatibleBaseUrl: "http://localhost:11434/v1",
     openAiCompatibleModel: "model-2",
   },

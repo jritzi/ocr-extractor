@@ -3,7 +3,7 @@ import { Platform } from "obsidian";
 import type { OCR_ENGINES } from "../main";
 
 export interface PluginSettings {
-  ocrService: keyof typeof OCR_ENGINES;
+  ocrEngine: keyof typeof OCR_ENGINES;
 
   mistralSecret: string;
 
@@ -15,7 +15,7 @@ export interface PluginSettings {
   customCommand: string;
   customCommandConvertPdfs: boolean;
 
-  useEmbeddedText: boolean;
+  preferEmbeddedText: boolean;
   autoExtractAttachments: boolean;
 }
 
@@ -23,12 +23,16 @@ export interface PluginSettings {
 interface DeprecatedSettings {
   /** Migrated to mistralSecret */
   mistralApiKey?: string;
+  /** Renamed to ocrEngine */
+  ocrService?: keyof typeof OCR_ENGINES;
+  /** Renamed to preferEmbeddedText */
+  useEmbeddedText?: boolean;
 }
 
 export type StoredSettings = Partial<PluginSettings> & DeprecatedSettings;
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  ocrService: "tesseract",
+  ocrEngine: "tesseract",
   mistralSecret: "",
   openAiCompatibleBaseUrl: "",
   openAiCompatibleModel: "",
@@ -36,7 +40,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   openAiCompatiblePrompt: "",
   customCommand: "",
   customCommandConvertPdfs: false,
-  useEmbeddedText: false,
+  preferEmbeddedText: false,
   autoExtractAttachments: false,
 };
 
@@ -45,7 +49,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
  * is not supported on mobile.
  */
 export function shouldUseMobileEngineFallback(settings: PluginSettings) {
-  return settings.ocrService === "customCommand" && !Platform.isDesktop;
+  return settings.ocrEngine === "customCommand" && !Platform.isDesktop;
 }
 
 export function migrateSettings(
@@ -72,6 +76,28 @@ export function migrateSettings(
     const migratedSettings = { ...settings };
     delete migratedSettings.mistralApiKey;
     settings = { ...migratedSettings, mistralSecret };
+  }
+
+  // <2.3.2: Rename ocrService to ocrEngine
+  const oldOcrEngine = settings.ocrService;
+  if (oldOcrEngine !== undefined && settings.ocrEngine === undefined) {
+    const migratedSettings = { ...settings, ocrEngine: oldOcrEngine };
+    delete migratedSettings.ocrService;
+    settings = migratedSettings;
+  }
+
+  // <2.3.2: Rename useEmbeddedText to preferEmbeddedText
+  const oldPreferEmbeddedText = settings.useEmbeddedText;
+  if (
+    oldPreferEmbeddedText !== undefined &&
+    settings.preferEmbeddedText === undefined
+  ) {
+    const migratedSettings = {
+      ...settings,
+      preferEmbeddedText: oldPreferEmbeddedText,
+    };
+    delete migratedSettings.useEmbeddedText;
+    settings = migratedSettings;
   }
 
   return settings;

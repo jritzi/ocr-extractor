@@ -15,7 +15,7 @@ import {
 
 const MOCK_RESPONSE = "Mistral extracted text";
 
-test.use({ settings: { ocrService: "mistral", mistralSecret: "mistral-key" } });
+test.use({ settings: { ocrEngine: "mistral", mistralSecret: "mistral-key" } });
 
 test.beforeEach(async ({ page }) => {
   await page.evaluate(() => {
