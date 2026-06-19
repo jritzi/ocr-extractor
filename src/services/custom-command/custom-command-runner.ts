@@ -4,6 +4,10 @@ import { debugLog } from "../../utils/logging";
 import { t } from "../../i18n";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
+const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
+
+// Cache login shell PATH until plugin is reloaded
+let shellPathPromise: Promise<string | undefined> | undefined;
 
 export class CustomCommandRunner {
   private readonly fs: typeof import("fs/promises");
@@ -13,6 +17,11 @@ export class CustomCommandRunner {
   private readonly execAsync: (
     cmd: string,
     opts: import("child_process").ExecOptions,
+  ) => Promise<{ stdout: string; stderr: string }>;
+  private readonly execFileAsync: (
+    file: string,
+    args: readonly string[],
+    opts: import("child_process").ExecFileOptions,
   ) => Promise<{ stdout: string; stderr: string }>;
 
   constructor() {
@@ -28,6 +37,7 @@ export class CustomCommandRunner {
     const childProcess =
       require("child_process") as typeof import("child_process");
     this.execAsync = util.promisify(childProcess.exec);
+    this.execFileAsync = util.promisify(childProcess.execFile);
   }
 
   /**
@@ -83,10 +93,13 @@ export class CustomCommandRunner {
       .replace(/\{input}/g, `"${inputPath}"`)
       .replace(/\{output}/g, `"${outputPath}"`);
 
+    const shellPath = await this.resolveShellPath();
+
     try {
       await this.execAsync(resolvedCommand, {
         timeout: COMMAND_TIMEOUT,
         signal,
+        env: shellPath ? { ...process.env, PATH: shellPath } : process.env,
       });
     } catch (error) {
       if (signal.aborted) throw error;
@@ -109,6 +122,44 @@ export class CustomCommandRunner {
         t("errors.commandFailed", { code: String(code) }),
       );
     }
+  }
+
+  /**
+   * Resolve the login shell's PATH, since it is only fully inherited on Windows.
+   */
+  private resolveShellPath() {
+    if (process.platform === "win32") return Promise.resolve(process.env.PATH);
+    return (shellPathPromise ??= this.captureShellPath());
+  }
+
+  private async captureShellPath() {
+    const shell =
+      process.env.SHELL ??
+      (process.platform === "darwin" ? "/bin/zsh" : "/bin/bash");
+    const pathFile = this.path.join(
+      this.os.tmpdir(),
+      `path-${this.crypto.randomUUID()}`,
+    );
+
+    let captured: string | undefined;
+    try {
+      // Redirect to a file so interactive shell noise isn't captured with the PATH
+      await this.execFileAsync(
+        shell,
+        ["-ilc", 'printf "%s" "$PATH" > "$PATH_FILE"'],
+        {
+          timeout: SHELL_PATH_TIMEOUT,
+          env: { ...process.env, PATH_FILE: pathFile },
+        },
+      );
+      captured = (await this.fs.readFile(pathFile, "utf-8")).trim();
+    } catch (error) {
+      debugLog(`Failed to capture shell PATH: ${String(error)}`);
+    } finally {
+      await this.fs.unlink(pathFile).catch(() => {});
+    }
+
+    return captured || process.env.PATH;
   }
 
   private async readOutput(outputPath: string) {
