@@ -4,6 +4,9 @@ import { debugLog } from "../../utils/logging";
 import { t } from "../../i18n";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
+const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
+
+let cachedShellPath: string | undefined;
 
 export class CustomCommandRunner {
   private readonly fs: typeof import("fs/promises");
@@ -83,10 +86,13 @@ export class CustomCommandRunner {
       .replace(/\{input}/g, `"${inputPath}"`)
       .replace(/\{output}/g, `"${outputPath}"`);
 
+    const shellPath = await this.resolveShellPath();
+
     try {
       await this.execAsync(resolvedCommand, {
         timeout: COMMAND_TIMEOUT,
         signal,
+        env: shellPath ? { ...process.env, PATH: shellPath } : process.env,
       });
     } catch (error) {
       if (signal.aborted) throw error;
@@ -109,6 +115,40 @@ export class CustomCommandRunner {
         t("errors.commandFailed", { code: String(code) }),
       );
     }
+  }
+
+  /**
+   * Resolve the login shell's PATH, since it is only fully
+   * inherited on Windows.
+   */
+  private async resolveShellPath() {
+    if (process.platform === "win32") return process.env.PATH;
+    if (cachedShellPath !== undefined) return cachedShellPath;
+
+    const shell =
+      process.env.SHELL ??
+      (process.platform === "darwin" ? "/bin/zsh" : "/bin/bash");
+    const pathFile = this.path.join(
+      this.os.tmpdir(),
+      `path-${this.crypto.randomUUID()}`,
+    );
+
+    try {
+      // Redirect to a file so interactive shell noise isn't captured with the PATH
+      await this.execAsync(
+        `${shell} -ilc 'printf "%s" "$PATH" > "${pathFile}"'`,
+        { timeout: SHELL_PATH_TIMEOUT },
+      );
+      const captured = (await this.fs.readFile(pathFile, "utf-8")).trim();
+      cachedShellPath = captured || process.env.PATH;
+    } catch (error) {
+      debugLog(`Failed to capture shell PATH: ${String(error)}`);
+      cachedShellPath = process.env.PATH;
+    } finally {
+      await this.fs.unlink(pathFile).catch(() => {});
+    }
+
+    return cachedShellPath;
   }
 
   private async readOutput(outputPath: string) {

@@ -83,13 +83,12 @@ Click **Test** to run the command on a sample image and confirm it correctly ext
 [macOCR](https://github.com/schappim/macOCR) (a third-party tool, review before installing) allows you to easily use Apple's built-in Vision OCR engine (which runs locally and is more accurate than Tesseract).
 
 1. [Install macOCR](https://github.com/schappim/macOCR)
-2. Find the full path to the binary: `which ocr`
-3. Set **Command** in plugin settings (replacing the path with the correct path):
+2. Set **Command** in plugin settings:
    ```shell
-   /opt/homebrew/bin/ocr -i {input} > {output}
+   ocr -i {input} > {output}
    ```
-4. Enable **Convert PDFs to images**
-5. Click **Test** to confirm the command works
+3. Enable **Convert PDFs to images**
+4. Click **Test** to confirm the command works
 
 ## Examples
 
