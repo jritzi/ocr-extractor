@@ -2,11 +2,7 @@ import { test } from "../fixtures";
 import { mockHttp } from "../helpers/http";
 import { MISTRAL_URL, mistralSuccessResponse } from "../helpers/mistral";
 import { openNote, seedNote } from "../helpers/obsidian";
-import {
-  expectCallout,
-  expectCalloutContains,
-  extractActiveNote,
-} from "../helpers/plugin";
+import { expectCallout, extractActiveNote } from "../helpers/plugin";
 
 const MOCK_RESPONSE = "Extracted text after migration";
 
@@ -92,6 +88,6 @@ test.describe("<2.3.2: Rename useEmbeddedText to preferEmbeddedText", () => {
     await openNote(page, "Note");
     await extractActiveNote(page);
 
-    await expectCalloutContains(page, "Sample PDF");
+    await expectCallout(page, /Sample PDF/);
   });
 });

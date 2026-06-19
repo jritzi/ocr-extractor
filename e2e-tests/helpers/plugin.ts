@@ -36,14 +36,9 @@ export async function toggleSetting(page: Page, label: string) {
   await settingItem(page, label).getByRole("checkbox").click();
 }
 
-export async function expectCallout(page: Page, expectedText: string) {
+export async function expectCallout(page: Page, expectedText: string | RegExp) {
   await page.locator(".callout").click();
   await expect(page.locator(".callout-content")).toHaveText(expectedText);
-}
-
-export async function expectCalloutContains(page: Page, expectedText: string) {
-  await page.locator(".callout").click();
-  await expect(page.locator(".callout-content")).toContainText(expectedText);
 }
 
 /**

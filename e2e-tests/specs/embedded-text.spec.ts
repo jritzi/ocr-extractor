@@ -1,10 +1,6 @@
 import { MOCK_OCR_OUTPUT, test } from "../fixtures";
 import { openNote, seedNote } from "../helpers/obsidian";
-import {
-  expectCallout,
-  expectCalloutContains,
-  extractActiveNote,
-} from "../helpers/plugin";
+import { expectCallout, extractActiveNote } from "../helpers/plugin";
 
 test("setting off by default (OCR used even when PDF has embedded text)", async ({
   page,
@@ -24,7 +20,7 @@ test.describe("setting on", () => {
     await openNote(page, "Note");
     await extractActiveNote(page);
 
-    await expectCalloutContains(page, "Sample PDF");
+    await expectCallout(page, /Sample PDF/);
   });
 
   test("falling back to OCR when PDF has no embedded text", async ({
