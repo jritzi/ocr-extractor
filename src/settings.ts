@@ -1,9 +1,9 @@
 import type { SecretStorage } from "obsidian";
 import { Platform } from "obsidian";
-import type { OCR_SERVICES } from "../main";
+import type { OCR_ENGINES } from "../main";
 
 export interface PluginSettings {
-  ocrService: keyof typeof OCR_SERVICES;
+  ocrEngine: keyof typeof OCR_ENGINES;
 
   mistralSecret: string;
 
@@ -15,7 +15,7 @@ export interface PluginSettings {
   customCommand: string;
   customCommandConvertPdfs: boolean;
 
-  useEmbeddedText: boolean;
+  preferEmbeddedText: boolean;
   autoExtractAttachments: boolean;
 }
 
@@ -23,12 +23,16 @@ export interface PluginSettings {
 interface DeprecatedSettings {
   /** Migrated to mistralSecret */
   mistralApiKey?: string;
+  /** Renamed to ocrEngine */
+  ocrService?: keyof typeof OCR_ENGINES;
+  /** Renamed to preferEmbeddedText */
+  useEmbeddedText?: boolean;
 }
 
 export type StoredSettings = Partial<PluginSettings> & DeprecatedSettings;
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  ocrService: "tesseract",
+  ocrEngine: "tesseract",
   mistralSecret: "",
   openAiCompatibleBaseUrl: "",
   openAiCompatibleModel: "",
@@ -36,16 +40,16 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   openAiCompatiblePrompt: "",
   customCommand: "",
   customCommandConvertPdfs: false,
-  useEmbeddedText: false,
+  preferEmbeddedText: false,
   autoExtractAttachments: false,
 };
 
 /**
- * Check if we need to use a fallback service, because the selected service
+ * Check if we need to use a fallback engine, because the selected engine
  * is not supported on mobile.
  */
-export function shouldUseMobileServiceFallback(settings: PluginSettings) {
-  return settings.ocrService === "customCommand" && !Platform.isDesktop;
+export function shouldUseMobileEngineFallback(settings: PluginSettings) {
+  return settings.ocrEngine === "customCommand" && !Platform.isDesktop;
 }
 
 export function migrateSettings(
@@ -72,6 +76,26 @@ export function migrateSettings(
     const migratedSettings = { ...settings };
     delete migratedSettings.mistralApiKey;
     settings = { ...migratedSettings, mistralSecret };
+  }
+
+  // <2.3.2: Rename ocrService to ocrEngine
+  if (settings.ocrService !== undefined && settings.ocrEngine === undefined) {
+    const migratedSettings = { ...settings, ocrEngine: settings.ocrService };
+    delete migratedSettings.ocrService;
+    settings = migratedSettings;
+  }
+
+  // <2.3.2: Rename useEmbeddedText to preferEmbeddedText
+  if (
+    settings.useEmbeddedText !== undefined &&
+    settings.preferEmbeddedText === undefined
+  ) {
+    const migratedSettings = {
+      ...settings,
+      preferEmbeddedText: settings.useEmbeddedText,
+    };
+    delete migratedSettings.useEmbeddedText;
+    settings = migratedSettings;
   }
 
   return settings;

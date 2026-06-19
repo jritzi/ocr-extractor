@@ -1,8 +1,8 @@
 import { SecretComponent } from "obsidian";
-import { OcrServiceSettings } from "../ocr-service-settings";
+import { OcrEngineSettings } from "../ocr-engine-settings";
 import { t } from "../../i18n";
 
-export class MistralSettingsSection extends OcrServiceSettings {
+export class MistralSettingsSection extends OcrEngineSettings {
   display() {
     this.group.addSetting((setting) => {
       setting

@@ -1,5 +1,5 @@
 import { createWorker, Worker } from "tesseract.js";
-import { OcrService } from "../ocr-service";
+import { OcrEngine } from "../ocr-engine";
 import { toDataUrl } from "../../utils/encoding";
 import { resizeImage } from "../../utils/image";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
@@ -13,11 +13,11 @@ const TESSERACT_MIN_DIMENSION = 2000;
 // Higher doesn't improve accuracy (and larger canvases can fail on iOS)
 const TESSERACT_MAX_DIMENSION = 3000;
 
-export class TesseractService extends OcrService {
+export class TesseractEngine extends OcrEngine {
   private worker: Worker | null = null;
 
   static getLabel() {
-    return t("services.tesseract");
+    return t("engines.tesseract");
   }
 
   static getSettingsSection() {

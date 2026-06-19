@@ -1,6 +1,6 @@
 import { Mistral } from "@mistralai/mistralai";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
-import { OcrService, UserFacingError } from "../ocr-service";
+import { OcrEngine, UserFacingError } from "../ocr-engine";
 import { MistralSettingsSection } from "./mistral-settings";
 import { toDataUrl } from "../../utils/encoding";
 import { warnSkipped } from "../../utils/logging";
@@ -13,9 +13,9 @@ const BACKOFF = {
   maxElapsedTime: 10000,
 };
 
-export class MistralService extends OcrService {
+export class MistralEngine extends OcrEngine {
   static getLabel() {
-    return t("services.mistralOcr");
+    return t("engines.mistralOcr");
   }
 
   static getSettingsSection() {

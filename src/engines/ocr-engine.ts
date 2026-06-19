@@ -4,7 +4,7 @@ import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
 import { getPdfTextContent, isPdf } from "../utils/pdf";
 import { raceAbort } from "../utils/async";
-import { OcrServiceSettingsClass } from "./ocr-service-settings";
+import { OcrEngineSettingsClass } from "./ocr-engine-settings";
 
 /**
  * Errors with a message intended to be shown directly to the user (as opposed
@@ -14,7 +14,7 @@ export class UserFacingError extends Error {}
 
 const PAGE_SEPARATOR = "\n\n---\n\n";
 
-export abstract class OcrService {
+export abstract class OcrEngine {
   constructor(
     protected settings: PluginSettings,
     protected secretStorage: SecretStorage,
@@ -25,7 +25,7 @@ export abstract class OcrService {
     throw new Error("getLabel() not implemented");
   }
 
-  static getSettingsSection(): OcrServiceSettingsClass | null {
+  static getSettingsSection(): OcrEngineSettingsClass | null {
     throw new Error("getSettingsSection() not implemented");
   }
 
@@ -42,7 +42,7 @@ export abstract class OcrService {
       return null;
     }
 
-    if (isPdf(mimeType) && this.settings.useEmbeddedText) {
+    if (isPdf(mimeType) && this.settings.preferEmbeddedText) {
       const pages = await raceAbort(getPdfTextContent(data), signal);
       if (pages === null) return null;
       const result = this.joinPages(pages);
@@ -64,7 +64,7 @@ export abstract class OcrService {
     return result;
   }
 
-  /** Clean up any resources held by this service. */
+  /** Clean up any resources held by this engine. */
   async terminate() {}
 
   private joinPages(pages: string[]) {
@@ -75,7 +75,7 @@ export abstract class OcrService {
   }
 
   /**
-   * Whether this service can handle the given MIME type. If false, the file
+   * Whether this engine can handle the given MIME type. If false, the file
    * is skipped.
    */
   protected abstract isMimeTypeSupported(mimeType: string): boolean;

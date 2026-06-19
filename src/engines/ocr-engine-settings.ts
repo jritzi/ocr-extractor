@@ -1,7 +1,7 @@
 import type { SettingGroup } from "obsidian";
 import type OcrExtractorPlugin from "../../main";
 
-export abstract class OcrServiceSettings {
+export abstract class OcrEngineSettings {
   constructor(
     protected readonly group: SettingGroup,
     protected readonly plugin: OcrExtractorPlugin,
@@ -10,6 +10,6 @@ export abstract class OcrServiceSettings {
   abstract display(): void;
 }
 
-export type OcrServiceSettingsClass = new (
-  ...args: ConstructorParameters<typeof OcrServiceSettings>
-) => OcrServiceSettings;
+export type OcrEngineSettingsClass = new (
+  ...args: ConstructorParameters<typeof OcrEngineSettings>
+) => OcrEngineSettings;

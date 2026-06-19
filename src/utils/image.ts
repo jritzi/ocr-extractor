@@ -2,7 +2,7 @@ import { toDataUrl } from "./encoding";
 
 export const TEST_IMAGE_TEXT = "OCR test";
 
-// Formats likely to be natively accepted by all services, passed through
+// Formats likely to be natively accepted by all engines, passed through
 // as-is when no resizing is needed to avoid unnecessary re-encoding
 const PASSTHROUGH_MIME_TYPES = new Set(["image/png", "image/jpeg"]);
 

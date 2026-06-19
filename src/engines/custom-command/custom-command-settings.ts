@@ -1,6 +1,6 @@
 import { Platform } from "obsidian";
-import { OcrServiceSettings } from "../ocr-service-settings";
-import { UserFacingError } from "../ocr-service";
+import { OcrEngineSettings } from "../ocr-engine-settings";
+import { UserFacingError } from "../ocr-engine";
 import { CustomCommandRunner } from "./custom-command-runner";
 import { createTestImage, TEST_IMAGE_TEXT } from "../../utils/image";
 import {
@@ -11,7 +11,7 @@ import {
 } from "../../utils/notice";
 import { t } from "../../i18n";
 
-export class CustomCommandSettingsSection extends OcrServiceSettings {
+export class CustomCommandSettingsSection extends OcrEngineSettings {
   display() {
     this.group.addSetting((setting) => {
       setting

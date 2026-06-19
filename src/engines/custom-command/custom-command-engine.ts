@@ -1,5 +1,5 @@
 import type { SecretStorage } from "obsidian";
-import { OcrService, UserFacingError } from "../ocr-service";
+import { OcrEngine, UserFacingError } from "../ocr-engine";
 import { CustomCommandRunner } from "./custom-command-runner";
 import { CustomCommandSettingsSection } from "./custom-command-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
@@ -9,7 +9,7 @@ import { t } from "../../i18n";
 // Downscale large images (original size is likely unnecessary for OCR purposes)
 const PDF_MAX_DIMENSION = 4000;
 
-export class CustomCommandService extends OcrService {
+export class CustomCommandEngine extends OcrEngine {
   private readonly runner: CustomCommandRunner;
 
   constructor(settings: PluginSettings, secretStorage: SecretStorage) {
@@ -18,7 +18,7 @@ export class CustomCommandService extends OcrService {
   }
 
   static getLabel() {
-    return t("services.customCommand");
+    return t("engines.customCommand");
   }
 
   static getSettingsSection() {
