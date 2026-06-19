@@ -17,7 +17,7 @@ Following Obsidian's philosophy of storing data in an open, future-proof file fo
 
 ## Installation
 
-[Open OCR Extractor in Obsidian](obsidian://show-plugin?id=ocr-extractor) and install, or go to **Settings → Community plugins → Browse** and search for "OCR Extractor".
+Install from [Obsidian Community](https://community.obsidian.md/plugins/ocr-extractor), or go to **Settings → Community plugins → Browse** and search for "OCR Extractor".
 
 ## Usage
 

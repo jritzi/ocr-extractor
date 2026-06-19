@@ -2,10 +2,14 @@ import { toDataUrl } from "./encoding";
 
 export const TEST_IMAGE_TEXT = "OCR test";
 
+// Formats likely to be natively accepted by all services, passed through
+// as-is when no resizing is needed to avoid unnecessary re-encoding
+const PASSTHROUGH_MIME_TYPES = new Set(["image/png", "image/jpeg"]);
+
 /**
  * Resizes an image so its longest side falls within the given dimensions,
- * preserving aspect ratio, and returns it as a data URL. Images already in
- * range are returned as-is. Resized images are re-encoded as lossless PNG.
+ * preserving aspect ratio, and returns it as a PNG data URL. Images with an
+ * acceptable size and file type are returned as-is.
  */
 export async function resizeImage(
   data: Uint8Array,
@@ -31,7 +35,9 @@ export async function resizeImage(
       scale = minDimension / longestSide;
     }
 
-    if (scale === 1) return toDataUrl(data, mimeType);
+    if (scale === 1 && PASSTHROUGH_MIME_TYPES.has(mimeType)) {
+      return toDataUrl(data, mimeType);
+    }
 
     const targetWidth = Math.max(1, Math.round(bitmap.width * scale));
     const targetHeight = Math.max(1, Math.round(bitmap.height * scale));
