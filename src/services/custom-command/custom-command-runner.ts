@@ -145,8 +145,11 @@ export class CustomCommandRunner {
       // Redirect to a file so interactive shell noise isn't captured with the PATH
       await this.execFileAsync(
         shell,
-        ["-ilc", `printf "%s" "$PATH" > "${pathFile}"`],
-        { timeout: SHELL_PATH_TIMEOUT },
+        ["-ilc", 'printf "%s" "$PATH" > "$PATH_FILE"'],
+        {
+          timeout: SHELL_PATH_TIMEOUT,
+          env: { ...process.env, PATH_FILE: pathFile },
+        },
       );
       captured = (await this.fs.readFile(pathFile, "utf-8")).trim();
     } catch (error) {
