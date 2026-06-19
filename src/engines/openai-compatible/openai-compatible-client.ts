@@ -4,7 +4,7 @@ import {
   APIError,
   OpenAI,
 } from "openai";
-import { UserFacingError } from "../ocr-service";
+import { UserFacingError } from "../ocr-engine";
 import { stripCodeFence } from "../../utils/markdown";
 import { t } from "../../i18n";
 

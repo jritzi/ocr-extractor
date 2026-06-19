@@ -1,5 +1,5 @@
 import { Platform } from "obsidian";
-import { UserFacingError } from "../ocr-service";
+import { UserFacingError } from "../ocr-engine";
 import { debugLog } from "../../utils/logging";
 import { t } from "../../i18n";
 

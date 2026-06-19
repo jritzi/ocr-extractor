@@ -1,4 +1,4 @@
-import OcrExtractorPlugin, { OCR_SERVICES } from "../main";
+import OcrExtractorPlugin, { OCR_ENGINES } from "../main";
 import {
   EmbedCache,
   getLinkpath,
@@ -7,7 +7,7 @@ import {
   TFile,
   TFolder,
 } from "obsidian";
-import { OcrService, UserFacingError } from "./services/ocr-service";
+import { OcrEngine, UserFacingError } from "./engines/ocr-engine";
 import {
   formatCalloutToInsert,
   insertWithBlankLines,
@@ -18,7 +18,7 @@ import { batchPromises } from "./utils/async";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
-import { shouldUseMobileServiceFallback } from "./settings";
+import { shouldUseMobileEngineFallback } from "./settings";
 import {
   isObsidianNative,
   markdownFilesInFolder,
@@ -30,18 +30,18 @@ import { t } from "./i18n";
 
 export class TextExtractor {
   private app = this.plugin.app;
-  private service: OcrService;
-  private readonly usingMobileServiceFallback: boolean = false;
+  private engine: OcrEngine;
+  private readonly usingMobileEngineFallback: boolean = false;
 
   constructor(private plugin: OcrExtractorPlugin) {
-    let serviceName = plugin.settings.ocrService;
-    if (shouldUseMobileServiceFallback(plugin.settings)) {
-      this.usingMobileServiceFallback = true;
-      serviceName = "tesseract";
+    let engineName = plugin.settings.ocrService;
+    if (shouldUseMobileEngineFallback(plugin.settings)) {
+      this.usingMobileEngineFallback = true;
+      engineName = "tesseract";
     }
 
-    const ServiceClass = OCR_SERVICES[serviceName];
-    this.service = new ServiceClass(plugin.settings, plugin.app.secretStorage);
+    const EngineClass = OCR_ENGINES[engineName];
+    this.engine = new EngineClass(plugin.settings, plugin.app.secretStorage);
   }
 
   canProcessActiveFile() {
@@ -105,7 +105,7 @@ export class TextExtractor {
   }
 
   cleanup() {
-    return this.service.terminate();
+    return this.engine.terminate();
   }
 
   private startExtractingFile(file: TFile) {
@@ -120,9 +120,9 @@ export class TextExtractor {
   }
 
   private async runExtraction(files: TFile[]) {
-    if (this.usingMobileServiceFallback) {
+    if (this.usingMobileEngineFallback) {
       showNotice(
-        t("notices.mobileServiceFallback", { pluginName: t("pluginName") }),
+        t("notices.mobileEngineFallback", { pluginName: t("pluginName") }),
       );
     }
 
@@ -193,7 +193,7 @@ export class TextExtractor {
       } else {
         const binary = await this.app.vault.readBinary(embedFile);
         const data = new Uint8Array(binary);
-        markdown = await this.service.processOcr(
+        markdown = await this.engine.processOcr(
           data,
           embedFile.name,
           this.plugin.statusManager.getSignal(),

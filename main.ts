@@ -9,21 +9,21 @@ import {
   StoredSettings,
 } from "./src/settings";
 import { setLanguage } from "./src/i18n";
-import { TesseractService } from "./src/services/tesseract/tesseract-service";
-import { MistralService } from "./src/services/mistral/mistral-service";
-import { OpenAiCompatibleService } from "./src/services/openai-compatible/openai-compatible-service";
-import { CustomCommandService } from "./src/services/custom-command/custom-command-service";
+import { TesseractEngine } from "./src/engines/tesseract/tesseract-engine";
+import { MistralEngine } from "./src/engines/mistral/mistral-engine";
+import { OpenAiCompatibleEngine } from "./src/engines/openai-compatible/openai-compatible-engine";
+import { CustomCommandEngine } from "./src/engines/custom-command/custom-command-engine";
 import { TextExtractor } from "./src/text-extractor";
 import { registerActions } from "./src/actions";
 import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
 import { assert } from "./src/utils/assert";
 
-export const OCR_SERVICES = {
-  tesseract: TesseractService,
-  mistral: MistralService,
-  openAiCompatible: OpenAiCompatibleService,
-  customCommand: CustomCommandService,
+export const OCR_ENGINES = {
+  tesseract: TesseractEngine,
+  mistral: MistralEngine,
+  openAiCompatible: OpenAiCompatibleEngine,
+  customCommand: CustomCommandEngine,
 } as const;
 
 export default class OcrExtractorPlugin extends Plugin {

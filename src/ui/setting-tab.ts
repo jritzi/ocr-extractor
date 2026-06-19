@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, SettingGroup } from "obsidian";
-import OcrExtractorPlugin, { OCR_SERVICES } from "../../main";
-import { PluginSettings, shouldUseMobileServiceFallback } from "../settings";
+import OcrExtractorPlugin, { OCR_ENGINES } from "../../main";
+import { PluginSettings, shouldUseMobileEngineFallback } from "../settings";
 import { showNotice } from "../utils/notice";
 import { t } from "../i18n";
 
@@ -17,56 +17,56 @@ export class SettingTab extends PluginSettingTab {
     containerEl.empty();
 
     const generalGroup = new SettingGroup(containerEl);
-    this.addServiceDropdown(generalGroup);
+    this.addEngineDropdown(generalGroup);
     this.addGeneralSettings(generalGroup);
 
-    const ServiceClass = OCR_SERVICES[this.plugin.settings.ocrService];
-    const ServiceSettingsClass = ServiceClass.getSettingsSection();
+    const EngineClass = OCR_ENGINES[this.plugin.settings.ocrService];
+    const EngineSettingsClass = EngineClass.getSettingsSection();
 
-    if (ServiceSettingsClass) {
-      const serviceGroup = new SettingGroup(containerEl).setHeading(
-        ServiceClass.getLabel(),
+    if (EngineSettingsClass) {
+      const engineGroup = new SettingGroup(containerEl).setHeading(
+        EngineClass.getLabel(),
       );
-      new ServiceSettingsClass(serviceGroup, this.plugin).display();
+      new EngineSettingsClass(engineGroup, this.plugin).display();
     }
   }
 
-  private addServiceDropdown(group: SettingGroup) {
+  private addEngineDropdown(group: SettingGroup) {
     const description = createFragment();
-    description.appendText(t("settings.ocrServiceDesc") + " ");
+    description.appendText(t("settings.ocrEngineDesc") + " ");
     description.createEl("a", {
-      text: t("settings.ocrServiceDocLink"),
-      href: "https://github.com/jritzi/ocr-extractor#ocr-services",
+      text: t("settings.ocrEngineDocLink"),
+      href: "https://github.com/jritzi/ocr-extractor#ocr-engines",
     });
 
     group.addSetting((setting) => {
       setting
-        .setName(t("settings.ocrService"))
+        .setName(t("settings.ocrEngine"))
         .setDesc(description)
         .addDropdown((dropdown) => {
-          for (const [name, Service] of Object.entries(OCR_SERVICES)) {
-            dropdown.addOption(name, Service.getLabel());
+          for (const [name, Engine] of Object.entries(OCR_ENGINES)) {
+            dropdown.addOption(name, Engine.getLabel());
           }
 
           dropdown
             .setValue(this.plugin.settings.ocrService)
             .onChange((value) => {
-              const newOcrService = value as PluginSettings["ocrService"];
+              const newOcrEngine = value as PluginSettings["ocrService"];
               if (
-                shouldUseMobileServiceFallback({
+                shouldUseMobileEngineFallback({
                   ...this.plugin.settings,
-                  ocrService: newOcrService,
+                  ocrService: newOcrEngine,
                 })
               ) {
                 showNotice(
-                  t("notices.mobileServiceFallbackSetting", {
+                  t("notices.mobileEngineFallbackSetting", {
                     pluginName: t("pluginName"),
                   }),
                 );
               }
 
-              void this.plugin.saveSetting("ocrService", newOcrService);
-              this.display(); // Re-render settings with new service
+              void this.plugin.saveSetting("ocrService", newOcrEngine);
+              this.display(); // Re-render settings with new engine
             });
         });
     });

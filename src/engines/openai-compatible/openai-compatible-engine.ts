@@ -1,4 +1,4 @@
-import { OcrService } from "../ocr-service";
+import { OcrEngine } from "../ocr-engine";
 import { OpenAiCompatibleClient } from "./openai-compatible-client";
 import { OpenAiCompatibleSettingsSection } from "./openai-compatible-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
@@ -10,9 +10,9 @@ import { t } from "../../i18n";
 // Max of common local OCR models (larger is slower without improving accuracy)
 const MAX_IMAGE_DIMENSION = 1536;
 
-export class OpenAiCompatibleService extends OcrService {
+export class OpenAiCompatibleEngine extends OcrEngine {
   static getLabel() {
-    return t("services.openAiCompatibleApi");
+    return t("engines.openAiCompatibleApi");
   }
 
   static getSettingsSection() {

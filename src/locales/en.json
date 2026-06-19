@@ -12,9 +12,9 @@
     "cancelExtraction": "Cancel extraction"
   },
   "settings": {
-    "ocrService": "OCR service",
-    "ocrServiceDesc": "See the documentation for more details:",
-    "ocrServiceDocLink": "OCR services",
+    "ocrEngine": "OCR engine",
+    "ocrEngineDesc": "See the documentation for more details:",
+    "ocrEngineDocLink": "OCR engines",
     "apiKey": "API key",
     "command": "Command",
     "commandDesc": "Shell command to execute (desktop-only, Tesseract will be used instead on mobile), using {input} and {output} for the file paths",
@@ -37,7 +37,7 @@
     "autoExtractAttachments": "Auto-extract attachments",
     "autoExtractAttachmentsDesc": "Automatically extract text when a new attachment is added to a note"
   },
-  "services": {
+  "engines": {
     "tesseract": "Tesseract",
     "mistralOcr": "Mistral OCR",
     "openAiCompatibleApi": "OpenAI-compatible API",
@@ -78,8 +78,8 @@
     "completeExtractedSkipped": "Text extraction complete. Extracted: {{extracted}}, skipped: {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",
     "fileChanged": "File changed during processing, skipping ({{path}})",
-    "mobileServiceFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
-    "mobileServiceFallbackSetting": "{{pluginName}}: Custom commands are not available on mobile, Tesseract will be used instead",
+    "mobileEngineFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
+    "mobileEngineFallbackSetting": "{{pluginName}}: Custom commands are not available on mobile, Tesseract will be used instead",
     "testSucceeded": "Test succeeded",
     "testFailed": "Test failed: {{message}}",
     "testFailedUnexpected": "Test failed: Unexpected error",

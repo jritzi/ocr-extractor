@@ -1,7 +1,7 @@
 import type { ButtonComponent, DropdownComponent } from "obsidian";
 import { debounce, SecretComponent } from "obsidian";
-import { OcrServiceSettings } from "../ocr-service-settings";
-import { UserFacingError } from "../ocr-service";
+import { OcrEngineSettings } from "../ocr-engine-settings";
+import { UserFacingError } from "../ocr-engine";
 import {
   DEFAULT_PROMPT,
   OpenAiCompatibleClient,
@@ -17,7 +17,7 @@ import {
 import { assert } from "../../utils/assert";
 import { t } from "../../i18n";
 
-export class OpenAiCompatibleSettingsSection extends OcrServiceSettings {
+export class OpenAiCompatibleSettingsSection extends OcrEngineSettings {
   private modelDropdown?: DropdownComponent;
   private refreshButton?: ButtonComponent;
   private testButton?: ButtonComponent;

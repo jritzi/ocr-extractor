@@ -1,9 +1,9 @@
 import type { SecretStorage } from "obsidian";
 import { Platform } from "obsidian";
-import type { OCR_SERVICES } from "../main";
+import type { OCR_ENGINES } from "../main";
 
 export interface PluginSettings {
-  ocrService: keyof typeof OCR_SERVICES;
+  ocrService: keyof typeof OCR_ENGINES;
 
   mistralSecret: string;
 
@@ -41,10 +41,10 @@ export const DEFAULT_SETTINGS: PluginSettings = {
 };
 
 /**
- * Check if we need to use a fallback service, because the selected service
+ * Check if we need to use a fallback engine, because the selected engine
  * is not supported on mobile.
  */
-export function shouldUseMobileServiceFallback(settings: PluginSettings) {
+export function shouldUseMobileEngineFallback(settings: PluginSettings) {
   return settings.ocrService === "customCommand" && !Platform.isDesktop;
 }
 

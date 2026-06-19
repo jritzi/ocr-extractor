@@ -11,7 +11,7 @@
   <img src="https://raw.githubusercontent.com/jritzi/ocr-extractor/main/media/readme/demo.gif" alt="Demo" width="600" />
 </p>
 
-[OCR Extractor](https://community.obsidian.md/plugins/ocr-extractor) is an [Obsidian](https://obsidian.md/) plugin that uses [OCR](https://en.wikipedia.org/wiki/Optical_character_recognition) to extract text from PDFs, documents, images, etc. embedded in your notes. Different [OCR services](#ocr-services) (free or paid, local or cloud-based) are available, depending on your needs.
+[OCR Extractor](https://community.obsidian.md/plugins/ocr-extractor) is an [Obsidian](https://obsidian.md/) plugin that uses [OCR](https://en.wikipedia.org/wiki/Optical_character_recognition) to extract text from PDFs, documents, images, etc. embedded in your notes. Different [OCR engines](#ocr-engines) (free or paid, local or cloud-based) are available, depending on your needs.
 
 Following Obsidian's philosophy of storing data in an open, future-proof file format, the extracted text is added below the embedded attachment as an expandable [callout](https://obsidian.md/help/callouts). This means that the text will be searchable via Obsidian's [built-in search](https://obsidian.md/help/plugins/search), other search plugins, and even your operating system's native file search.
 
@@ -33,9 +33,9 @@ When extracting from multiple notes, you can track progress in the [status bar](
 
 Additional options are available in the plugin settings, including **Auto-extract attachments** (automatically extract text when a new attachment is added to a note) and **Prefer embedded PDF text** (use text already embedded in a PDF instead of extracting with OCR).
 
-## OCR services
+## OCR engines
 
-Depending on your needs, you can choose which OCR service to use. Select the **OCR service** in the plugin settings and follow the setup steps below.
+Depending on your needs, you can choose which OCR engine to use. Select the **OCR engine** in the plugin settings and follow the setup steps below.
 
 ### Tesseract
 
@@ -65,7 +65,7 @@ This option allows you to use any AI model (LLM), either locally (e.g. with [Oll
    ```shell
    ollama pull glm-ocr
    ```
-3. In plugin settings, set **OCR service** to **OpenAI-compatible API**
+3. In plugin settings, set **OCR engine** to **OpenAI-compatible API**
 4. Set **Base URL** to the Ollama server's URL: `http://localhost:11434/v1`
 5. Set **Model** to `glm-ocr`
 6. Click **Test** to confirm the connection works
@@ -92,7 +92,7 @@ Click **Test** to run the command on a sample image and confirm it correctly ext
 
 ## Examples
 
-The following examples show text extracted from three sample documents processed with each OCR service: a **study guide** (a straightforward typed document with headers and bullet points), an **academic paper** (a complex multi-column document with equations and charts), and **handwritten meeting notes** (a photo of handwritten text). Each link opens a note (using [Obsidian Publish](https://obsidian.md/publish)) showing the original attachment alongside the extracted text, so you can see exactly what the plugin produces:
+The following examples show text extracted from three sample documents processed with each OCR engine: a **study guide** (a straightforward typed document with headers and bullet points), an **academic paper** (a complex multi-column document with equations and charts), and **handwritten meeting notes** (a photo of handwritten text). Each link opens a note (using [Obsidian Publish](https://obsidian.md/publish)) showing the original attachment alongside the extracted text, so you can see exactly what the plugin produces:
 
 - **Tesseract**: [Study guide](https://ocrextractor.com/examples/tesseract-study-guide) · [Academic paper](https://ocrextractor.com/examples/tesseract-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/tesseract-meeting-notes)
 - **Mistral OCR**: [Study guide](https://ocrextractor.com/examples/mistral-study-guide) · [Academic paper](https://ocrextractor.com/examples/mistral-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/mistral-meeting-notes)
