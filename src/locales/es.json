@@ -12,9 +12,9 @@
     "cancelExtraction": "Cancelar extracción"
   },
   "settings": {
-    "ocrService": "Servicio OCR",
-    "ocrServiceDesc": "Consulta la documentación para más detalles:",
-    "ocrServiceDocLink": "Servicios OCR",
+    "ocrEngine": "Motor OCR",
+    "ocrEngineDesc": "Consulta la documentación para más detalles:",
+    "ocrEngineDocLink": "Motores OCR",
     "apiKey": "Clave API",
     "command": "Comando",
     "commandDesc": "Comando de shell a ejecutar (solo en escritorio, en dispositivos móviles se usará Tesseract), utilizando {input} y {output} para las rutas de los archivos",
@@ -37,7 +37,7 @@
     "autoExtractAttachments": "Extraer archivos adjuntos automáticamente",
     "autoExtractAttachmentsDesc": "Extrae texto automáticamente cuando se agrega un nuevo archivo adjunto a una nota"
   },
-  "services": {
+  "engines": {
     "tesseract": "Tesseract",
     "mistralOcr": "Mistral OCR",
     "openAiCompatibleApi": "API compatible con OpenAI",
@@ -78,8 +78,8 @@
     "completeExtractedSkipped": "Extracción de texto completada. Extraído: {{extracted}}, omitido: {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Ya hay una extracción en curso, se omite el nuevo archivo adjunto",
     "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",
-    "mobileServiceFallback": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
-    "mobileServiceFallbackSetting": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
+    "mobileEngineFallback": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
+    "mobileEngineFallbackSetting": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
     "testSucceeded": "Prueba exitosa",
     "testFailed": "Prueba fallida: {{message}}",
     "testFailedUnexpected": "Prueba fallida: error inesperado",
