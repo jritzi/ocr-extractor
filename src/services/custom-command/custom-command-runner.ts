@@ -7,6 +7,7 @@ const COMMAND_TIMEOUT = 120_000; // 2 minutes
 const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
 
 let cachedShellPath: string | undefined;
+let shellPathResolved = false;
 
 export class CustomCommandRunner {
   private readonly fs: typeof import("fs/promises");
@@ -16,6 +17,11 @@ export class CustomCommandRunner {
   private readonly execAsync: (
     cmd: string,
     opts: import("child_process").ExecOptions,
+  ) => Promise<{ stdout: string; stderr: string }>;
+  private readonly execFileAsync: (
+    file: string,
+    args: readonly string[],
+    opts: import("child_process").ExecFileOptions,
   ) => Promise<{ stdout: string; stderr: string }>;
 
   constructor() {
@@ -31,6 +37,7 @@ export class CustomCommandRunner {
     const childProcess =
       require("child_process") as typeof import("child_process");
     this.execAsync = util.promisify(childProcess.exec);
+    this.execFileAsync = util.promisify(childProcess.execFile);
   }
 
   /**
@@ -123,7 +130,7 @@ export class CustomCommandRunner {
    */
   private async resolveShellPath() {
     if (process.platform === "win32") return process.env.PATH;
-    if (cachedShellPath !== undefined) return cachedShellPath;
+    if (shellPathResolved) return cachedShellPath;
 
     const shell =
       process.env.SHELL ??
@@ -133,21 +140,23 @@ export class CustomCommandRunner {
       `path-${this.crypto.randomUUID()}`,
     );
 
+    let captured: string | undefined;
     try {
       // Redirect to a file so interactive shell noise isn't captured with the PATH
-      await this.execAsync(
-        `${shell} -ilc 'printf "%s" "$PATH" > "${pathFile}"'`,
+      await this.execFileAsync(
+        shell,
+        ["-ilc", `printf "%s" "$PATH" > "${pathFile}"`],
         { timeout: SHELL_PATH_TIMEOUT },
       );
-      const captured = (await this.fs.readFile(pathFile, "utf-8")).trim();
-      cachedShellPath = captured || process.env.PATH;
+      captured = (await this.fs.readFile(pathFile, "utf-8")).trim();
     } catch (error) {
       debugLog(`Failed to capture shell PATH: ${String(error)}`);
-      cachedShellPath = process.env.PATH;
     } finally {
       await this.fs.unlink(pathFile).catch(() => {});
     }
 
+    cachedShellPath = captured || process.env.PATH;
+    shellPathResolved = true;
     return cachedShellPath;
   }
 
