@@ -65,6 +65,37 @@ test("PDF extraction (sent as PNG images)", async ({ page }) => {
   await expectCallout(page, "Extracted text");
 });
 
+test("WebP attachment re-encoded as PNG", async ({ page }) => {
+  await mockHttp(
+    page,
+    "POST",
+    OPENAI_COMPATIBLE_URL,
+    200,
+    openAiCompatibleSuccessResponse("Extracted text"),
+  );
+
+  await seedNote(page, "Note", { content: "![[attachments/sample.webp]]" });
+  await openNote(page, "Note");
+  await extractActiveNote(page);
+
+  await expectHttpRequest(page, "POST", OPENAI_COMPATIBLE_URL, {
+    messages: [
+      expect.objectContaining({
+        content: expect.arrayContaining([
+          expect.objectContaining({
+            type: "image_url",
+            image_url: expect.objectContaining({
+              url: expect.stringMatching(/^data:image\/png;base64,/),
+            }),
+          }),
+        ]),
+      }),
+    ],
+  });
+
+  await expectCallout(page, "Extracted text");
+});
+
 test("skipped attachment on 400", async ({ page }) => {
   await mockHttp(page, "POST", OPENAI_COMPATIBLE_URL, 400, {});
 
