@@ -12,9 +12,9 @@
     "cancelExtraction": "إلغاء الاستخراج"
   },
   "settings": {
-    "ocrService": "خدمة OCR",
-    "ocrServiceDesc": "راجع الوثائق لمزيد من التفاصيل:",
-    "ocrServiceDocLink": "خدمات OCR",
+    "ocrEngine": "محرك OCR",
+    "ocrEngineDesc": "راجع الوثائق لمزيد من التفاصيل:",
+    "ocrEngineDocLink": "محركات OCR",
     "apiKey": "مفتاح API",
     "command": "الأمر",
     "commandDesc": "أمر الصدفة الذي سيتم تنفيذه (لأجهزة سطح المكتب فقط، سيتم استخدام Tesseract بدلاً منه على الجوال)، باستخدام {input} و {output} لمسارات الملفات",
@@ -37,7 +37,7 @@
     "autoExtractAttachments": "استخراج المرفقات تلقائياً",
     "autoExtractAttachmentsDesc": "استخراج النص تلقائياً عند إضافة مرفق جديد للملاحظة"
   },
-  "services": {
+  "engines": {
     "tesseract": "Tesseract",
     "mistralOcr": "Mistral OCR",
     "openAiCompatibleApi": "API متوافقة مع OpenAI",
@@ -82,8 +82,8 @@
     "completeExtractedSkipped": "اكتمل استخراج النص. تم الاستخراج: {{extracted}}، تم التخطي: {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: عملية الاستخراج جارية بالفعل، تم تخطي المرفق الجديد",
     "fileChanged": "تم تغيير الملف أثناء المعالجة، سيتم التخطي ({{path}})",
-    "mobileServiceFallback": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيتم استخدام Tesseract",
-    "mobileServiceFallbackSetting": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيتم استخدام Tesseract بدلاً من ذلك",
+    "mobileEngineFallback": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيتم استخدام Tesseract",
+    "mobileEngineFallbackSetting": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيُستخدم Tesseract بدلًا منها",
     "testSucceeded": "نجح الاختبار",
     "testFailed": "فشل الاختبار: {{message}}",
     "testFailedUnexpected": "فشل الاختبار: خطأ غير متوقع",

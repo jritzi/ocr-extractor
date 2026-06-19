@@ -12,9 +12,9 @@
     "cancelExtraction": "Annuler l'extraction"
   },
   "settings": {
-    "ocrService": "Service OCR",
-    "ocrServiceDesc": "Pour plus d’informations, consultez la documentation :",
-    "ocrServiceDocLink": "Services OCR",
+    "ocrEngine": "Moteur OCR",
+    "ocrEngineDesc": "Pour plus d’informations, consultez la documentation :",
+    "ocrEngineDocLink": "Moteurs OCR",
     "apiKey": "Clé API",
     "command": "Commande",
     "commandDesc": "Commande shell à exécuter (uniquement sur ordinateur, Tesseract sera utilisé à la place sur mobile), en utilisant {input} et {output} pour les chemins d’accès aux fichiers",
@@ -37,7 +37,7 @@
     "autoExtractAttachments": "Extraction automatique des pièces jointes",
     "autoExtractAttachmentsDesc": "Extraire automatiquement le texte lorsqu’une nouvelle pièce jointe est ajoutée à une note"
   },
-  "services": {
+  "engines": {
     "tesseract": "Tesseract",
     "mistralOcr": "Mistral OCR",
     "openAiCompatibleApi": "API compatible OpenAI",
@@ -78,8 +78,8 @@
     "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}} : Extraction déjà en cours, nouvelle pièce jointe ignorée",
     "fileChanged": "Le fichier a été modifié pendant le traitement et a donc été ignoré ({{path}})",
-    "mobileServiceFallback": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé",
-    "mobileServiceFallbackSetting": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract sera utilisé",
+    "mobileEngineFallback": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé",
+    "mobileEngineFallbackSetting": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract sera utilisé",
     "testSucceeded": "Test effectué avec succès",
     "testFailed": "Le test a échoué : {{message}}",
     "testFailedUnexpected": "Le test a échoué : erreur inattendue",

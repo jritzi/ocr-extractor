@@ -12,9 +12,9 @@
     "cancelExtraction": "取消提取"
   },
   "settings": {
-    "ocrService": "OCR 服务",
-    "ocrServiceDesc": "请查看文档以了解详细信息：",
-    "ocrServiceDocLink": "OCR 服务",
+    "ocrEngine": "OCR 引擎",
+    "ocrEngineDesc": "请查看文档以了解详细信息：",
+    "ocrEngineDocLink": "OCR 引擎",
     "apiKey": "API 密钥",
     "command": "命令",
     "commandDesc": "要执行的 Shell 命令（仅限桌面端，移动端将改用 Tesseract），请使用 {input} 和 {output} 作为文件路径",
@@ -37,7 +37,7 @@
     "autoExtractAttachments": "自动提取附件",
     "autoExtractAttachmentsDesc": "当新附件添加到笔记时自动提取文本"
   },
-  "services": {
+  "engines": {
     "tesseract": "Tesseract",
     "mistralOcr": "Mistral OCR",
     "openAiCompatibleApi": "兼容 OpenAI 的 API",
@@ -77,8 +77,8 @@
     "completeExtractedSkipped": "文本提取完成。已提取：{{extracted}}，已跳过：{{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}：提取正在进行中，新附件已跳过",
     "fileChanged": "处理期间文件被更改，正在跳过 ({{path}})",
-    "mobileServiceFallback": "{{pluginName}}：移动端不支持自定义命令，正在改用 Tesseract",
-    "mobileServiceFallbackSetting": "{{pluginName}}：移动端不支持自定义命令，将改用 Tesseract",
+    "mobileEngineFallback": "{{pluginName}}：移动端不支持自定义命令，正在改用 Tesseract",
+    "mobileEngineFallbackSetting": "{{pluginName}}：移动端不支持自定义命令，将改用 Tesseract",
     "testSucceeded": "测试成功",
     "testFailed": "测试失败：{{message}}",
     "testFailedUnexpected": "测试失败：发生意外错误",
