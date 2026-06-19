@@ -6,8 +6,8 @@ import { t } from "../../i18n";
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
 
-let cachedShellPath: string | undefined;
-let shellPathResolved = false;
+// Cache login shell PATH until plugin is reloaded
+let shellPathPromise: Promise<string | undefined> | undefined;
 
 export class CustomCommandRunner {
   private readonly fs: typeof import("fs/promises");
@@ -125,13 +125,14 @@ export class CustomCommandRunner {
   }
 
   /**
-   * Resolve the login shell's PATH, since it is only fully
-   * inherited on Windows.
+   * Resolve the login shell's PATH, since it is only fully inherited on Windows.
    */
-  private async resolveShellPath() {
-    if (process.platform === "win32") return process.env.PATH;
-    if (shellPathResolved) return cachedShellPath;
+  private resolveShellPath() {
+    if (process.platform === "win32") return Promise.resolve(process.env.PATH);
+    return (shellPathPromise ??= this.captureShellPath());
+  }
 
+  private async captureShellPath() {
     const shell =
       process.env.SHELL ??
       (process.platform === "darwin" ? "/bin/zsh" : "/bin/bash");
@@ -158,9 +159,7 @@ export class CustomCommandRunner {
       await this.fs.unlink(pathFile).catch(() => {});
     }
 
-    cachedShellPath = captured || process.env.PATH;
-    shellPathResolved = true;
-    return cachedShellPath;
+    return captured || process.env.PATH;
   }
 
   private async readOutput(outputPath: string) {
