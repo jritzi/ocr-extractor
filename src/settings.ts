@@ -79,22 +79,20 @@ export function migrateSettings(
   }
 
   // <2.3.2: Rename ocrService to ocrEngine
-  const oldOcrEngine = settings.ocrService;
-  if (oldOcrEngine !== undefined && settings.ocrEngine === undefined) {
-    const migratedSettings = { ...settings, ocrEngine: oldOcrEngine };
+  if (settings.ocrService !== undefined && settings.ocrEngine === undefined) {
+    const migratedSettings = { ...settings, ocrEngine: settings.ocrService };
     delete migratedSettings.ocrService;
     settings = migratedSettings;
   }
 
   // <2.3.2: Rename useEmbeddedText to preferEmbeddedText
-  const oldPreferEmbeddedText = settings.useEmbeddedText;
   if (
-    oldPreferEmbeddedText !== undefined &&
+    settings.useEmbeddedText !== undefined &&
     settings.preferEmbeddedText === undefined
   ) {
     const migratedSettings = {
       ...settings,
-      preferEmbeddedText: oldPreferEmbeddedText,
+      preferEmbeddedText: settings.useEmbeddedText,
     };
     delete migratedSettings.useEmbeddedText;
     settings = migratedSettings;
