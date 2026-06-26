@@ -43,7 +43,7 @@ Depending on your needs, you can choose which OCR engine to use. Select the **OC
 
 ### Mistral OCR
 
-[Mistral OCR](https://mistral.ai/news/mistral-ocr-3) is a powerful AI model for quickly extracting text from complex documents (including handwriting) and converting it to Markdown. It supports many different languages and [file types](https://docs.mistral.ai/studio-api/document-processing/basic_ocr#faq). This option requires a paid Mistral AI account (at the time of writing, it costs $2 per 1000 pages processed). Attachments are sent to Mistral's OCR service for text extraction (see [their privacy policy](https://legal.mistral.ai/terms/privacy-policy)).
+[Mistral OCR](https://mistral.ai/solutions/document-ai/) is a powerful AI model for quickly extracting text from complex documents (including handwriting) and converting it to Markdown. It supports many different languages and [file types](https://docs.mistral.ai/studio-api/document-processing/basic_ocr#faq). This option requires a paid Mistral AI account (at the time of writing, it costs $4 per 1000 pages processed). Attachments are sent to Mistral's OCR service for text extraction (see [their privacy policy](https://legal.mistral.ai/terms/privacy-policy)).
 
 First, you need to create a Mistral AI account. Follow their [Quickstart guide](https://docs.mistral.ai/getting-started/quickstarts/studio/activate-and-generate-api-key):
 
