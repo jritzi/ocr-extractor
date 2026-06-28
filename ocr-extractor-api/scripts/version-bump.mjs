@@ -1,7 +1,7 @@
+// Bump version constant in `src/index.ts` when running `pnpm version`
+
 import process from "node:process";
 import { readFileSync, writeFileSync } from "fs";
-
-// Bump version constant in `src/index.ts` when running `pnpm version`
 
 const targetVersion = process.env.npm_package_version;
 const file = "src/index.ts";

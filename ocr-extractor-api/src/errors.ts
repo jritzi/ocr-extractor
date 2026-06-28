@@ -1,7 +1,8 @@
 /**
  * Identifies which kind of {@link OcrError} occurred.
  *
- * - `"unsupported-file"`: the OCR engine can't process this file type
+ * - `"unsupported-file"`: the OCR engine can't process this file (e.g. an
+ *   unsupported file type)
  * - `"extraction-failed"`: any other failure during extraction (network,
  *   auth, etc.)
  *

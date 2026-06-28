@@ -12,6 +12,7 @@ export function createApi(plugin: OcrExtractorPlugin): OcrExtractorApi {
 
     async extractText(file: TFile, options?: { signal?: AbortSignal }) {
       const signal = options?.signal ?? new AbortController().signal;
+      signal.throwIfAborted();
 
       let text: string | null;
       try {
