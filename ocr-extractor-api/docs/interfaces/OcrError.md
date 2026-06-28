@@ -6,7 +6,7 @@
 
 # Interface: OcrError
 
-Defined in: [errors.ts:21](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/errors.ts#L21)
+Defined in: [errors.ts:21](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/errors.ts#L21)
 
 The error thrown by [OcrExtractorApi.extractText](OcrExtractorApi.md#extracttext) when extraction
 fails. Identify it with [isOcrError](../functions/isOcrError.md) (not `instanceof`, which won't
@@ -27,7 +27,7 @@ if any, is included as `cause`.
 
 > `readonly` `optional` **cause?**: `unknown`
 
-Defined in: [errors.ts:23](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/errors.ts#L23)
+Defined in: [errors.ts:23](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/errors.ts#L23)
 
 #### Overrides
 
@@ -39,4 +39,4 @@ Defined in: [errors.ts:23](https://github.com/jritzi/ocr-extractor/blob/cd6661f6
 
 > `readonly` **code**: [`OcrErrorCode`](../type-aliases/OcrErrorCode.md)
 
-Defined in: [errors.ts:22](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/errors.ts#L22)
+Defined in: [errors.ts:22](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/errors.ts#L22)

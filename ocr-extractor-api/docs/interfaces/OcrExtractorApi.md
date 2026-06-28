@@ -6,7 +6,13 @@
 
 # Interface: OcrExtractorApi
 
-Defined in: [index.ts:37](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/index.ts#L37)
+Defined in: [index.ts:45](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/index.ts#L45)
+
+The OCR Extractor plugin's public API, obtained via [getOcrExtractorApi](../functions/getOcrExtractorApi.md)
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -14,7 +20,7 @@ Defined in: [index.ts:37](https://github.com/jritzi/ocr-extractor/blob/cd6661f69
 
 > `readonly` **version**: `string`
 
-Defined in: [index.ts:43](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/index.ts#L43)
+Defined in: [index.ts:51](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/index.ts#L51)
 
 The API version (i.e. [OCR\_EXTRACTOR\_API\_VERSION](../variables/OCR_EXTRACTOR_API_VERSION.md))
 
@@ -28,7 +34,7 @@ The API version (i.e. [OCR\_EXTRACTOR\_API\_VERSION](../variables/OCR_EXTRACTOR_
 
 > **extractText**(`file`, `options?`): `Promise`\<[`OcrExtractionResult`](OcrExtractionResult.md)\>
 
-Defined in: [index.ts:61](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/index.ts#L61)
+Defined in: [index.ts:69](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/index.ts#L69)
 
 Run the user's configured OCR engine on an attachment and return the
 extracted text. Does not modify any note.

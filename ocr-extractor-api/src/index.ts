@@ -15,8 +15,11 @@ export {
   ocrError,
 } from "./errors.js";
 
-/** The API version, independent of the plugin's release version */
-// Auto-synced with package.json `version` by `pnpm version` (don't edit by hand)
+/**
+ * The API version
+ *
+ * @since 1.0.0
+ */
 export const OCR_EXTRACTOR_API_VERSION = "1.0.0";
 
 /**
@@ -34,6 +37,11 @@ type AppWithPlugins = App & {
   plugins?: { plugins?: Record<string, { api?: OcrExtractorApi }> };
 };
 
+/**
+ * The OCR Extractor plugin's public API, obtained via {@link getOcrExtractorApi}
+ *
+ * @since 1.0.0
+ */
 export interface OcrExtractorApi {
   /**
    * The API version (i.e. {@link OCR_EXTRACTOR_API_VERSION})
