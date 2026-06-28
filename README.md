@@ -99,6 +99,10 @@ The following examples show text extracted from three sample documents processed
 - **OpenAI-compatible API** (GLM-OCR): [Study guide](https://ocrextractor.com/examples/glm-ocr-study-guide) · [Academic paper](https://ocrextractor.com/examples/glm-ocr-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/glm-ocr-meeting-notes)
 - **Custom command** (macOCR): [Study guide](https://ocrextractor.com/examples/macocr-study-guide) · [Academic paper](https://ocrextractor.com/examples/macocr-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/macocr-meeting-notes)
 
+## API (for plugin developers)
+
+Other Obsidian plugins can use OCR Extractor's public API to run the user's configured OCR engine and receive the extracted text. See the [ocr-extractor-api](https://www.npmjs.com/package/ocr-extractor-api) npm package for details.
+
 ## Contributing
 
 For details on how to report a bug, share a feature request, or contribute code, see the [Contribution Guidelines](./CONTRIBUTING.md). To report a security issue, see the [Security Policy](./SECURITY.md).

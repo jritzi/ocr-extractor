@@ -14,10 +14,12 @@ import { MistralEngine } from "./src/engines/mistral/mistral-engine";
 import { OpenAiCompatibleEngine } from "./src/engines/openai-compatible/openai-compatible-engine";
 import { CustomCommandEngine } from "./src/engines/custom-command/custom-command-engine";
 import { TextExtractor } from "./src/text-extractor";
+import { createApi } from "./src/api";
 import { registerActions } from "./src/actions";
 import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
 import { assert } from "./src/utils/assert";
+import type { OcrExtractorApi } from "ocr-extractor-api";
 
 export const OCR_ENGINES = {
   tesseract: TesseractEngine,
@@ -30,14 +32,16 @@ export default class OcrExtractorPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
 
   // Initialized in onload()
-  extractor!: TextExtractor;
   statusManager!: StatusManager;
+  extractor!: TextExtractor;
+  api!: OcrExtractorApi;
 
   async onload() {
     await setLanguage(getLanguage());
     await this.loadSettings();
     this.statusManager = new StatusManager(this);
     this.extractor = new TextExtractor(this);
+    this.api = createApi(this);
     this.addSettingTab(new SettingTab(this.app, this));
     registerActions(this);
 

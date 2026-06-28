@@ -32,6 +32,9 @@ export abstract class OcrEngine {
   /**
    * Main entry point called by the plugin to extract text. Subclasses should
    * not override this (they should implement `extractPages()` instead).
+   *
+   * Returns the extracted text, "" if the engine ran but produced no text, or
+   * null if the file couldn't be processed at all.
    */
   async processOcr(data: Uint8Array, filename: string, signal: AbortSignal) {
     const fileType = await fileTypeFromBuffer(data);
@@ -59,7 +62,7 @@ export abstract class OcrEngine {
     const result = this.joinPages(pages);
     if (!result) {
       warnSkipped(filename, "no text to extract");
-      return null;
+      return "";
     }
     return result;
   }
