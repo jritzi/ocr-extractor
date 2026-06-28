@@ -1,5 +1,5 @@
-// Renders spaced-repetition-zh.html to spaced-repetition-zh.pdf.
-// Usage: node media/samples/spaced-repetition-zh.mjs
+// Renders chinese-book.html to chinese-book.pdf.
+// Usage: node media/samples/chinese-book.mjs
 // Uses the system Google Chrome (channel: "chrome") and the macOS "Songti SC"
 // serif font to approximate a printed Simplified-Chinese book page. Page size,
 // margins, and folios (page numbers) are all defined in the HTML/CSS, so we
@@ -12,15 +12,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const page = await browser.newPage();
-await page.goto(`file://${join(here, "spaced-repetition-zh.html")}`, {
+await page.goto(`file://${join(here, "chinese-book.html")}`, {
   waitUntil: "networkidle",
 });
 
 await page.pdf({
-  path: join(here, "spaced-repetition-zh.pdf"),
+  path: join(here, "chinese-book.pdf"),
   preferCSSPageSize: true,
   printBackground: true,
 });
 
 await browser.close();
-console.log("Rendered spaced-repetition-zh.pdf");
+console.log("Rendered chinese-book.pdf");
