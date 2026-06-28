@@ -108,6 +108,11 @@ export class TextExtractor {
     return this.engine.terminate();
   }
 
+  async processOcr(file: TFile, signal: AbortSignal) {
+    const binary = await this.app.vault.readBinary(file);
+    return this.engine.processOcr(new Uint8Array(binary), file.name, signal);
+  }
+
   private startExtractingFile(file: TFile) {
     this.plugin.statusManager.setProcessingSingleNote();
     void this.runExtraction([file]);
@@ -191,14 +196,13 @@ export class TextExtractor {
       } else if (isObsidianNative(embedFile)) {
         // Skip without warning
       } else {
-        const binary = await this.app.vault.readBinary(embedFile);
-        const data = new Uint8Array(binary);
-        markdown = await this.engine.processOcr(
-          data,
-          embedFile.name,
+        markdown = await this.processOcr(
+          embedFile,
           this.plugin.statusManager.getSignal(),
         );
-        if (markdown === null) {
+
+        // Skip on "" (ran, no text) as well as null (couldn't process)
+        if (!markdown) {
           skippedEmbeds.push(embed);
         } else {
           extractedCount++;

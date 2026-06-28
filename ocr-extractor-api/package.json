@@ -1,0 +1,57 @@
+{
+  "name": "ocr-extractor-api",
+  "version": "1.0.0",
+  "description": "Types and helpers for the OCR Extractor Obsidian plugin's public API",
+  "type": "module",
+  "license": "MIT",
+  "author": "Johnathan Ritzi",
+  "homepage": "https://community.obsidian.md/plugins/ocr-extractor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jritzi/ocr-extractor.git",
+    "directory": "ocr-extractor-api"
+  },
+  "bugs": {
+    "url": "https://github.com/jritzi/ocr-extractor/issues"
+  },
+  "keywords": [
+    "ocr-extractor",
+    "obsidian",
+    "types",
+    "ocr"
+  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "dist",
+    "src",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "generate-docs": "typedoc",
+    "prepublishOnly": "node scripts/ensure-pnpm.mjs && pnpm build && pnpm generate-docs",
+    "version": "node scripts/version-bump.mjs"
+  },
+  "publishConfig": {
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "peerDependencies": {
+    "obsidian": "*"
+  },
+  "devDependencies": {
+    "obsidian": "^1.12.3",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,3 +1,6 @@
+packages:
+  - "ocr-extractor-api"
+
 minimumReleaseAge: 2880
 blockExoticSubdeps: true
 trustPolicy: no-downgrade

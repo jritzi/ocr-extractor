@@ -2,3 +2,4 @@ build
 coverage
 pnpm-lock.yaml
 src/locales/
+ocr-extractor-api/docs/
