@@ -31,8 +31,8 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "docs": "typedoc",
-    "prepublishOnly": "node scripts/ensure-pnpm.mjs && pnpm build && pnpm docs",
+    "generate-docs": "typedoc",
+    "prepublishOnly": "node scripts/ensure-pnpm.mjs && pnpm build && pnpm generate-docs",
     "version": "node scripts/version-bump.mjs"
   },
   "publishConfig": {

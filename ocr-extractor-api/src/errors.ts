@@ -20,6 +20,7 @@ export type OcrErrorCode = "unsupported-file" | "extraction-failed";
  */
 export interface OcrError extends Error {
   readonly code: OcrErrorCode;
+  readonly cause?: unknown;
 }
 
 /**

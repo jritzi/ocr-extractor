@@ -7,6 +7,6 @@ fi
 api_src_changed=$(git diff --cached --name-only | grep '^ocr-extractor-api/src/' | grep -v '\.test\.ts$' || true)
 if [ -n "$api_src_changed" ]; then
   echo "Regenerating API docs"
-  pnpm --filter ocr-extractor-api docs
+  pnpm --filter ocr-extractor-api generate-docs
   git add ocr-extractor-api/docs
 fi

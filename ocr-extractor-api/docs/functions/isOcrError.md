@@ -8,7 +8,7 @@
 
 > **isOcrError**(`error`): `error is OcrError`
 
-Defined in: [errors.ts:41](https://github.com/jritzi/ocr-extractor/blob/8b953016c3a95c5e2dd6ae5af3b53f03ddb38257/ocr-extractor-api/src/errors.ts#L41)
+Defined in: [errors.ts:42](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/errors.ts#L42)
 
 Checks whether a caught value is an [OcrError](../interfaces/OcrError.md).
 

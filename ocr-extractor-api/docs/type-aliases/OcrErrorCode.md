@@ -8,7 +8,7 @@
 
 > **OcrErrorCode** = `"unsupported-file"` \| `"extraction-failed"`
 
-Defined in: [errors.ts:11](https://github.com/jritzi/ocr-extractor/blob/8b953016c3a95c5e2dd6ae5af3b53f03ddb38257/ocr-extractor-api/src/errors.ts#L11)
+Defined in: [errors.ts:11](https://github.com/jritzi/ocr-extractor/blob/cd6661f6910ca9290c8cdd76c0d76a087e38f3e6/ocr-extractor-api/src/errors.ts#L11)
 
 Identifies which kind of [OcrError](../interfaces/OcrError.md) occurred.
 
