@@ -92,12 +92,12 @@ Click **Test** to run the command on a sample image and confirm it correctly ext
 
 ## Examples
 
-The following examples show text extracted from three sample documents processed with each OCR engine: a **study guide** (a straightforward typed document with headers and bullet points), an **academic paper** (a complex multi-column document with equations and charts), and **handwritten meeting notes** (a photo of handwritten text). Each link opens a note (using [Obsidian Publish](https://obsidian.md/publish)) showing the original attachment alongside the extracted text, so you can see exactly what the plugin produces:
+The following examples show text extracted from four sample documents processed with each OCR engine: a **study guide** (a straightforward typed document with headers and bullet points), an **academic paper** (a complex multi-column document with equations and charts), **handwritten meeting notes** (a photo of handwritten text), and a chapter excerpt from a **Chinese book** (non-Latin script). Each link opens a note (using [Obsidian Publish](https://obsidian.md/publish)) showing the original attachment alongside the extracted text, so you can see exactly what the plugin produces:
 
-- **Tesseract**: [Study guide](https://ocrextractor.com/examples/tesseract-study-guide) · [Academic paper](https://ocrextractor.com/examples/tesseract-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/tesseract-meeting-notes)
-- **Mistral OCR**: [Study guide](https://ocrextractor.com/examples/mistral-study-guide) · [Academic paper](https://ocrextractor.com/examples/mistral-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/mistral-meeting-notes)
-- **OpenAI-compatible API** (GLM-OCR): [Study guide](https://ocrextractor.com/examples/glm-ocr-study-guide) · [Academic paper](https://ocrextractor.com/examples/glm-ocr-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/glm-ocr-meeting-notes)
-- **Custom command** (macOCR): [Study guide](https://ocrextractor.com/examples/macocr-study-guide) · [Academic paper](https://ocrextractor.com/examples/macocr-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/macocr-meeting-notes)
+- **Tesseract**: [Study guide](https://ocrextractor.com/examples/tesseract-study-guide) · [Academic paper](https://ocrextractor.com/examples/tesseract-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/tesseract-meeting-notes) · [Chinese book](https://ocrextractor.com/examples/tesseract-chinese-book)
+- **Mistral OCR**: [Study guide](https://ocrextractor.com/examples/mistral-study-guide) · [Academic paper](https://ocrextractor.com/examples/mistral-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/mistral-meeting-notes) · [Chinese book](https://ocrextractor.com/examples/mistral-chinese-book)
+- **OpenAI-compatible API** (GLM-OCR): [Study guide](https://ocrextractor.com/examples/glm-ocr-study-guide) · [Academic paper](https://ocrextractor.com/examples/glm-ocr-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/glm-ocr-meeting-notes) · [Chinese book](https://ocrextractor.com/examples/glm-ocr-chinese-book)
+- **Custom command** (macOCR): [Study guide](https://ocrextractor.com/examples/macocr-study-guide) · [Academic paper](https://ocrextractor.com/examples/macocr-academic-paper) · [Meeting notes](https://ocrextractor.com/examples/macocr-meeting-notes) · [Chinese book](https://ocrextractor.com/examples/macocr-chinese-book)
 
 ## Contributing
 

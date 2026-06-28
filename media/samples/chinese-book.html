@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>遗忘曲线与间隔的力量</title>
+    <style>
+      @page {
+        size: 140mm 210mm;
+        margin: 0;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Songti SC", "STSong", serif;
+        font-size: 10.5pt;
+        line-height: 1.8;
+        color: #1a1a1a;
+        text-align: justify;
+        text-justify: inter-ideograph;
+      }
+
+      /* Each .page is exactly one printed sheet. The content is split manually
+         across the two pages so the folio can show realistic in-book page
+         numbers (this is an excerpt of chapter 4, opening on a recto page).
+         If the text is edited, re-balance which paragraphs sit on each page. */
+      .page {
+        box-sizing: border-box;
+        width: 140mm;
+        height: 210mm;
+        padding: 16mm 17mm 12mm 17mm;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page:not(:last-child) {
+        page-break-after: always;
+      }
+
+      .content {
+        flex: 1 1 auto;
+      }
+
+      .folio {
+        flex: 0 0 auto;
+        text-align: center;
+        font-size: 9.5pt;
+        color: #555;
+        padding-top: 6mm;
+      }
+
+      .chapter-num {
+        text-align: center;
+        font-size: 11pt;
+        letter-spacing: 0.3em;
+        color: #333;
+        margin: 0 0 0.6em 0;
+      }
+
+      .chapter-title {
+        text-align: center;
+        font-size: 16pt;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        margin: 0 0 1.6em 0;
+      }
+
+      p {
+        margin: 0;
+        text-indent: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="content">
+        <div class="chapter-num">第四章</div>
+        <div class="chapter-title">遗忘曲线与间隔的力量</div>
+
+        <p>
+          我们都有过这样的经历：考试前一晚把厚厚的讲义从头背到尾，第二天勉强应付过去，可一个星期之后，能想起来的内容已所剩无几。这并不是因为我们不够用功，而是因为我们违背了记忆本来的规律。
+        </p>
+
+        <p>
+          最早把“遗忘”变成一件可以测量的事的，是十九世纪的德国心理学家艾宾浩斯（Hermann
+          Ebbinghaus）。他给自己编出大量没有意义的音节，记熟之后，再在不同的时间间隔上，检验自己还能记得多少。他发现，遗忘来得既快又不均匀：学习刚结束时，记忆最为清晰；可只要过上几个小时，大部分细节就开始迅速流失，几天之后，曲线渐渐平缓，剩下的那一点点，才会顽固地留存下来。这条先陡后缓的曲线，就是后来人们常说的“遗忘曲线”。
+        </p>
+
+        <p>
+          既然遗忘无法避免，对抗它的办法，便不是在一开始就拼命多记，而是在快要忘记的时候，及时把它重新唤醒一次。每复习一次，那条下滑的曲线就会被重新抬高，而且抬高之后，下一次下滑的速度也会比上一次更慢。换句话说，记忆不是一次就能灌满的水桶，而是一座需要反复加固的堤坝。
+        </p>
+
+        <p>
+          这正是“间隔重复”的核心思想：与其在一天之内把同一份材料读上十遍，不如把这十遍分散到十天里去。第一次复习可以安排在学过的第二天，第二次在三四天之后，再往后，间隔可以慢慢拉长到一周、半月、一个月。每一次复习的时机，都尽量卡在你将忘未忘的边缘上。
+        </p>
+      </div>
+      <div class="folio">73</div>
+    </div>
+
+    <div class="page">
+      <div class="content">
+        <p>
+          为什么偏要等到“快要忘记”的时候？因为太早复习，内容还清清楚楚地摆在脑子里，几乎不费力气就能想起，大脑会觉得“这个我早就会了”，于是不再当真；而太晚复习，痕迹又已经淡得几乎找不回来，只能从头再学一遍。只有在似记非记之间，努力把答案从记忆深处重新打捞上来的那一刻，记忆才会真正被巩固。让回忆变得稍微有点吃力，反而是一件好事。
+        </p>
+
+        <p>
+          把这套办法落到实处，最简单的工具就是一沓小小的卡片。卡片的一面写问题，另一面写答案。复习时先只看正面，强迫自己把答案想出来，再翻到背面核对。想对了，就把它下次复习的时间往后推得更远一些；想错了，就让它过几天再回到眼前。日子一久，记牢的内容便越来越少来打扰你，薄弱的环节则会一遍遍回到眼前。今天，像
+          Anki 这样的软件把这一切搬到了手机上，可背后的道理还是那一个。
+        </p>
+
+        <p>
+          这里真正的关键，不在卡片，也不在软件，而在“先回忆，再核对”这个顺序。很多人复习时习惯一遍遍地重读，只觉得样样眼熟，便误以为自己已经掌握了。可是熟悉并不等于记得。考场上没有书可以翻，能依靠的只有主动把它从脑中提取出来的本事。把每一次复习都变成一次小小的自我测验，远比把同一页又读上一遍管用。
+        </p>
+
+        <p>
+          当然，间隔重复并不是万能的。它擅长的，是帮你记住一个个明确的事实、词语和概念，却不能替你理解它们之间的联系，更不能代替真正的思考。最理想的做法，是先把一样东西彻底弄懂，再用间隔重复把它牢牢留在记忆里——先理解，后巩固，二者缺一不可。
+        </p>
+      </div>
+      <div class="folio">74</div>
+    </div>
+  </body>
+</html>
