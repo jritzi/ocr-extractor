@@ -8,7 +8,7 @@ engine on an attachment and get the extracted text.
 ## Installation
 
 ```bash
-npm install --save-dev ocr-extractor-api
+npm install ocr-extractor-api
 ```
 
 ## Quick start
