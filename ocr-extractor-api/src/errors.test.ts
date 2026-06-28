@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isOcrError, ocrError } from "./errors";
+import { isOcrError, ocrError } from "./errors.js";
 
 describe("errors.ts", () => {
   describe("isOcrError", () => {

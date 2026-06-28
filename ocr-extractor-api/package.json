@@ -30,7 +30,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "docs": "typedoc",
     "prepublishOnly": "node scripts/ensure-pnpm.mjs && pnpm build && pnpm docs",
     "version": "node scripts/version-bump.mjs"
