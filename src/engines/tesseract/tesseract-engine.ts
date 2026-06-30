@@ -31,11 +31,11 @@ export class TesseractEngine extends OcrEngine {
   }
 
   async terminate() {
-    if (this.workerPromise) {
-      const worker = await this.workerPromise;
-      this.workerPromise = null;
-      await worker.terminate();
-    }
+    // Clear first so concurrent recognize calls re-create the worker
+    const workerPromise = this.workerPromise;
+    this.workerPromise = null;
+    const worker = await workerPromise?.catch(() => null);
+    await worker?.terminate();
   }
 
   protected isMimeTypeSupported(mimeType: string) {
@@ -66,8 +66,17 @@ export class TesseractEngine extends OcrEngine {
     return [text];
   }
 
-  private getWorker() {
-    return (this.workerPromise ??= createWorker("eng"));
+  private async getWorker() {
+    if (this.workerPromise) return this.workerPromise;
+
+    try {
+      this.workerPromise = createWorker("eng");
+      return await this.workerPromise;
+    } catch (error) {
+      // Don't cache a failed attempt, so the next call can retry
+      this.workerPromise = null;
+      throw error;
+    }
   }
 
   private recognize(dataUrl: string) {
