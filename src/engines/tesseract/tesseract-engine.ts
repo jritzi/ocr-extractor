@@ -31,11 +31,12 @@ export class TesseractEngine extends OcrEngine {
   }
 
   async terminate() {
-    // Clear first so concurrent recognize calls re-create the worker
-    const workerPromise = this.workerPromise;
-    this.workerPromise = null;
-    const worker = await workerPromise?.catch(() => null);
-    await worker?.terminate();
+    // Serialize with recognize calls to avoid terminating a worker mid-run
+    await this.limit(async () => {
+      const worker = await this.workerPromise?.catch(() => null);
+      this.workerPromise = null;
+      await worker?.terminate();
+    });
   }
 
   protected isMimeTypeSupported(mimeType: string) {
