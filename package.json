@@ -52,6 +52,7 @@
     "file-type": "^22.0.1",
     "i18next": "^26.0.6",
     "openai": "^6.42.0",
+    "p-limit": "^7.3.0",
     "pdfjs-dist": "5.4.624",
     "semver": "^7.8.0",
     "tesseract.js": "^7.0.0"

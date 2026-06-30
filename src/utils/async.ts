@@ -1,21 +1,4 @@
 /**
- * Split an array of tasks (functions returning a promise) into batches,
- * executing tasks within each batch in parallel
- */
-export async function batchPromises<T>(
-  tasks: Array<() => Promise<T>>,
-  batchSize: number,
-) {
-  const results = [];
-  for (let i = 0; i < tasks.length; i += batchSize) {
-    const batch = tasks.slice(i, i + batchSize);
-    const batchResults = await Promise.all(batch.map((task) => task()));
-    results.push(...batchResults);
-  }
-  return results;
-}
-
-/**
  * Race a promise against an AbortSignal, returning null if the signal is
  * aborted first.
  */

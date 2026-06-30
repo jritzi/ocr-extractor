@@ -14,7 +14,7 @@ import {
   isManagedCallout,
   migrateCallouts,
 } from "./utils/callout";
-import { batchPromises } from "./utils/async";
+import pLimit from "p-limit";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
@@ -186,34 +186,40 @@ export class TextExtractor {
     const skippedEmbeds: EmbedCache[] = [];
     let extractedCount = 0;
 
-    const tasks = uniqueEmbeds.map((embed) => async () => {
-      let markdown: string | null = null;
-      const embedFile = this.getEmbedFile(embed, noteFile);
+    // Limit concurrency
+    const limit = pLimit(5);
 
-      if (!embedFile) {
-        warnSkipped(getLinkpath(embed.link), "file not found");
-        skippedEmbeds.push(embed);
-      } else if (isObsidianNative(embedFile)) {
-        // Skip without warning
-      } else {
-        markdown = await this.processOcr(
-          embedFile,
-          this.plugin.statusManager.getSignal(),
-        );
+    const entries = await Promise.all(
+      uniqueEmbeds.map((embed) =>
+        limit(async () => {
+          let markdown: string | null = null;
+          const embedFile = this.getEmbedFile(embed, noteFile);
 
-        // Skip on "" (ran, no text) as well as null (couldn't process)
-        if (!markdown) {
-          skippedEmbeds.push(embed);
-        } else {
-          extractedCount++;
-        }
-      }
+          if (!embedFile) {
+            warnSkipped(getLinkpath(embed.link), "file not found");
+            skippedEmbeds.push(embed);
+          } else if (isObsidianNative(embedFile)) {
+            // Skip without warning
+          } else {
+            markdown = await this.processOcr(
+              embedFile,
+              this.plugin.statusManager.getSignal(),
+            );
 
-      return [embed.original, markdown] as const;
-    });
+            // Skip on "" (ran, no text) as well as null (couldn't process)
+            if (!markdown) {
+              skippedEmbeds.push(embed);
+            } else {
+              extractedCount++;
+            }
+          }
 
-    // Batch to avoid rate limiting
-    const embedsToMarkdown = new Map(await batchPromises(tasks, 5));
+          return [embed.original, markdown] as const;
+        }),
+      ),
+    );
+
+    const embedsToMarkdown = new Map(entries);
     return { embedsToMarkdown, skippedEmbeds, extractedCount };
   }
 
