@@ -30,6 +30,3 @@ e2e-tests/setup/http-interceptor.js
 
 # ocr-extractor-api package
 ocr-extractor-api/dist
-
-# Misc
-TODO.md

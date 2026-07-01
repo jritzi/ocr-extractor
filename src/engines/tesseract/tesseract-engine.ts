@@ -1,4 +1,5 @@
 import { createWorker, Worker } from "tesseract.js";
+import pLimit from "p-limit";
 import { OcrEngine } from "../ocr-engine";
 import { toDataUrl } from "../../utils/encoding";
 import { resizeImage } from "../../utils/image";
@@ -14,7 +15,12 @@ const TESSERACT_MIN_DIMENSION = 2000;
 const TESSERACT_MAX_DIMENSION = 3000;
 
 export class TesseractEngine extends OcrEngine {
-  private worker: Worker | null = null;
+  // A shared promise so concurrent callers create at most one worker
+  private workerPromise: Promise<Worker> | null = null;
+
+  // Workers can't safely run multiple recognize calls in parallel, so
+  // serialize them
+  private limit = pLimit(1);
 
   static getLabel() {
     return t("engines.tesseract");
@@ -25,10 +31,12 @@ export class TesseractEngine extends OcrEngine {
   }
 
   async terminate() {
-    if (this.worker) {
-      await this.worker.terminate();
-      this.worker = null;
-    }
+    // Serialize with recognize calls to avoid terminating a worker mid-run
+    await this.limit(async () => {
+      const worker = await this.workerPromise?.catch(() => null);
+      this.workerPromise = null;
+      await worker?.terminate();
+    });
   }
 
   protected isMimeTypeSupported(mimeType: string) {
@@ -59,12 +67,25 @@ export class TesseractEngine extends OcrEngine {
     return [text];
   }
 
-  private async recognize(dataUrl: string) {
-    if (!this.worker) {
-      this.worker = await createWorker("eng");
+  private async getWorker() {
+    if (this.workerPromise) return this.workerPromise;
+
+    try {
+      this.workerPromise = createWorker("eng");
+      return await this.workerPromise;
+    } catch (error) {
+      // Don't cache a failed attempt, so the next call can retry
+      this.workerPromise = null;
+      throw error;
     }
-    const result = await this.worker.recognize(dataUrl);
-    return result.data.text;
+  }
+
+  private recognize(dataUrl: string) {
+    return this.limit(async () => {
+      const worker = await this.getWorker();
+      const result = await worker.recognize(dataUrl);
+      return result.data.text;
+    });
   }
 
   private async extractPdfPages(data: Uint8Array, signal: AbortSignal) {

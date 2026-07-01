@@ -52,6 +52,7 @@
     "file-type": "^22.0.1",
     "i18next": "^26.0.6",
     "openai": "^6.42.0",
+    "p-limit": "^7.3.0",
     "pdfjs-dist": "5.4.624",
     "semver": "^7.8.0",
     "tesseract.js": "^7.0.0"
@@ -65,7 +66,8 @@
       "minimatch@8": "^8.0.6",
       "minimatch@9": "^9.0.7",
       "fast-uri": "^3.1.2",
-      "js-yaml": "^4.2.0"
+      "js-yaml": "^4.2.0",
+      "@sigstore/core": "^3.2.1"
     }
   },
   "packageManager": "pnpm@10.33.4+sha512.1c67b3b359b2d408119ba1ed289f34b8fc3c6873412bec6fd264fbdc82489e510fcbecb9ce9d22dae7f3b76269d8441046014bdca53b9979cd7a561ad631b800"
