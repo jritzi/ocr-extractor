@@ -130,7 +130,7 @@ export const test = base.extend<ObsidianFixtures>({
     }
   },
 
-  page: async ({ electronApp, allowErrors }, use) => {
+  page: async ({ electronApp, allowErrors }, use, testInfo) => {
     const page = await electronApp.firstWindow();
     let hasConsoleErrors = false;
 
@@ -151,7 +151,13 @@ export const test = base.extend<ObsidianFixtures>({
       .click();
 
     const settingsModal = page.locator(".modal.mod-settings");
-    await settingsModal.locator(".modal-close-button").click();
+    const closeButton = settingsModal.locator(".modal-close-button");
+    if (testInfo.project.name === "old-installer") {
+      // The close button is not visible with this combination of versions
+      await closeButton.dispatchEvent("click");
+    } else {
+      await closeButton.click();
+    }
     await expect(settingsModal).not.toBeVisible();
 
     await injectHttpInterceptor(page);

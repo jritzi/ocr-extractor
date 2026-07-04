@@ -1,12 +1,19 @@
-import type { PDFPageProxy } from "pdfjs-dist";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+// Use legacy build to support older Chrome/Electron versions
+import {
+  getDocument,
+  GlobalWorkerOptions,
+  PasswordException,
+  type PDFPageProxy,
+} from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs";
+import pdfjsWorker from "pdfjs-dist/legacy/build/pdf.worker.min.mjs";
 import { canvasToPng } from "./image";
 
 GlobalWorkerOptions.workerSrc = URL.createObjectURL(
   new Blob([pdfjsWorker], { type: "application/javascript" }),
 );
+
+export class PdfReadError extends Error {}
 
 export function isPdf(mimeType: string) {
   return mimeType === "application/pdf";
@@ -52,34 +59,47 @@ export async function convertPdfToImages(
   });
 }
 
+/**
+ * Runs `callback` on each page and returns the collected results. Any error
+ * thrown here skips the PDF with a PdfReadError.
+ */
 async function mapPdfPages<T>(
   data: Uint8Array,
   callback: (page: PDFPageProxy) => Promise<T>,
 ) {
-  const pdf = await getDocument({
-    // Copy data before passing to pdfjs (it detaches the original, preventing
-    // the caller from using `data` later)
-    data: new Uint8Array(data),
-    useWorkerFetch: false,
-    isEvalSupported: false,
-    disableAutoFetch: true,
-  }).promise;
-
   try {
-    const results: T[] = [];
+    const loadingTask = getDocument({
+      // Copy data before passing to pdfjs (it detaches the original, preventing
+      // the caller from using `data` later)
+      data: new Uint8Array(data),
+      useWorkerFetch: false,
+      disableAutoFetch: true,
+    });
 
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const pdfPage = await pdf.getPage(pageNum);
+    try {
+      const pdf = await loadingTask.promise;
+      const results: T[] = [];
 
-      try {
-        results.push(await callback(pdfPage));
-      } finally {
-        pdfPage.cleanup();
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const pdfPage = await pdf.getPage(pageNum);
+
+        try {
+          results.push(await callback(pdfPage));
+        } finally {
+          pdfPage.cleanup();
+        }
       }
-    }
 
-    return results;
-  } finally {
-    await pdf.destroy();
+      return results;
+    } finally {
+      await loadingTask.destroy();
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const reason =
+      error instanceof PasswordException
+        ? "password-protected PDF"
+        : `could not process PDF (${message})`;
+    throw new PdfReadError(reason, { cause: error });
   }
 }
