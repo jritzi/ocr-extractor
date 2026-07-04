@@ -2,7 +2,7 @@ import { fileTypeFromBuffer } from "file-type";
 import type { SecretStorage } from "obsidian";
 import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
-import { getPdfTextContent, isPdf } from "../utils/pdf";
+import { getPdfTextContent, isPdf, PdfReadError } from "../utils/pdf";
 import { raceAbort } from "../utils/async";
 import { OcrEngineSettingsClass } from "./ocr-engine-settings";
 
@@ -45,26 +45,34 @@ export abstract class OcrEngine {
       return null;
     }
 
-    if (isPdf(mimeType) && this.settings.preferEmbeddedText) {
-      const pages = await raceAbort(getPdfTextContent(data), signal);
-      if (pages === null) return null;
-      const result = this.joinPages(pages);
-      if (result) return result;
-    }
+    try {
+      if (isPdf(mimeType) && this.settings.preferEmbeddedText) {
+        const pages = await raceAbort(getPdfTextContent(data), signal);
+        if (pages === null) return null;
+        const result = this.joinPages(pages);
+        if (result) return result;
+      }
 
-    const pages = await raceAbort(
-      this.extractPages(data, mimeType, filename, signal),
-      signal,
-    );
-    if (pages === null) {
-      return null;
+      const pages = await raceAbort(
+        this.extractPages(data, mimeType, filename, signal),
+        signal,
+      );
+      if (pages === null) {
+        return null;
+      }
+      const result = this.joinPages(pages);
+      if (!result) {
+        warnSkipped(filename, "no text to extract");
+        return "";
+      }
+      return result;
+    } catch (error) {
+      if (error instanceof PdfReadError) {
+        warnSkipped(filename, error.message);
+        return null;
+      }
+      throw error;
     }
-    const result = this.joinPages(pages);
-    if (!result) {
-      warnSkipped(filename, "no text to extract");
-      return "";
-    }
-    return result;
   }
 
   /** Clean up any resources held by this engine. */

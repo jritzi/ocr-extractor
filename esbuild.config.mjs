@@ -38,6 +38,30 @@ const appendLicenses = {
   },
 };
 
+// PDF.js polyfills Response.prototype.bytes assuming Response exists, but it's
+// undefined on old Electron versions, so it throws at load before the
+// installer update modal can show
+function guardResponsePolyfill(code) {
+  const target = "typeof Response.prototype.bytes";
+  if (!code.includes(target)) {
+    throw new Error("PDF.js Response polyfill not found, update the patch");
+  }
+  return code.replaceAll(
+    target,
+    '(typeof Response === "undefined" ? "function" : typeof Response.prototype.bytes)',
+  );
+}
+
+const patchPdfjsGlobals = {
+  name: "patch-pdfjs-globals",
+  setup(build) {
+    build.onLoad({ filter: /legacy[\\/]build[\\/]pdf\.mjs$/ }, async (args) => {
+      const code = await fs.promises.readFile(args.path, "utf8");
+      return { contents: guardResponsePolyfill(code), loader: "js" };
+    });
+  },
+};
+
 // Plugin to inline the PDF.js worker as a string (to avoid loading from a CDN during runtime)
 const inlinePdfjsWorker = {
   name: "inline-pdfjs-worker",
@@ -45,7 +69,7 @@ const inlinePdfjsWorker = {
     build.onLoad({ filter: /pdf\.worker\.min\.mjs$/ }, async (args) => {
       const code = await fs.promises.readFile(args.path, "utf8");
       return {
-        contents: `export default ${JSON.stringify(code)};`,
+        contents: `export default ${JSON.stringify(guardResponsePolyfill(code))};`,
         loader: "js",
       };
     });
@@ -58,7 +82,11 @@ const context = await esbuild.context({
   },
   entryPoints: ["main.ts"],
   bundle: true,
-  plugins: [inlinePdfjsWorker, ...(prod ? [appendLicenses] : [])],
+  plugins: [
+    patchPdfjsGlobals,
+    inlinePdfjsWorker,
+    ...(prod ? [appendLicenses] : []),
+  ],
   external: [
     "obsidian",
     "electron",
