@@ -148,20 +148,20 @@ export class TextExtractor {
   }
 
   private async runExtraction(files: TFile[]) {
-    if (this.settingsChanged) {
-      await this.rebuildEngine();
-    }
-
-    if (this.usingMobileEngineFallback) {
-      showNotice(
-        t("notices.mobileEngineFallback", { pluginName: t("pluginName") }),
-      );
-    }
-
     const allSkippedEmbeds: EmbedCache[] = [];
     let totalExtracted = 0;
 
     try {
+      if (this.settingsChanged) {
+        await this.rebuildEngine();
+      }
+
+      if (this.usingMobileEngineFallback) {
+        showNotice(
+          t("notices.mobileEngineFallback", { pluginName: t("pluginName") }),
+        );
+      }
+
       for (const [index, file] of files.entries()) {
         if (this.plugin.statusManager.isCanceling()) {
           break;
