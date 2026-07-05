@@ -29,19 +29,15 @@ import { SelectFolderModal } from "./ui/select-folder-modal";
 import { t } from "./i18n";
 
 export class TextExtractor {
+  // Initialized in buildEngine()
+  private engine!: OcrEngine;
+
   private app = this.plugin.app;
-  private engine: OcrEngine;
-  private readonly usingMobileEngineFallback: boolean = false;
+  private settingsChanged = false;
+  private usingMobileEngineFallback = false;
 
   constructor(private plugin: OcrExtractorPlugin) {
-    let engineName = plugin.settings.ocrEngine;
-    if (shouldUseMobileEngineFallback(plugin.settings)) {
-      this.usingMobileEngineFallback = true;
-      engineName = "tesseract";
-    }
-
-    const EngineClass = OCR_ENGINES[engineName];
-    this.engine = new EngineClass(plugin.settings, plugin.app.secretStorage);
+    this.buildEngine();
   }
 
   canProcessActiveFile() {
@@ -104,6 +100,10 @@ export class TextExtractor {
     this.startExtractingFiles(files);
   }
 
+  markSettingsChanged() {
+    this.settingsChanged = true;
+  }
+
   cleanup() {
     return this.engine.terminate();
   }
@@ -111,6 +111,29 @@ export class TextExtractor {
   async processOcr(file: TFile, signal: AbortSignal) {
     const binary = await this.app.vault.readBinary(file);
     return this.engine.processOcr(new Uint8Array(binary), file.name, signal);
+  }
+
+  private buildEngine() {
+    let engineName = this.plugin.settings.ocrEngine;
+    this.usingMobileEngineFallback = false;
+    if (shouldUseMobileEngineFallback(this.plugin.settings)) {
+      this.usingMobileEngineFallback = true;
+      engineName = "tesseract";
+    }
+
+    const EngineClass = OCR_ENGINES[engineName];
+    this.engine = new EngineClass(
+      // Clone to isolate engine from live settings changes
+      structuredClone(this.plugin.settings),
+      this.plugin.app.secretStorage,
+    );
+  }
+
+  private async rebuildEngine() {
+    const previousEngine = this.engine;
+    this.buildEngine();
+    this.settingsChanged = false;
+    await previousEngine.terminate();
   }
 
   private startExtractingFile(file: TFile) {
@@ -125,6 +148,10 @@ export class TextExtractor {
   }
 
   private async runExtraction(files: TFile[]) {
+    if (this.settingsChanged) {
+      await this.rebuildEngine();
+    }
+
     if (this.usingMobileEngineFallback) {
       showNotice(
         t("notices.mobileEngineFallback", { pluginName: t("pluginName") }),
