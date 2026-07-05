@@ -62,10 +62,7 @@ export default class OcrExtractorPlugin extends Plugin {
   ) {
     this.settings[name] = value;
     await this.saveData(this.settings);
-
-    // Cleanup old extractor and reload with new settings
-    await this.extractor.cleanup();
-    this.extractor = new TextExtractor(this);
+    this.extractor.markSettingsChanged();
   }
 
   private async loadSettings() {

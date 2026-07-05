@@ -3,7 +3,8 @@ name: Release Obsidian plugin
 on:
   push:
     tags:
-      - "*"
+      # Only trigger for plugin semver releases (not api-* tags)
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   build:
