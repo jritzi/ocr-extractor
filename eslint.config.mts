@@ -43,9 +43,13 @@ export default defineConfig([
     ignores: ["src/**/*.test.ts"],
     extends: obsidianmd.configs.recommendedWithLocalesEn,
     rules: {
-      // Remove once https://github.com/obsidianmd/eslint-plugin/pull/147 is in a release
-      "import/no-nodejs-modules": "off",
-      "obsidianmd/no-nodejs-modules": "error",
+      // Obsidian plugins run as CommonJS and must load Node builtins via
+      // require() at runtime, so this rule does not apply. Remove this once
+      // restored upstream.
+      "@typescript-eslint/no-require-imports": "off",
+
+      // Disable until settings migrated to declarative API
+      "obsidianmd/settings-tab/prefer-setting-definitions": "off",
 
       "obsidianmd/ui/sentence-case": [
         "error",
