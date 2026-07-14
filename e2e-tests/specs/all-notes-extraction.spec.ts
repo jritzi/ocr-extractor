@@ -4,7 +4,9 @@ import {
   cancelExtraction,
   expectCallout,
   expectNoCallout,
+  expectNotice,
   extractAllNotes,
+  extractionStatusBar,
 } from "../helpers/plugin";
 
 test("successful extraction", async ({ page }) => {
@@ -12,9 +14,7 @@ test("successful extraction", async ({ page }) => {
   await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
   await extractAllNotes(page);
 
-  await expect(
-    page.getByText("Text extraction complete. Extracted: 2"),
-  ).toBeVisible();
+  await expectNotice(page, "Text extraction complete. Extracted: 2");
 
   await openNote(page, "Note 1");
   await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -30,9 +30,10 @@ test("warning about skipped attachments", async ({ page }) => {
   await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
   await extractAllNotes(page);
 
-  await expect(
-    page.getByText("Text extraction complete. Extracted: 2, skipped: 1"),
-  ).toBeVisible();
+  await expectNotice(
+    page,
+    "Text extraction complete. Extracted: 2, skipped: 1",
+  );
 
   await openNote(page, "Note 1");
   await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -42,7 +43,7 @@ test("warning about skipped attachments", async ({ page }) => {
 });
 
 test.describe("loading and cancellation", () => {
-  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.slow } });
+  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
   test("loading message and cancellation", async ({ page }) => {
     await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
@@ -50,9 +51,7 @@ test.describe("loading and cancellation", () => {
     await extractAllNotes(page);
 
     await expect(
-      page
-        .locator(".ocr-extractor-status-bar")
-        .getByText("Extracting text in note 1/2"),
+      extractionStatusBar(page).getByText("Extracting text in note 1/2"),
     ).toBeVisible();
 
     await cancelExtraction(page);
@@ -78,11 +77,10 @@ test.describe("error handling", () => {
     await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
     await extractAllNotes(page);
 
-    await expect(
-      page.getByText(
-        "Custom command failed (exit code 1). Check the developer console for details.",
-      ),
-    ).toBeVisible();
+    await expectNotice(
+      page,
+      "Custom command failed (exit code 1). Check the developer console for details.",
+    );
 
     await openNote(page, "Note 1");
     await expectNoCallout(page);

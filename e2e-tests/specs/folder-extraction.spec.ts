@@ -5,6 +5,7 @@ import {
   expectCallout,
   expectNoCallout,
   extractFolder,
+  extractionStatusBar,
 } from "../helpers/plugin";
 
 test("successful extraction", async ({ page }) => {
@@ -69,7 +70,7 @@ test("warning about skipped attachments", async ({ page }) => {
 });
 
 test.describe("loading and cancellation", () => {
-  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.slow } });
+  test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
   test("loading message and cancellation", async ({ page }) => {
     await createFolder(page, "projects");
@@ -85,9 +86,7 @@ test.describe("loading and cancellation", () => {
     await extractFolder(page, "projects");
 
     await expect(
-      page
-        .locator(".ocr-extractor-status-bar")
-        .getByText("Extracting text in note 1/2"),
+      extractionStatusBar(page).getByText("Extracting text in note 1/2"),
     ).toBeVisible();
 
     await cancelExtraction(page);

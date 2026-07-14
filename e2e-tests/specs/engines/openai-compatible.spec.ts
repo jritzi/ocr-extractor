@@ -4,15 +4,11 @@ import {
   OPENAI_COMPATIBLE_URL,
   openAiCompatibleSuccessResponse,
 } from "../../helpers/openai-compatible";
-import {
-  clickModalButton,
-  getModal,
-  openNote,
-  seedNote,
-} from "../../helpers/obsidian";
+import { openNote, seedNote } from "../../helpers/obsidian";
 import {
   expectCallout,
   expectNoCallout,
+  expectNotice,
   extractActiveNote,
 } from "../../helpers/plugin";
 
@@ -103,14 +99,10 @@ test("skipped attachment on 400", async ({ page }) => {
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  const modal = getModal(page);
-  await expect(
-    modal.getByText(
-      "Text extracted from 0 attachments. The following were skipped:",
-    ),
-  ).toBeVisible();
-  await expect(modal.getByText("sample.png")).toBeVisible();
-  await clickModalButton(page, "OK");
+  await expectNotice(
+    page,
+    "Text extraction complete. Extracted: 0, skipped: 1",
+  );
   await expectNoCallout(page);
 });
 
@@ -121,11 +113,7 @@ test("unauthorized error on 401", async ({ page }) => {
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  const modal = getModal(page);
-  await expect(
-    modal.getByText("Unauthorized. Check your API key."),
-  ).toBeVisible();
-  await clickModalButton(page, "OK");
+  await expectNotice(page, "Unauthorized. Check your API key.");
   await expectNoCallout(page);
 });
 

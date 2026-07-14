@@ -8,12 +8,8 @@ import {
   TFolder,
 } from "obsidian";
 import { OcrEngine, UserFacingError } from "./engines/ocr-engine";
-import {
-  formatCalloutToInsert,
-  insertWithBlankLines,
-  isManagedCallout,
-  migrateCallouts,
-} from "./utils/callout";
+import { EmbedsToMarkdown, selectEmbedsToProcess } from "./editing/plan";
+import { insertWhenSettled } from "./editing/settle";
 import pLimit from "p-limit";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
@@ -138,18 +134,21 @@ export class TextExtractor {
 
   private startExtractingFile(file: TFile) {
     this.plugin.statusManager.setProcessingSingleNote();
-    void this.runExtraction([file]);
+    void this.runExtraction([file], { multiNote: false });
   }
 
   private startExtractingFiles(files: TFile[]) {
     if (files.length === 0) return;
     this.plugin.statusManager.setProcessingMultipleNotes(files.length);
-    void this.runExtraction(files);
+    void this.runExtraction(files, { multiNote: true });
   }
 
-  private async runExtraction(files: TFile[]) {
-    const allSkippedEmbeds: EmbedCache[] = [];
+  private async runExtraction(
+    files: TFile[],
+    { multiNote }: { multiNote: boolean },
+  ) {
     let totalExtracted = 0;
+    let totalSkipped = 0;
 
     try {
       if (this.settingsChanged) {
@@ -168,21 +167,45 @@ export class TextExtractor {
         }
 
         debugLog(`Processing file ${file.path}`);
-        this.plugin.statusManager.updateProgress(index + 1, files.length);
+        if (multiNote) {
+          this.plugin.statusManager.updateProgress(index + 1, files.length);
+        }
 
         const content = await this.app.vault.cachedRead(file);
         const embeds = this.getEmbeds(file);
         const { embedsToMarkdown, skippedEmbeds, extractedCount } =
           await this.extractTextFromEmbeds(file, content, embeds);
-        allSkippedEmbeds.push(...skippedEmbeds);
+        totalSkipped += skippedEmbeds.length;
         totalExtracted += extractedCount;
-        await this.insertCallouts(embedsToMarkdown, content, file, embeds);
+
+        const result = await insertWhenSettled(
+          this.app,
+          file,
+          embedsToMarkdown,
+          this.plugin.statusManager.getSignal(),
+        );
+
+        if (result.status === "done") {
+          const skipped = result.skippedResults.length;
+          totalExtracted -= skipped;
+          totalSkipped += skipped;
+        } else if (result.status === "timeout") {
+          // Treat the whole note as skipped, will be improved in OCR-49
+          showErrorNotice(t("notices.fileChanged", { path: file.path }));
+          totalExtracted -= extractedCount;
+          totalSkipped += extractedCount;
+        } else {
+          // Nothing needed for "canceled"
+        }
       }
 
       if (this.plugin.statusManager.isCanceling()) {
         this.plugin.statusManager.setCanceled();
+      } else if (!this.plugin.statusManager.getSignal().aborted) {
+        this.plugin.statusManager.setComplete(totalExtracted, totalSkipped);
       } else {
-        this.plugin.statusManager.setComplete(totalExtracted, allSkippedEmbeds);
+        // Aborted without canceling means unloading the plugin, so don't
+        // show a completion notice
       }
     } catch (e: unknown) {
       let message: string;
@@ -201,15 +224,7 @@ export class TextExtractor {
     fileContent: string,
     embeds: EmbedCache[],
   ) {
-    const embedsToProcess = embeds.filter(
-      (embed) => !this.alreadyProcessed(embed, fileContent),
-    );
-    const seen = new Set<string>();
-    const uniqueEmbeds = embedsToProcess.filter((embed) => {
-      if (seen.has(embed.original)) return false;
-      seen.add(embed.original);
-      return true;
-    });
+    const embedsToProcess = selectEmbedsToProcess(fileContent, embeds);
     const skippedEmbeds: EmbedCache[] = [];
     let extractedCount = 0;
 
@@ -217,7 +232,7 @@ export class TextExtractor {
     const limit = pLimit(5);
 
     const entries = await Promise.all(
-      uniqueEmbeds.map((embed) =>
+      embedsToProcess.map((embed) =>
         limit(async () => {
           let markdown: string | null = null;
           const embedFile = this.getEmbedFile(embed, noteFile);
@@ -235,6 +250,7 @@ export class TextExtractor {
 
             // Skip on "" (ran, no text) as well as null (couldn't process)
             if (!markdown) {
+              warnSkipped(getLinkpath(embed.link), "no text extracted");
               skippedEmbeds.push(embed);
             } else {
               extractedCount++;
@@ -246,70 +262,12 @@ export class TextExtractor {
       ),
     );
 
-    const embedsToMarkdown = new Map(entries);
+    const embedsToMarkdown: EmbedsToMarkdown = new Map(entries);
     return { embedsToMarkdown, skippedEmbeds, extractedCount };
   }
 
-  private async insertCallouts(
-    embedsToMarkdown: Map<string, string | null>,
-    originalFileContent: string,
-    file: TFile,
-    embeds: EmbedCache[],
-  ) {
-    await this.app.vault.process(file, (data) => {
-      if (this.plugin.statusManager.isCanceling()) {
-        return data;
-      }
-
-      let newContent = data;
-      if (data !== originalFileContent) {
-        const warning = t("notices.fileChanged", { path: file.path });
-        console.warn(warning);
-        showErrorNotice(warning);
-        return data;
-      }
-
-      // Insert in reverse order to avoid position changes during edits
-      for (const embed of [...embeds].reverse()) {
-        const markdown = embedsToMarkdown.get(embed.original);
-
-        if (!markdown) {
-          continue;
-        }
-
-        if (this.alreadyProcessed(embed, originalFileContent)) {
-          continue;
-        }
-
-        if (this.embedMoved(embed, newContent)) {
-          console.warn(
-            `Embed ${embed.original} moved during processing, skipping`,
-          );
-          continue;
-        }
-
-        const { text, linePrefix } = formatCalloutToInsert(
-          markdown,
-          newContent,
-          embed.position.start.offset,
-        );
-
-        newContent = insertWithBlankLines(
-          newContent,
-          text,
-          embed.position.end.offset,
-          linePrefix,
-        );
-      }
-
-      newContent = migrateCallouts(newContent);
-
-      return newContent;
-    });
-  }
-
   private getEmbeds(file: TFile) {
-    const cache = this.app.metadataCache.getCache(file.path);
+    const cache = this.app.metadataCache.getFileCache(file);
     return cache?.embeds ?? [];
   }
 
@@ -320,15 +278,5 @@ export class TextExtractor {
       file.path,
     );
     return path ? this.app.vault.getFileByPath(path) : null;
-  }
-
-  private alreadyProcessed(embed: EmbedCache, content: string) {
-    const remainder = content.slice(embed.position.end.offset);
-    return isManagedCallout(remainder.replace(/^[\s>]*/, ""));
-  }
-
-  private embedMoved(embed: EmbedCache, content: string) {
-    const { start, end } = embed.position;
-    return content.slice(start.offset, end.offset) !== embed.original;
   }
 }

@@ -6,7 +6,8 @@ import {
   test as base,
 } from "@playwright/test";
 import { execFileSync } from "child_process";
-import { mkdtempSync, rmSync } from "fs";
+import { randomUUID } from "crypto";
+import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import type { StoredSettings } from "../src/settings";
@@ -29,8 +30,8 @@ export const MOCK_OCR_OUTPUT = "Mock extracted text";
 
 export const MOCK_OCR_COMMANDS = {
   fast: `node "${join(E2E, "mock-ocr", "fast.js")}" {input} {output}`,
-  slow: `node "${join(E2E, "mock-ocr", "slow.js")}" {input} {output}`,
   error: `node "${join(E2E, "mock-ocr", "error.js")}" {input} {output}`,
+  gated: `node "${join(E2E, "mock-ocr", "gated.js")}" {input} {output}`,
 };
 
 // Minimal typing for the Electron app object inside Playwright's evaluate context
@@ -42,12 +43,19 @@ function truncate(text: string) {
   return text.length > 500 ? `${text.slice(0, 500)}... (truncated)` : text;
 }
 
+/** Let in-flight MOCK_OCR_COMMANDS.gated runs finish */
+function writeGatedOcrRelease(releasePath: string) {
+  writeFileSync(releasePath, "");
+}
+
 export interface ObsidianFixtures {
   obsidianVersion: string;
   electronVersion: string | undefined;
   mockOcrOutput: string;
   settings: StoredSettings;
   allowErrors: boolean;
+  gatedOcrReleaseFile: string;
+  releaseGatedOcr: () => void;
   electronApp: ElectronApplication;
   page: Page;
 }
@@ -59,8 +67,25 @@ export const test = base.extend<ObsidianFixtures>({
   settings: [{}, { option: true }],
   allowErrors: [false, { option: true }],
 
+  // eslint-disable-next-line no-empty-pattern -- Required by Playwright
+  gatedOcrReleaseFile: async ({}, use) => {
+    const path = join(tmpdir(), `gated-ocr-release-${randomUUID()}`);
+    await use(path);
+    rmSync(path, { force: true });
+  },
+
+  releaseGatedOcr: async ({ gatedOcrReleaseFile }, use) => {
+    await use(() => writeGatedOcrRelease(gatedOcrReleaseFile));
+  },
+
   electronApp: async (
-    { obsidianVersion, electronVersion, mockOcrOutput, settings },
+    {
+      obsidianVersion,
+      electronVersion,
+      mockOcrOutput,
+      settings,
+      gatedOcrReleaseFile,
+    },
     use,
   ) => {
     const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
@@ -87,7 +112,11 @@ export const test = base.extend<ObsidianFixtures>({
           "--no-sandbox",
           "--use-mock-keychain",
         ],
-        env: { ...process.env, MOCK_OCR_OUTPUT: mockOcrOutput },
+        env: {
+          ...process.env,
+          MOCK_OCR_OUTPUT: mockOcrOutput,
+          MOCK_OCR_RELEASE_FILE: gatedOcrReleaseFile,
+        },
       });
 
       // Stop E2E Electron from stealing obsidian:// handlers from the real app
@@ -97,6 +126,8 @@ export const test = base.extend<ObsidianFixtures>({
 
       await use(app);
     } finally {
+      writeGatedOcrRelease(gatedOcrReleaseFile);
+
       if (app) {
         const pid = app.process().pid;
         const timedOut = await Promise.race([
@@ -133,6 +164,10 @@ export const test = base.extend<ObsidianFixtures>({
   page: async ({ electronApp, allowErrors }, use, testInfo) => {
     const page = await electronApp.firstWindow();
     let hasConsoleErrors = false;
+
+    // Closing with unsaved editor changes triggers a native beforeunload
+    // dialog, accept it to avoid conflicting with teardown's app.close()
+    page.on("dialog", (dialog) => void dialog.accept().catch(() => {}));
 
     page.on("console", (message) => {
       if (message.type() === "error") {

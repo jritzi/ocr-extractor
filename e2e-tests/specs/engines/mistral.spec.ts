@@ -1,15 +1,11 @@
 import { expect, test } from "../../fixtures";
 import { expectHttpRequest, mockHttp } from "../../helpers/http";
 import { MISTRAL_URL, mistralSuccessResponse } from "../../helpers/mistral";
-import {
-  clickModalButton,
-  getModal,
-  openNote,
-  seedNote,
-} from "../../helpers/obsidian";
+import { openNote, seedNote } from "../../helpers/obsidian";
 import {
   expectCallout,
   expectNoCallout,
+  expectNotice,
   extractActiveNote,
 } from "../../helpers/plugin";
 
@@ -83,14 +79,10 @@ for (const status of [400, 422]) {
     await openNote(page, "Note");
     await extractActiveNote(page);
 
-    const modal = getModal(page);
-    await expect(
-      modal.getByText(
-        "Text extracted from 0 attachments. The following were skipped:",
-      ),
-    ).toBeVisible();
-    await expect(modal.getByText("sample.pdf")).toBeVisible();
-    await clickModalButton(page, "OK");
+    await expectNotice(
+      page,
+      "Text extraction complete. Extracted: 0, skipped: 1",
+    );
     await expectNoCallout(page);
   });
 }
@@ -100,14 +92,10 @@ test("skipped attachment on unsupported file type", async ({ page }) => {
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  const modal = getModal(page);
-  await expect(
-    modal.getByText(
-      "Text extracted from 0 attachments. The following were skipped:",
-    ),
-  ).toBeVisible();
-  await expect(modal.getByText("sample.xml")).toBeVisible();
-  await clickModalButton(page, "OK");
+  await expectNotice(
+    page,
+    "Text extraction complete. Extracted: 0, skipped: 1",
+  );
   await expectNoCallout(page);
 });
 
@@ -118,10 +106,6 @@ test("unauthorized error on 401", async ({ page }) => {
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  const modal = getModal(page);
-  await expect(
-    modal.getByText("Unauthorized. Check your API key."),
-  ).toBeVisible();
-  await clickModalButton(page, "OK");
+  await expectNotice(page, "Unauthorized. Check your API key.");
   await expectNoCallout(page);
 });

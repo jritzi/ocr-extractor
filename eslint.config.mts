@@ -62,5 +62,19 @@ export default defineConfig([
     },
   },
 
+  {
+    files: ["src/editing/apply-edits.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "FunctionDeclaration[id.name='applyViaEditor'][async=true]",
+          message:
+            "applyViaEditor must stay synchronous to ensure atomic edits",
+        },
+      ],
+    },
+  },
+
   eslintConfigPrettier,
 ]);

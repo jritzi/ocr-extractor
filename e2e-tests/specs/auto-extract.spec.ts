@@ -12,6 +12,7 @@ import {
   extractAllNotes,
   openPluginSettings,
   toggleSetting,
+  extractionStatusBar,
 } from "../helpers/plugin";
 
 test("auto-extract setting", async ({ page }) => {
@@ -39,7 +40,7 @@ test.describe("busy notice", () => {
   test.use({
     settings: {
       autoExtractAttachments: true,
-      customCommand: MOCK_OCR_COMMANDS.slow,
+      customCommand: MOCK_OCR_COMMANDS.gated,
     },
   });
 
@@ -49,9 +50,7 @@ test.describe("busy notice", () => {
     await extractAllNotes(page);
 
     await expect(
-      page
-        .locator(".ocr-extractor-status-bar")
-        .getByText("Extracting text in note 1/1"),
+      extractionStatusBar(page).getByText("Extracting text in note 1/1"),
     ).toBeVisible();
 
     await createNote(page, "Auto-extraction test");
