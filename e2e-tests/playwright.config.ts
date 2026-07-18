@@ -20,6 +20,9 @@ export default defineConfig<ObsidianFixtures>({
   fullyParallel: true,
   workers: process.env.CI ? availableParallelism() : 5,
 
+  /* Tests run in parallel can take longer than 5s */
+  expect: { timeout: 10_000 },
+
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   /* 'html' generates a browsable report; 'list' is simpler for local dev */
   reporter: process.env.CI

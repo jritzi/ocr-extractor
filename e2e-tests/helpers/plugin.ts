@@ -20,6 +20,18 @@ export async function cancelExtraction(page: Page) {
   await runCommand(page, "OCR Extractor: Cancel extraction");
 }
 
+export function extractionNotice(page: Page) {
+  return notice(page).filter({ hasText: "Extracting text" });
+}
+
+export async function expectNotice(page: Page, text: string) {
+  await expect(notice(page).getByText(text)).toBeVisible();
+}
+
+export function extractionStatusBar(page: Page) {
+  return page.locator(".ocr-extractor-status-bar");
+}
+
 export async function openPluginSettings(page: Page) {
   await page.locator(".clickable-icon:has(.lucide-settings)").click();
   await page
@@ -37,7 +49,7 @@ export async function toggleSetting(page: Page, label: string) {
 }
 
 export async function expectCallout(page: Page, expectedText: string | RegExp) {
-  await page.locator(".callout").click();
+  await callout(page).click();
   await expect(page.locator(".callout-content")).toHaveText(expectedText);
 }
 
@@ -47,5 +59,13 @@ export async function expectCallout(page: Page, expectedText: string | RegExp) {
  * pass before it has actually finished running).
  */
 export async function expectNoCallout(page: Page) {
-  await expect(page.locator(".callout")).not.toBeVisible();
+  await expect(callout(page)).not.toBeVisible();
+}
+
+function notice(page: Page) {
+  return page.locator(".notice");
+}
+
+function callout(page: Page) {
+  return page.locator(".callout");
 }

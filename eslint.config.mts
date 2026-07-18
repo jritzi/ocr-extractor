@@ -6,12 +6,19 @@ import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
 import { includeIgnoreFile } from "@eslint/config-helpers";
 import path from "path";
+import { existsSync } from "fs";
 import { fileURLToPath } from "url";
 
+const configDir = path.dirname(fileURLToPath(import.meta.url));
+
+// Confirm file wasn't renamed
+const WRITE_FILE = "src/editing/write.ts";
+if (!existsSync(path.resolve(configDir, WRITE_FILE))) {
+  throw new Error(`${WRITE_FILE} no longer exists`);
+}
+
 export default defineConfig([
-  includeIgnoreFile(
-    path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".gitignore"),
-  ),
+  includeIgnoreFile(path.resolve(configDir, ".gitignore")),
   globalIgnores([
     "**/*.json",
     "esbuild.config.mjs",
@@ -57,6 +64,20 @@ export default defineConfig([
           acronyms: ["OCR", "API", "PDF", "PNG"],
           brands: ["OCR Extractor"],
           ignoreWords: ["PDFs"],
+        },
+      ],
+    },
+  },
+
+  {
+    files: [WRITE_FILE],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "FunctionDeclaration[id.name='applyViaEditor'][async=true]",
+          message:
+            "applyViaEditor must stay synchronous to ensure atomic edits",
         },
       ],
     },

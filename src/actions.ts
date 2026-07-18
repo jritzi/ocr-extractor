@@ -1,4 +1,5 @@
 import { Menu, Platform, TFile, TFolder } from "obsidian";
+import { assert } from "./utils/assert";
 import { isMarkdown } from "./utils/file";
 import OcrExtractorPlugin from "../main";
 import { t } from "./i18n";
@@ -165,9 +166,10 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
   plugin.addRibbonIcon(PLUGIN_ICON, t("pluginName"), (event) => {
     const menu = new Menu();
 
-    if (!(event.currentTarget instanceof Element)) {
-      throw new Error("Unexpected ribbon click currentTarget");
-    }
+    assert(
+      event.currentTarget instanceof Element,
+      "A ribbon click always has an Element as its currentTarget",
+    );
 
     menu.addItem((item) =>
       item

@@ -1,6 +1,12 @@
+import { TFile } from "obsidian";
 import OcrExtractorPlugin from "../main";
 import { showNotice } from "./utils/notice";
-import { isMarkdown, isObsidianNative, resolveEmbedPath } from "./utils/file";
+import {
+  getEmbeds,
+  isMarkdown,
+  isObsidianNative,
+  resolveEmbedFile,
+} from "./utils/file";
 import { t } from "./i18n";
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
@@ -16,20 +22,17 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
    * file) embeds to prevent triggering extraction on invalid embeds while the
    * user is typing.
    */
-  function getEmbedCount(filePath: string) {
-    const cache = plugin.app.metadataCache.getCache(filePath);
-    return (cache?.embeds ?? []).filter((e) => {
-      const path = resolveEmbedPath(plugin.app.metadataCache, e.link, filePath);
-      if (!path) return false;
-      const file = plugin.app.vault.getFileByPath(path);
-      return file && !isObsidianNative(file);
+  function getEmbedCount(file: TFile) {
+    return getEmbeds(plugin.app, file).filter((embed) => {
+      const embedFile = resolveEmbedFile(plugin.app, embed.link, file.path);
+      return embedFile && !isObsidianNative(embedFile);
     }).length;
   }
 
   plugin.registerEvent(
     plugin.app.workspace.on("file-open", (file) => {
       if (!file || !isMarkdown(file) || embedCounts.has(file.path)) return;
-      embedCounts.set(file.path, getEmbedCount(file.path));
+      embedCounts.set(file.path, getEmbedCount(file));
     }),
   );
 
@@ -57,7 +60,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       // Ignore if note has never been opened
       if (prevCount === undefined) return;
 
-      const newCount = getEmbedCount(file.path);
+      const newCount = getEmbedCount(file);
       embedCounts.set(file.path, newCount);
 
       // Check only at the last minute to ensure we keep tracking (but not

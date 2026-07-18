@@ -1,4 +1,4 @@
-import { getLinkpath, MetadataCache, TFile, TFolder } from "obsidian";
+import { App, getLinkpath, TFile, TFolder } from "obsidian";
 
 // Obsidian-native file types that should not have text extracted if embedded
 const OBSIDIAN_EXTENSIONS = new Set(["md", "canvas", "base"]);
@@ -25,12 +25,15 @@ export function markdownFilesInFolder(folder: TFolder) {
   return files;
 }
 
-export function resolveEmbedPath(
-  metadataCache: MetadataCache,
+export function getEmbeds(app: App, file: TFile) {
+  return app.metadataCache.getFileCache(file)?.embeds ?? [];
+}
+
+export function resolveEmbedFile(
+  app: App,
   embedLink: string,
   sourcePath: string,
 ) {
   const linkpath = getLinkpath(embedLink);
-  const resolvedFile = metadataCache.getFirstLinkpathDest(linkpath, sourcePath);
-  return resolvedFile?.path;
+  return app.metadataCache.getFirstLinkpathDest(linkpath, sourcePath);
 }

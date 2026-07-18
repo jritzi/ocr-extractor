@@ -45,7 +45,6 @@
   },
   "modals": {
     "cancel": "Cancel",
-    "ok": "OK",
     "dismiss": "Dismiss",
     "installerUpdate": {
       "title": "Installer update required",
@@ -60,22 +59,19 @@
       "title": "Extract text from all notes?",
       "warning": "Make sure you have a backup of your vault before extracting text from attachments in all notes.",
       "extract": "Extract"
-    },
-    "status": {
-      "title": "Extracting text from attachments...",
-      "warning_one": "Text extracted from {{count}} attachment. The following were skipped:",
-      "warning_other": "Text extracted from {{count}} attachments. The following were skipped:"
     }
   },
   "status": {
+    "extracting": "Extracting text",
     "extractingNote": "Extracting text in note {{current}}/{{total}}",
     "canceling": "Canceling",
     "cancel": "Cancel"
   },
   "notices": {
+    "extracting": "Extracting text…",
     "canceled": "Canceled text extraction",
     "completeExtracted": "Text extraction complete. Extracted: {{count}}",
-    "completeExtractedSkipped": "Text extraction complete. Extracted: {{extracted}}, skipped: {{skipped}}",
+    "completeExtractedSkipped": "Text extraction complete.\nExtracted: {{extracted}}, skipped: {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",
     "fileChanged": "File changed during processing, skipping ({{path}})",
     "mobileEngineFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
@@ -84,8 +80,8 @@
     "testFailed": "Test failed: {{message}}",
     "testFailedUnexpected": "Test failed: Unexpected error",
     "modelsLoadFailed": "Couldn't load models. Check the base URL and server status.",
-    "testingConnection": "Testing connection...",
-    "testingCommand": "Testing custom command...",
+    "testingConnection": "Testing connection…",
+    "testingCommand": "Testing custom command…",
     "testNoOutput": "Command succeeded but no output file produced",
     "testMismatch": "Output (\"{{actual}}\") does not match expected (\"{{expected}}\")."
   },
@@ -94,7 +90,6 @@
     "rateLimited": "Rate limit exceeded",
     "serverError": "The server returned an error (HTTP {{status}}). Try again later.",
     "extractionFailed": "Failed to extract text. Check the developer console for details.",
-    "error": "Error: {{message}}",
     "noBaseUrl": "No base URL configured",
     "noModel": "No model configured",
     "openAiCompatibleNotFound": "Model or endpoint not found. Check the base URL and model name.",

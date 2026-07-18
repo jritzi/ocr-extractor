@@ -1,135 +1,150 @@
 import { describe, expect, it } from "vitest";
-import {
-  formatCalloutToInsert,
-  insertWithBlankLines,
-  migrateCallouts,
-} from "./callout";
+import { formatCalloutToInsert, padWithBlankLines } from "./callout";
+
+function insertAt(original: string, index: number, inserted: string) {
+  return original.slice(0, index) + inserted + original.slice(index);
+}
 
 describe("callout.ts", () => {
-  describe("migrateCallouts", () => {
-    it("migrates legacy callout headers", () => {
-      const content = "> [!summary]- Extracted text\n> content";
-      expect(migrateCallouts(content)).toBe(
-        "> [!ocr-extractor]- Extracted text\n> content",
-      );
-    });
-
-    it("updates callout headers to current language", () => {
-      const content = "> [!ocr-extractor]- Texto extraído\n> content";
-      expect(migrateCallouts(content)).toBe(
-        "> [!ocr-extractor]- Extracted text\n> content",
-      );
-    });
-
-    it("correctly updates headers for nested callouts", () => {
-      const content = "> > [!ocr-extractor]- Texto extraído\n> > content";
-      expect(migrateCallouts(content)).toBe(
-        "> > [!ocr-extractor]- Extracted text\n> > content",
-      );
-    });
-  });
-
-  describe("insertWithBlankLines", () => {
+  describe("padWithBlankLines", () => {
     it("inserts text with blank lines before and after", () => {
-      const result = insertWithBlankLines("beforeafter", "text", 6);
-      expect(result).toBe("before\n\ntext\n\nafter");
+      const original = "beforeafter";
+      const inserted = padWithBlankLines(original, "text", 6);
+      expect(insertAt(original, 6, inserted)).toBe("before\n\ntext\n\nafter");
     });
 
     it("doesn't add an additional blank line before if it already has one", () => {
-      const result = insertWithBlankLines("before\n\nafter", "text", 8);
-      expect(result).toBe("before\n\ntext\n\nafter");
+      const original = "before\n\nafter";
+      const inserted = padWithBlankLines(original, "text", 8);
+      expect(insertAt(original, 8, inserted)).toBe("before\n\ntext\n\nafter");
     });
 
     it("doesn't add an additional blank line after if it already has one", () => {
-      const result = insertWithBlankLines("before\n\nafter", "text", 6);
-      expect(result).toBe("before\n\ntext\n\nafter");
+      const original = "before\n\nafter";
+      const inserted = padWithBlankLines(original, "text", 6);
+      expect(insertAt(original, 6, inserted)).toBe("before\n\ntext\n\nafter");
     });
 
     it("completes blank lines when single newline exists", () => {
-      const result = insertWithBlankLines("before\n\nafter", "text", 7);
-      expect(result).toBe("before\n\ntext\n\nafter");
+      const original = "before\n\nafter";
+      const inserted = padWithBlankLines(original, "text", 7);
+      expect(insertAt(original, 7, inserted)).toBe("before\n\ntext\n\nafter");
     });
 
     it("preserves extra blank lines", () => {
-      const result = insertWithBlankLines("before\n\n\n\n\n\nafter", "text", 8);
-      expect(result).toBe("before\n\ntext\n\n\n\nafter");
+      const original = "before\n\n\n\n\n\nafter";
+      const inserted = padWithBlankLines(original, "text", 8);
+      expect(insertAt(original, 8, inserted)).toBe(
+        "before\n\ntext\n\n\n\nafter",
+      );
     });
 
     it("adds prefix to new lines", () => {
-      const result = insertWithBlankLines(">before\n>after", ">text", 8, ">");
-      expect(result).toBe(">before\n>\n>text\n>\n>after");
+      const original = ">before\n>after";
+      const inserted = padWithBlankLines(original, ">text", 8, ">");
+      expect(insertAt(original, 8, inserted)).toBe(
+        ">before\n>\n>text\n>\n>after",
+      );
     });
 
     it("correctly handles prefixed new lines that already exist", () => {
-      const result = insertWithBlankLines(
-        ">before\n>\n>\n>after",
-        ">text",
-        9,
-        ">",
+      const original = ">before\n>\n>\n>after";
+      const inserted = padWithBlankLines(original, ">text", 9, ">");
+      expect(insertAt(original, 9, inserted)).toBe(
+        ">before\n>\n>text\n>\n>after",
       );
-      expect(result).toBe(">before\n>\n>text\n>\n>after");
     });
 
     it("doesn't add an additional prefixed blank line before if it already has one", () => {
-      const result = insertWithBlankLines(
-        ">before\n>\n>after",
-        ">text",
-        10,
-        ">",
+      const original = ">before\n>\n>after";
+      const inserted = padWithBlankLines(original, ">text", 10, ">");
+      expect(insertAt(original, 10, inserted)).toBe(
+        ">before\n>\n>text\n>\n>after",
       );
-      expect(result).toBe(">before\n>\n>text\n>\n>after");
     });
 
     it("doesn't add an additional prefixed blank line after if it already has one", () => {
-      const result = insertWithBlankLines(
-        ">before\n>\n>\n>after",
-        ">text",
-        10,
-        ">",
+      const original = ">before\n>\n>\n>after";
+      const inserted = padWithBlankLines(original, ">text", 10, ">");
+      expect(insertAt(original, 10, inserted)).toBe(
+        ">before\n>\n>text\n>\n>after",
       );
-      expect(result).toBe(">before\n>\n>text\n>\n>after");
     });
 
     it("correctly handles a prefix if inserting before a newline", () => {
-      const result = insertWithBlankLines(">before\n>after", ">text", 7, ">");
-      expect(result).toBe(">before\n>\n>text\n>\n>after");
+      const original = ">before\n>after";
+      const inserted = padWithBlankLines(original, ">text", 7, ">");
+      expect(insertAt(original, 7, inserted)).toBe(
+        ">before\n>\n>text\n>\n>after",
+      );
     });
 
     it("trims trailing prefix whitespace for new lines", () => {
-      const result = insertWithBlankLines(
-        "> before\n> after",
-        "> text",
-        9,
-        "> ",
+      const original = "> before\n> after";
+      const inserted = padWithBlankLines(original, "> text", 9, "> ");
+      expect(insertAt(original, 9, inserted)).toBe(
+        "> before\n>\n> text\n>\n> after",
       );
-      expect(result).toBe("> before\n>\n> text\n>\n> after");
+    });
+
+    it("uses \\r\\n newlines when specified", () => {
+      const original = "before\r\nafter";
+      const inserted = padWithBlankLines(original, "text", 8, "", "\r\n");
+      expect(insertAt(original, 8, inserted)).toBe(
+        "before\r\n\r\ntext\r\n\r\nafter",
+      );
     });
   });
 
   describe("formatCalloutToInsert", () => {
-    it("correctly formats a callout (trimming trailing whitespace)", () => {
-      const fileContent = "![[file.pdf]]";
-      const result = formatCalloutToInsert("Line 1\n\nLine 2", fileContent, 0);
+    it("formats a callout and trims trailing whitespace", () => {
+      const content = "![[file.pdf]]";
+      const inserted = formatCalloutToInsert(
+        "Line 1\n\nLine 2",
+        content,
+        0,
+        content.length,
+      );
 
-      expect(result.text).toBe(
+      expect(inserted).toContain(
         "> [!ocr-extractor]- Extracted text\n> Line 1\n>\n> Line 2",
       );
-      expect(result.linePrefix).toBe("");
     });
 
-    it("formats nested callout with the correct prefix", () => {
-      const fileContent = "> [!info]\n> Text\n> ![[file.pdf]]";
-      const embedStart = 19;
-      const result = formatCalloutToInsert(
+    it("prefixes every line for a callout nested inside another callout", () => {
+      const content = "> [!info]\n> Text\n> ![[file.pdf]]";
+      const embedStart = content.indexOf("![[");
+      const inserted = formatCalloutToInsert(
         "Line 1\n\nLine 2",
-        fileContent,
+        content,
         embedStart,
+        content.length,
       );
 
-      expect(result.text).toBe(
+      expect(inserted).toContain(
         "> > [!ocr-extractor]- Extracted text\n> > Line 1\n> >\n> > Line 2",
       );
-      expect(result.linePrefix).toBe("> ");
+    });
+
+    it("matches \\r\\n line endings in the note", () => {
+      const content = "![[file.pdf]]\r\n";
+      const inserted = formatCalloutToInsert(
+        "Line 1\n\nLine 2",
+        content,
+        0,
+        13,
+      );
+
+      expect(inserted).toBe(
+        "\r\n\r\n> [!ocr-extractor]- Extracted text\r\n> Line 1\r\n>\r\n> Line 2\r\n",
+      );
+    });
+
+    it("throws when the markdown is not normalized to \\n", () => {
+      const content = "![[file.pdf]]";
+      expect(() =>
+        formatCalloutToInsert("Line 1\r\nLine 2", content, 0, content.length),
+      ).toThrow();
     });
   });
 });
