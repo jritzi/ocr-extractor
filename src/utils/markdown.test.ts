@@ -50,15 +50,15 @@ describe("markdown.ts", () => {
   });
 
   describe("normalizeNewlines", () => {
-    it("converts \r\n to \n", () => {
+    it("converts \\r\\n to \\n", () => {
       expect(normalizeNewlines("a\r\nb\r\nc")).toBe("a\nb\nc");
     });
 
-    it("converts \r to \n", () => {
+    it("converts \\r to \\n", () => {
       expect(normalizeNewlines("a\rb\rc")).toBe("a\nb\nc");
     });
 
-    it("leaves \n unchanged", () => {
+    it("leaves \\n unchanged", () => {
       expect(normalizeNewlines("a\nb\nc")).toBe("a\nb\nc");
     });
 

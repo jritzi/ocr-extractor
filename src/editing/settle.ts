@@ -34,6 +34,7 @@ class SettleController {
   private reject!: (error: unknown) => void;
   private changedRef!: EventRef;
   private editorChangeRef!: EventRef;
+  private deleteRef!: EventRef;
   private settleTimeoutId!: number;
 
   private readonly abortListener = this.handleAbort.bind(this);
@@ -77,8 +78,16 @@ class SettleController {
       },
     );
 
-    // Give up if the note never settles, either because no retry fires (e.g.
-    // it's deleted mid-run) or there are constant edits without pause
+    // Fail fast if the note is deleted while waiting to retry, since no retry
+    // may fire for it again
+    this.deleteRef = this.app.vault.on("delete", (deletedFile) => {
+      if (deletedFile.path === this.file.path) {
+        this.fail(new Error(`Note deleted: ${this.file.path}`));
+      }
+    });
+
+    // Give up if the note never settles, either because no retry fires or
+    // there are constant edits without pause
     this.settleTimeoutId = window.setTimeout(
       () => this.finish({ status: "timeout" }),
       SETTLE_TIMEOUT_MS,
@@ -87,7 +96,7 @@ class SettleController {
     // Initial attempt
     void this.attempt().then(() => {
       if (!this.finished) {
-        debugLog(`Inserting into ${this.file.path} deferred until settled`);
+        debugLog(`Inserting into ${this.file.path} will retry once settled`);
       }
     });
 
@@ -155,6 +164,7 @@ class SettleController {
   private cleanup() {
     this.app.metadataCache.offref(this.changedRef);
     this.app.workspace.offref(this.editorChangeRef);
+    this.app.vault.offref(this.deleteRef);
     this.debouncedAttempt.cancel();
     this.signal.removeEventListener("abort", this.abortListener);
     window.clearTimeout(this.settleTimeoutId);

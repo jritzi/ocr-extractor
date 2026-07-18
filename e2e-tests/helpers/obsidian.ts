@@ -62,6 +62,22 @@ export async function clearNoteText(page: Page) {
   await page.keyboard.press("Delete");
 }
 
+export async function replaceRangeInNote(
+  page: Page,
+  replacement: string,
+  from: { line: number; ch: number },
+  to: { line: number; ch: number },
+) {
+  await page.evaluate(
+    ({ replacement, from, to }) => {
+      const editor = app.workspace.activeEditor?.editor;
+      if (!editor) throw new Error("No active editor");
+      editor.replaceRange(replacement, from, to);
+    },
+    { replacement, from, to },
+  );
+}
+
 export async function openNewTab(page: Page) {
   await page.keyboard.press(withModifier("t"));
 }
@@ -82,7 +98,7 @@ export async function getActiveNoteContent(page: Page) {
     app.workspace.activeEditor?.editor?.getValue(),
   );
   if (content === undefined) {
-    throw new Error("No active editor found");
+    throw new Error("No active editor");
   }
   return content;
 }

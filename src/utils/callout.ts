@@ -82,7 +82,7 @@ export function formatCalloutToInsert(
   embedStart: number,
   embedEnd: number,
 ) {
-  assert(!markdown.includes("\r"), "Markdown must use \n line endings");
+  assert(!markdown.includes("\r"), "Markdown must use \\n line endings");
 
   // Get contents of line before embed
   const lastNewline = content.lastIndexOf("\n", embedStart);

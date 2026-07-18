@@ -17,12 +17,12 @@ interface DoneResult {
   skippedResults: string[];
 }
 
-/** The attempt deferred, it will be retried when the note settles */
-interface DeferredResult {
+/** The attempt did not complete (the insert is still pending) */
+interface PendingResult {
   done: false;
 }
 
-export type AttemptResult = DoneResult | DeferredResult;
+export type AttemptResult = DoneResult | PendingResult;
 
 /**
  * Attempt to insert OCR results into the given file. When the note is open in a

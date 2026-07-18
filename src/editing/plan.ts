@@ -22,6 +22,11 @@ export interface PlannedEdit {
   expectedText: string;
 }
 
+interface EmbedEdit {
+  embed: EmbedCache;
+  edit: PlannedEdit;
+}
+
 export interface EditPlan {
   edits: PlannedEdit[];
 
@@ -59,7 +64,7 @@ export function buildEditPlan(
   embeds: EmbedCache[],
   embedsToMarkdown: EmbedsToMarkdown,
 ) {
-  const edits: PlannedEdit[] = [];
+  const candidates: EmbedEdit[] = [];
   const staleEmbeds: EmbedCache[] = [];
 
   for (const embed of embeds) {
@@ -77,13 +82,19 @@ export function buildEditPlan(
     if (hasManagedCalloutAfter(content, end)) continue;
 
     const insertText = formatCalloutToInsert(markdown, content, start, end);
-    edits.push({
-      from: start,
-      to: end,
-      expectedText: embed.original,
-      replacement: embed.original + insertText,
+    candidates.push({
+      embed,
+      edit: {
+        from: start,
+        to: end,
+        expectedText: embed.original,
+        replacement: embed.original + insertText,
+      },
     });
   }
+
+  const { edits, collidingEmbeds } = splitCollidingEdits(candidates);
+  staleEmbeds.push(...collidingEmbeds);
 
   const cachedEmbedTexts = new Set(embeds.map((embed) => embed.original));
   const orphanedResults: string[] = [];
@@ -99,10 +110,35 @@ export function buildEditPlan(
   }
 
   edits.push(...buildMigrationEdits(content));
-  edits.sort((first, second) => first.from - second.from);
+  edits.sort((a, b) => a.from - b.from);
   assertEditsSortedAndDisjoint(edits);
 
   return { edits, staleEmbeds, orphanedResults };
+}
+
+/**
+ * Split candidate edits into disjoint edits to plan and colliding embeds to
+ * report as stale. Validated edits can only collide when stale cache positions
+ * collapse onto the same occurrence of a duplicated embed, so a collision is
+ * treated like any other stale embed and retried once the note settles.
+ */
+function splitCollidingEdits(candidates: EmbedEdit[]) {
+  const sorted = [...candidates].sort((a, b) => a.edit.from - b.edit.from);
+  const colliding = new Set<EmbedEdit>();
+
+  for (let index = 1; index < sorted.length; index++) {
+    if (sorted[index - 1].edit.to > sorted[index].edit.from) {
+      colliding.add(sorted[index - 1]);
+      colliding.add(sorted[index]);
+    }
+  }
+
+  return {
+    edits: sorted
+      .filter((candidate) => !colliding.has(candidate))
+      .map((candidate) => candidate.edit),
+    collidingEmbeds: [...colliding].map((candidate) => candidate.embed),
+  };
 }
 
 /**

@@ -52,8 +52,10 @@ export default class OcrExtractorPlugin extends Plugin {
   }
 
   onunload() {
-    void this.extractor?.cleanup();
+    // Abort the run before terminating the engine so in-flight OCR resolves
+    // as canceled instead of rejecting
     this.statusManager?.cleanup();
+    void this.extractor?.cleanup();
   }
 
   async saveSetting<K extends keyof PluginSettings>(

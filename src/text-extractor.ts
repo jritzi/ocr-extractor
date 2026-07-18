@@ -148,6 +148,7 @@ export class TextExtractor {
     files: TFile[],
     { multiNote }: { multiNote: boolean },
   ) {
+    const statusManager = this.plugin.statusManager;
     let totalExtracted = 0;
     let totalSkipped = 0;
 
@@ -168,13 +169,13 @@ export class TextExtractor {
       }
 
       for (const [index, file] of files.entries()) {
-        if (this.plugin.statusManager.isCanceling()) {
+        if (statusManager.getSignal().aborted) {
           break;
         }
 
         debugLog(`Processing file ${file.path}`);
         if (multiNote) {
-          this.plugin.statusManager.updateProgress(index + 1, files.length);
+          statusManager.updateProgress(index + 1, files.length);
         }
 
         if (this.isNoteMissing(file)) {
@@ -195,7 +196,7 @@ export class TextExtractor {
             this.app,
             file,
             embedsToMarkdown,
-            this.plugin.statusManager.getSignal(),
+            statusManager.getSignal(),
           );
         } catch (error) {
           if (this.isNoteMissing(file)) {
@@ -225,10 +226,10 @@ export class TextExtractor {
         }
       }
 
-      if (this.plugin.statusManager.isCanceling()) {
-        this.plugin.statusManager.setCanceled();
-      } else if (!this.plugin.statusManager.getSignal().aborted) {
-        this.plugin.statusManager.setComplete(totalExtracted, totalSkipped);
+      if (statusManager.isCanceling()) {
+        statusManager.setCanceled();
+      } else if (!statusManager.getSignal().aborted) {
+        statusManager.setComplete(totalExtracted, totalSkipped);
       } else {
         // Aborted without canceling means unloading the plugin, so don't
         // show a completion notice
@@ -241,7 +242,12 @@ export class TextExtractor {
         console.error(e);
         message = t("errors.extractionFailed");
       }
-      this.plugin.statusManager.setError(message);
+
+      const unloading =
+        statusManager.getSignal().aborted && !statusManager.isCanceling();
+      if (!unloading) {
+        statusManager.setError(message);
+      }
     }
   }
 
@@ -280,7 +286,10 @@ export class TextExtractor {
 
             // Skip on "" (ran, no text) as well as null (couldn't process)
             if (!markdown) {
-              warnSkipped(getLinkpath(embed.link), "no text extracted");
+              // When aborted, null means the OCR was canceled, not skipped
+              if (!this.plugin.statusManager.getSignal().aborted) {
+                warnSkipped(getLinkpath(embed.link), "no text extracted");
+              }
               skippedEmbeds.push(embed);
             } else {
               extractedCount++;

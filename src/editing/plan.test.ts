@@ -244,6 +244,30 @@ describe("plan.ts", () => {
       );
     });
 
+    it("reports colliding duplicate embeds as stale and keeps other edits", () => {
+      // Stale cache positions can collapse two duplicate embeds onto the same
+      // occurrence after the user deletes text above them, producing edits that
+      // collide even though each passed the staleness check on its own.
+      const other = "![[other.png]]";
+      const content = `${EMBED}\n${EMBED}\n${other}`;
+      const collidingEmbeds = [
+        buildEmbed(content, EMBED, 1),
+        buildEmbed(content, EMBED, 1),
+      ];
+      const embeds = [...collidingEmbeds, buildEmbed(content, other)];
+      const plan = buildEditPlan(
+        content,
+        embeds,
+        new Map([
+          [EMBED, "Extracted"],
+          [other, "Extracted"],
+        ]),
+      );
+
+      expect(plan.staleEmbeds).toEqual(collidingEmbeds);
+      expect(plan.edits.map((edit) => edit.expectedText)).toEqual([other]);
+    });
+
     it("uses the note's line endings for inserted callouts", () => {
       const content = `${EMBED}\r\ntext below`;
       const plan = buildEditPlan(

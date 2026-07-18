@@ -87,7 +87,7 @@ describe("callout.ts", () => {
       );
     });
 
-    it("uses \r\n newlines when specified", () => {
+    it("uses \\r\\n newlines when specified", () => {
       const original = "before\r\nafter";
       const inserted = padWithBlankLines(original, "text", 8, "", "\r\n");
       expect(insertAt(original, 8, inserted)).toBe(
@@ -126,7 +126,7 @@ describe("callout.ts", () => {
       );
     });
 
-    it("matches \r\n line endings in the note", () => {
+    it("matches \\r\\n line endings in the note", () => {
       const content = "![[file.pdf]]\r\n";
       const inserted = formatCalloutToInsert(
         "Line 1\n\nLine 2",
@@ -140,7 +140,7 @@ describe("callout.ts", () => {
       );
     });
 
-    it("throws when the markdown is not normalized to \n", () => {
+    it("throws when the markdown is not normalized to \\n", () => {
       const content = "![[file.pdf]]";
       expect(() =>
         formatCalloutToInsert("Line 1\r\nLine 2", content, 0, content.length),

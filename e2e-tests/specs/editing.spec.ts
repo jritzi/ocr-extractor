@@ -8,6 +8,7 @@ import {
   getActiveNoteContent,
   openNewTab,
   openNote,
+  replaceRangeInNote,
   seedNote,
   switchToTab,
   typeAtEndOfNote,
@@ -117,6 +118,34 @@ test.describe("editing during extraction", () => {
     expect(content).toContain("scanned");
     expect(content).toContain(`${EMBED}\n\n${CALLOUT}`);
   });
+
+  test("deleting text above duplicate embeds", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    // With a stale cache, deleting exactly this prefix collapses both embeds
+    // onto the same range, which must retry (not crash)
+    const prefix = "x".repeat(EMBED.length + 1);
+    await seedNote(page, "Duplicate embeds test", {
+      content: `${prefix}${EMBED}\n${EMBED}`,
+    });
+    await openNote(page, "Duplicate embeds test");
+    await extractActiveNote(page);
+
+    await replaceRangeInNote(
+      page,
+      "",
+      { line: 0, ch: 0 },
+      { line: 0, ch: prefix.length },
+    );
+    releaseGatedOcr();
+
+    await expectNotice(page, "Text extraction complete. Extracted: 1");
+    const content = await getActiveNoteContent(page);
+    expect(content).toBe(
+      `${EMBED}\n\n${CALLOUT}\n\n${EMBED}\n\n${CALLOUT}\n\n`,
+    );
+  });
 });
 
 test.describe("tab changes", () => {
@@ -202,10 +231,30 @@ test.describe("note deletion", () => {
 
     await expectNotice(page, "Text extraction complete. Extracted: 1");
   });
+
+  test("deleting the note while an insert is waiting to retry", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await seedNote(page, "Retry delete test", { content: EMBED });
+    await openNote(page, "Retry delete test");
+    await extractActiveNote(page);
+
+    await typeAtStartOfNote(page, "Typed above\n");
+    releaseGatedOcr();
+    await page.waitForTimeout(500);
+
+    await deleteNote(page, "Retry delete test.md");
+
+    await expectNotice(
+      page,
+      "Text extraction complete. Extracted: 0, skipped: 1",
+    );
+  });
 });
 
 test.describe("line endings", () => {
-  test("a note with \r\n line endings", async ({ page, releaseGatedOcr }) => {
+  test("a note with \\r\\n line endings", async ({ page, releaseGatedOcr }) => {
     await seedNote(page, "Line ending test", {
       content: `first line\r\n\r\n${EMBED}\r\n`,
     });
