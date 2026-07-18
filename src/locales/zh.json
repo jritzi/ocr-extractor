@@ -45,7 +45,6 @@
   },
   "modals": {
     "cancel": "取消",
-    "ok": "确定",
     "dismiss": "关闭",
     "installerUpdate": {
       "title": "需要安装程序更新",
@@ -54,27 +53,25 @@
       "learnMore": "了解更多"
     },
     "selectFolder": {
-      "placeholder": "选择一个文件夹……"
+      "placeholder": "选择一个文件夹…"
     },
     "extractAll": {
       "title": "是否从所有笔记中提取文本？",
       "warning": "在从所有笔记的附件中提取文本之前，请确保您的仓库已经备份。",
       "extract": "提取"
-    },
-    "status": {
-      "title": "正在提取附件中的文本……",
-      "warning_other": "已从 {{count}} 个附件中提取文本。已跳过以下内容："
     }
   },
   "status": {
+    "extracting": "正在提取文本",
     "extractingNote": "正在提取第 {{current}}/{{total}} 个笔记的文本",
     "canceling": "正在取消",
     "cancel": "取消"
   },
   "notices": {
+    "extracting": "正在提取文本…",
     "canceled": "已取消文本提取",
     "completeExtracted": "文本提取完成。已提取：{{count}}",
-    "completeExtractedSkipped": "文本提取完成。已提取：{{extracted}}，已跳过：{{skipped}}",
+    "completeExtractedSkipped": "文本提取完成。\n已提取：{{extracted}}，已跳过：{{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}：提取正在进行中，新附件已跳过",
     "fileChanged": "处理期间文件被更改，正在跳过 ({{path}})",
     "mobileEngineFallback": "{{pluginName}}：移动端不支持自定义命令，正在改用 Tesseract",
@@ -83,8 +80,8 @@
     "testFailed": "测试失败：{{message}}",
     "testFailedUnexpected": "测试失败：发生意外错误",
     "modelsLoadFailed": "无法加载模型。请检查基础 URL 及服务器状态。",
-    "testingConnection": "正在测试连接……",
-    "testingCommand": "正在测试自定义命令……",
+    "testingConnection": "正在测试连接…",
+    "testingCommand": "正在测试自定义命令…",
     "testNoOutput": "命令执行成功，但未生成输出文件",
     "testMismatch": "输出（\"{{actual}}\"）与预期（\"{{expected}}\"）不符。"
   },
@@ -93,7 +90,6 @@
     "rateLimited": "超出速率限制",
     "serverError": "服务器返回错误（HTTP {{status}}）。请稍后再试。",
     "extractionFailed": "提取文本失败。详情请查看开发者控制台。",
-    "error": "错误：{{message}}",
     "noBaseUrl": "未配置基础 URL",
     "noModel": "未配置模型",
     "openAiCompatibleNotFound": "未找到模型或端点。请检查基础 URL 和模型名称。",

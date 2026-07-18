@@ -45,7 +45,6 @@
   },
   "modals": {
     "cancel": "Annuler",
-    "ok": "OK",
     "dismiss": "Ignorer",
     "installerUpdate": {
       "title": "Mise à jour de l’installateur requise",
@@ -60,22 +59,19 @@
       "title": "Extraire le texte de toutes les notes ?",
       "warning": "Assurez-vous de disposer d’une sauvegarde de votre coffre avant d’extraire le texte des pièces jointes dans toutes les notes.",
       "extract": "Extraire"
-    },
-    "status": {
-      "title": "Extraction du texte des pièces jointes...",
-      "warning_one": "Texte extrait de {{count}} pièce jointe. Les éléments suivants ont été ignorés :",
-      "warning_other": "Texte extrait de {{count}} pièces jointes. Les éléments suivants ont été ignorés :"
     }
   },
   "status": {
+    "extracting": "Extraction du texte",
     "extractingNote": "Extraction du texte dans la note {{current}}/{{total}}",
     "canceling": "Annulation en cours",
     "cancel": "Annuler"
   },
   "notices": {
+    "extracting": "Extraction du texte…",
     "canceled": "Extraction de texte annulée",
     "completeExtracted": "Extraction du texte terminée. Extraits : {{count}}",
-    "completeExtractedSkipped": "Extraction du texte terminée. Extraits : {{extracted}}. Ignorés : {{skipped}}",
+    "completeExtractedSkipped": "Extraction du texte terminée.\nExtraits : {{extracted}}, ignorés : {{skipped}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}} : Extraction déjà en cours, nouvelle pièce jointe ignorée",
     "fileChanged": "Le fichier a été modifié pendant le traitement et a donc été ignoré ({{path}})",
     "mobileEngineFallback": "{{pluginName}} : Les commandes personnalisées ne sont pas disponibles sur mobile, Tesseract est utilisé",
@@ -84,8 +80,8 @@
     "testFailed": "Le test a échoué : {{message}}",
     "testFailedUnexpected": "Le test a échoué : erreur inattendue",
     "modelsLoadFailed": "Impossible de charger les modèles. Vérifiez l'URL de base et l'état du serveur.",
-    "testingConnection": "Test de la connexion...",
-    "testingCommand": "Test de la commande personnalisée...",
+    "testingConnection": "Test de la connexion…",
+    "testingCommand": "Test de la commande personnalisée…",
     "testNoOutput": "La commande a été exécutée avec succès, mais aucun fichier de sortie n’a été produit",
     "testMismatch": "La sortie (\"{{actual}}\") ne correspond pas à l'attendu (\"{{expected}}\")."
   },
@@ -94,7 +90,6 @@
     "rateLimited": "Limite de fréquence atteinte",
     "serverError": "Le serveur a retourné une erreur (HTTP {{status}}). Réessayez plus tard.",
     "extractionFailed": "Échec de l'extraction du texte. Vérifiez la console développeur pour plus de détails.",
-    "error": "Erreur : {{message}}",
     "noBaseUrl": "Aucune URL de base configurée",
     "noModel": "Aucun modèle configuré",
     "openAiCompatibleNotFound": "Modèle ou point de terminaison introuvable. Vérifiez l'URL de base et le nom du modèle.",
