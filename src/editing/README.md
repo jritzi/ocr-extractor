@@ -10,6 +10,6 @@ user is typing, opening and closing tabs, deleting embedded attachments, etc).
    content and embed positions.
 3. The plan is applied through a single editor transaction if the note is
    currently open in a source-mode editor, or an atomic disk write otherwise.
-4. If the note is being edited and the metadata cache hasn't been updated with
-   the latest content yet, edits are retried (with a new edit plan) once the
-   note settles. If the embed was deleted or changed, it is skipped with a warning.
+4. If the note is still changing, edits are retried (with a new edit plan
+   for each attempt) until it settles. If an embedded attachment or the note
+   was deleted in the meantime, it is skipped with a warning.

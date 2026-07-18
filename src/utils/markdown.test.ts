@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stripCodeFence } from "./markdown";
+import { normalizeNewlines, stripCodeFence } from "./markdown";
 
 describe("markdown.ts", () => {
   describe("stripCodeFence", () => {
@@ -46,6 +46,24 @@ describe("markdown.ts", () => {
     it("returns non-fenced text unchanged", () => {
       const input = "# Title\n\nJust some markdown.";
       expect(stripCodeFence(input)).toBe(input);
+    });
+  });
+
+  describe("normalizeNewlines", () => {
+    it("converts \r\n to \n", () => {
+      expect(normalizeNewlines("a\r\nb\r\nc")).toBe("a\nb\nc");
+    });
+
+    it("converts \r to \n", () => {
+      expect(normalizeNewlines("a\rb\rc")).toBe("a\nb\nc");
+    });
+
+    it("leaves \n unchanged", () => {
+      expect(normalizeNewlines("a\nb\nc")).toBe("a\nb\nc");
+    });
+
+    it("normalizes mixed line endings", () => {
+      expect(normalizeNewlines("a\r\nb\rc\nd")).toBe("a\nb\nc\nd");
     });
   });
 });

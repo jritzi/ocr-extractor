@@ -9,16 +9,17 @@ import {
 } from "obsidian";
 import { OcrEngine, UserFacingError } from "./engines/ocr-engine";
 import { EmbedsToMarkdown, selectEmbedsToProcess } from "./editing/plan";
-import { insertWhenSettled } from "./editing/settle";
+import { InsertResult, insertWhenSettled } from "./editing/settle";
 import pLimit from "p-limit";
 import { assert } from "./utils/assert";
 import { debugLog, warnSkipped } from "./utils/logging";
 import { showErrorNotice, showNotice } from "./utils/notice";
 import { shouldUseMobileEngineFallback } from "./settings";
 import {
+  getEmbeds,
   isObsidianNative,
   markdownFilesInFolder,
-  resolveEmbedPath,
+  resolveEmbedFile,
 } from "./utils/file";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 import { SelectFolderModal } from "./ui/select-folder-modal";
@@ -150,6 +151,11 @@ export class TextExtractor {
     let totalExtracted = 0;
     let totalSkipped = 0;
 
+    const reclassifyAsSkipped = (count: number) => {
+      totalExtracted -= count;
+      totalSkipped += count;
+    };
+
     try {
       if (this.settingsChanged) {
         await this.rebuildEngine();
@@ -171,29 +177,49 @@ export class TextExtractor {
           this.plugin.statusManager.updateProgress(index + 1, files.length);
         }
 
+        if (this.isNoteMissing(file)) {
+          warnSkipped(file.path, "note deleted during extraction");
+          continue;
+        }
+
         const content = await this.app.vault.cachedRead(file);
-        const embeds = this.getEmbeds(file);
+        const embeds = getEmbeds(this.app, file);
         const { embedsToMarkdown, skippedEmbeds, extractedCount } =
           await this.extractTextFromEmbeds(file, content, embeds);
         totalSkipped += skippedEmbeds.length;
         totalExtracted += extractedCount;
 
-        const result = await insertWhenSettled(
-          this.app,
-          file,
-          embedsToMarkdown,
-          this.plugin.statusManager.getSignal(),
-        );
+        let result: InsertResult;
+        try {
+          result = await insertWhenSettled(
+            this.app,
+            file,
+            embedsToMarkdown,
+            this.plugin.statusManager.getSignal(),
+          );
+        } catch (error) {
+          if (this.isNoteMissing(file)) {
+            warnSkipped(file.path, "note deleted during extraction");
+            reclassifyAsSkipped(extractedCount);
+            continue;
+          }
+          throw error;
+        }
 
         if (result.status === "done") {
-          const skipped = result.skippedResults.length;
-          totalExtracted -= skipped;
-          totalSkipped += skipped;
+          for (const markup of result.skippedResults) {
+            const embed = embeds.find((embed) => embed.original === markup);
+            warnSkipped(
+              embed ? getLinkpath(embed.link) : markup,
+              "embed changed or removed during extraction",
+            );
+          }
+
+          reclassifyAsSkipped(result.skippedResults.length);
         } else if (result.status === "timeout") {
           // Treat the whole note as skipped, will be improved in OCR-49
           showErrorNotice(t("notices.fileChanged", { path: file.path }));
-          totalExtracted -= extractedCount;
-          totalSkipped += extractedCount;
+          reclassifyAsSkipped(extractedCount);
         } else {
           // Nothing needed for "canceled"
         }
@@ -235,7 +261,11 @@ export class TextExtractor {
       embedsToProcess.map((embed) =>
         limit(async () => {
           let markdown: string | null = null;
-          const embedFile = this.getEmbedFile(embed, noteFile);
+          const embedFile = resolveEmbedFile(
+            this.app,
+            embed.link,
+            noteFile.path,
+          );
 
           if (!embedFile) {
             warnSkipped(getLinkpath(embed.link), "file not found");
@@ -266,17 +296,7 @@ export class TextExtractor {
     return { embedsToMarkdown, skippedEmbeds, extractedCount };
   }
 
-  private getEmbeds(file: TFile) {
-    const cache = this.app.metadataCache.getFileCache(file);
-    return cache?.embeds ?? [];
-  }
-
-  private getEmbedFile(embed: EmbedCache, file: TFile) {
-    const path = resolveEmbedPath(
-      this.app.metadataCache,
-      embed.link,
-      file.path,
-    );
-    return path ? this.app.vault.getFileByPath(path) : null;
+  private isNoteMissing(file: TFile) {
+    return !this.app.vault.getFileByPath(file.path);
   }
 }

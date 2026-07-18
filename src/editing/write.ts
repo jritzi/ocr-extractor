@@ -1,12 +1,14 @@
-import { App, Editor, MarkdownView, TFile } from "obsidian";
+import { App, Editor, EmbedCache, TFile } from "obsidian";
+import { getEmbeds } from "../utils/file";
+import { getMarkdownViews } from "../utils/workspace";
 import {
   applyEditPlanToString,
+  assertEditsSortedAndDisjoint,
   buildEditPlan,
   EditPlan,
   EmbedsToMarkdown,
   toMinimalChange,
 } from "./plan";
-import { warnSkipped } from "../utils/logging";
 
 /** Every OCR result was either inserted or permanently skipped */
 interface DoneResult {
@@ -23,8 +25,10 @@ interface DeferredResult {
 export type AttemptResult = DoneResult | DeferredResult;
 
 /**
- * Attempt to insert OCR results into the given file, via the editor if open
- * in a source-mode editor, or via disk otherwise.
+ * Attempt to insert OCR results into the given file. When the note is open in a
+ * source-mode editor, we use it to edit (so it's a normal undoable edit and
+ * doesn't trigger a "modified externally" merge notice). Otherwise, we write
+ * directly to disk.
  */
 export async function attemptInsert(
   app: App,
@@ -42,19 +46,10 @@ export async function attemptInsert(
 }
 
 function findSourceModeEditor(app: App, file: TFile) {
-  for (const leaf of app.workspace.getLeavesOfType("markdown")) {
-    const view = leaf.view;
-    // Deferred views fail this check and use the disk path
-    if (
-      view instanceof MarkdownView &&
-      view.file?.path === file.path &&
-      view.getMode() === "source"
-    ) {
-      return view.editor;
-    }
-  }
-
-  return null;
+  const sourceView = getMarkdownViews(app, file).find(
+    (view) => view.getMode() === "source",
+  );
+  return sourceView?.editor ?? null;
 }
 
 /**
@@ -70,10 +65,13 @@ function applyViaEditor(
   embedsToMarkdown: EmbedsToMarkdown,
 ): AttemptResult {
   const data = editor.getValue();
-  const cache = app.metadataCache.getFileCache(file);
-  const plan = buildEditPlan(data, cache?.embeds ?? [], embedsToMarkdown);
+  const embeds = getEmbeds(app, file).map((embed) =>
+    withEditorOffsets(embed, editor),
+  );
+  const plan = buildEditPlan(data, embeds, embedsToMarkdown);
 
   if (plan.edits.length > 0) {
+    assertEditsSortedAndDisjoint(plan.edits);
     editor.transaction({
       changes: plan.edits.map((edit) => {
         const change = toMinimalChange(edit);
@@ -90,7 +88,8 @@ function applyViaEditor(
 }
 
 /**
- * Apply edits directly to disk using an atomic read-modify-write.
+ * Apply edits directly to disk using an atomic read-modify-write (safe even
+ * in race conditions with an open editor, since Obsidian auto-merges).
  */
 async function applyViaDisk(
   app: App,
@@ -103,27 +102,40 @@ async function applyViaDisk(
   await app.vault.process(file, (data) => {
     if (signal.aborted) return data;
 
-    const cache = app.metadataCache.getFileCache(file);
-    const plan = buildEditPlan(data, cache?.embeds ?? [], embedsToMarkdown);
+    const plan = buildEditPlan(data, getEmbeds(app, file), embedsToMarkdown);
     attemptResult = resultFromPlan(plan);
 
-    if (plan.edits.length === 0) return data;
+    if (plan.edits.length > 0) {
+      return applyEditPlanToString(data, plan.edits);
+    }
 
-    return applyEditPlanToString(data, plan.edits);
+    return data;
   });
 
   return attemptResult;
 }
 
+/**
+ * Convert embed cache offsets to editor offsets, which differ for a note with
+ * \r\n line endings (since the cache offsets are based on the raw file content,
+ * and the editor normalizes its buffer to use \n). Re-resolve from the cache's
+ * line and column, which are line-ending-agnostic.
+ */
+function withEditorOffsets(embed: EmbedCache, editor: Editor): EmbedCache {
+  const { start, end } = embed.position;
+  const startOffset = editor.posToOffset({ line: start.line, ch: start.col });
+  const endOffset = editor.posToOffset({ line: end.line, ch: end.col });
+
+  return {
+    ...embed,
+    position: {
+      start: { ...start, offset: startOffset },
+      end: { ...end, offset: endOffset },
+    },
+  };
+}
+
 function resultFromPlan(plan: EditPlan): AttemptResult {
   if (plan.staleEmbeds.length > 0) return { done: false };
-
-  if (plan.orphanedResults.length > 0) {
-    for (const embedMarkup of plan.orphanedResults) {
-      warnSkipped(embedMarkup, "embed changed or removed during extraction");
-    }
-    return { done: true, skippedResults: plan.orphanedResults };
-  }
-
-  return { done: true, skippedResults: [] };
+  return { done: true, skippedResults: plan.orphanedResults };
 }

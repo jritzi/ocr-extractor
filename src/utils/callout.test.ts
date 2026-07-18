@@ -86,6 +86,14 @@ describe("callout.ts", () => {
         "> before\n>\n> text\n>\n> after",
       );
     });
+
+    it("uses \r\n newlines when specified", () => {
+      const original = "before\r\nafter";
+      const inserted = padWithBlankLines(original, "text", 8, "", "\r\n");
+      expect(insertAt(original, 8, inserted)).toBe(
+        "before\r\n\r\ntext\r\n\r\nafter",
+      );
+    });
   });
 
   describe("formatCalloutToInsert", () => {
@@ -116,6 +124,27 @@ describe("callout.ts", () => {
       expect(inserted).toContain(
         "> > [!ocr-extractor]- Extracted text\n> > Line 1\n> >\n> > Line 2",
       );
+    });
+
+    it("matches \r\n line endings in the note", () => {
+      const content = "![[file.pdf]]\r\n";
+      const inserted = formatCalloutToInsert(
+        "Line 1\n\nLine 2",
+        content,
+        0,
+        13,
+      );
+
+      expect(inserted).toBe(
+        "\r\n\r\n> [!ocr-extractor]- Extracted text\r\n> Line 1\r\n>\r\n> Line 2\r\n",
+      );
+    });
+
+    it("throws when the markdown is not normalized to \n", () => {
+      const content = "![[file.pdf]]";
+      expect(() =>
+        formatCalloutToInsert("Line 1\r\nLine 2", content, 0, content.length),
+      ).toThrow();
     });
   });
 });

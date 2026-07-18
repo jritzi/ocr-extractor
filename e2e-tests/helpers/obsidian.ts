@@ -23,6 +23,14 @@ export async function seedNote(
   );
 }
 
+export async function deleteNote(page: Page, path: string) {
+  await page.evaluate(async (path) => {
+    const file = app.vault.getFileByPath(path);
+    if (!file) throw new Error(`Note not found: ${path}`);
+    await app.vault.delete(file);
+  }, path);
+}
+
 export async function createNote(page: Page, name: string) {
   await page.getByLabel("New note").click();
   await page.locator(".inline-title").fill(name);

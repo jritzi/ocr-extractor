@@ -4,6 +4,7 @@ import { PluginSettings } from "../settings";
 import { warnSkipped } from "../utils/logging";
 import { getPdfTextContent, isPdf, PdfReadError } from "../utils/pdf";
 import { raceAbort } from "../utils/async";
+import { normalizeNewlines } from "../utils/markdown";
 import { OcrEngineSettingsClass } from "./ocr-engine-settings";
 
 /**
@@ -79,8 +80,9 @@ export abstract class OcrEngine {
   async terminate() {}
 
   private joinPages(pages: string[]) {
+    // Normalize here so all extracted text uses \n internally
     const nonEmpty = pages
-      .map((page) => page.trim())
+      .map((page) => normalizeNewlines(page).trim())
       .filter((page) => page.length > 0);
     return nonEmpty.length > 0 ? nonEmpty.join(PAGE_SEPARATOR) : null;
   }

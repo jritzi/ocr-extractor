@@ -2,9 +2,10 @@ import { EmbedCache } from "obsidian";
 import {
   CALLOUT_HEADER_REGEX,
   CALLOUT_MARKER,
+  CALLOUT_TITLES,
   formatCalloutToInsert,
   hasManagedCalloutAfter,
-  LEGACY_CALLOUT_HEADER,
+  LEGACY_CALLOUT_HEADER_REGEX,
 } from "../utils/callout";
 import { assert } from "../utils/assert";
 import { t } from "../i18n";
@@ -51,7 +52,7 @@ export function selectEmbedsToProcess(content: string, embeds: EmbedCache[]) {
 
 /**
  * Build a plan with all the edits required for a note (callout insertions
- * plus migrations).
+ * plus migrations, sorted by offset).
  */
 export function buildEditPlan(
   content: string,
@@ -98,6 +99,8 @@ export function buildEditPlan(
   }
 
   edits.push(...buildMigrationEdits(content));
+  edits.sort((first, second) => first.from - second.from);
+  assertEditsSortedAndDisjoint(edits);
 
   return { edits, staleEmbeds, orphanedResults };
 }
@@ -110,30 +113,26 @@ export function buildMigrationEdits(content: string) {
   const edits: PlannedEdit[] = [];
   const currentTitle = t("callouts.title");
 
-  let index = content.indexOf(LEGACY_CALLOUT_HEADER);
-  while (index !== -1) {
-    edits.push({
-      from: index,
-      to: index + LEGACY_CALLOUT_HEADER.length,
-      expectedText: LEGACY_CALLOUT_HEADER,
-      replacement: `${CALLOUT_MARKER} ${currentTitle}`,
-    });
-    index = content.indexOf(
-      LEGACY_CALLOUT_HEADER,
-      index + LEGACY_CALLOUT_HEADER.length,
-    );
-  }
-
-  for (const match of content.matchAll(CALLOUT_HEADER_REGEX)) {
-    const [line, beforeTitle] = match;
-    const replacement = `${beforeTitle} ${currentTitle}`;
-    if (line === replacement) continue;
+  for (const match of content.matchAll(LEGACY_CALLOUT_HEADER_REGEX)) {
+    const [line, prefix] = match;
     assert(match.index !== undefined, "matchAll matches always have an index");
     edits.push({
       from: match.index,
       to: match.index + line.length,
       expectedText: line,
-      replacement,
+      replacement: `${prefix}${CALLOUT_MARKER} ${currentTitle}`,
+    });
+  }
+
+  for (const match of content.matchAll(CALLOUT_HEADER_REGEX)) {
+    const [line, beforeTitle, title] = match;
+    if (title === currentTitle || !CALLOUT_TITLES.has(title)) continue;
+    assert(match.index !== undefined, "matchAll matches always have an index");
+    edits.push({
+      from: match.index,
+      to: match.index + line.length,
+      expectedText: line,
+      replacement: `${beforeTitle} ${currentTitle}`,
     });
   }
 
@@ -145,7 +144,10 @@ export function buildMigrationEdits(content: string) {
  * offsets stay valid as later ones are applied.
  */
 export function applyEditPlanToString(content: string, edits: PlannedEdit[]) {
-  const descending = [...edits].sort((a, b) => b.from - a.from);
+  const ascending = [...edits].sort((a, b) => a.from - b.from);
+  assertEditsSortedAndDisjoint(ascending);
+
+  const descending = ascending.reverse();
   let newContent = content;
 
   for (const edit of descending) {
@@ -194,4 +196,17 @@ export function toMinimalChange(edit: PlannedEdit) {
     to: edit.to - suffixLength,
     text: replacement.slice(prefixLength, replacement.length - suffixLength),
   };
+}
+
+/**
+ * Assert edits are sorted ascending by offset and don't overlap (required to
+ * apply edits safely)
+ */
+export function assertEditsSortedAndDisjoint(edits: PlannedEdit[]) {
+  for (let index = 1; index < edits.length; index++) {
+    assert(
+      edits[index - 1].to <= edits[index].from,
+      "Plan edits must be sorted and not overlap",
+    );
+  }
 }

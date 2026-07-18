@@ -4,6 +4,7 @@ import {
   clearNoteText,
   closeActiveTab,
   createFolder,
+  deleteNote,
   getActiveNoteContent,
   openNewTab,
   openNote,
@@ -150,5 +151,70 @@ test.describe("tab changes", () => {
 
     await switchToTab(page, "Background test");
     await expectCallout(page, MOCK_OCR_OUTPUT);
+  });
+
+  test("typing then closing the tab mid-extraction", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await seedNote(page, "Dirty close test", { content: EMBED });
+    await openNote(page, "Dirty close test");
+    await extractActiveNote(page);
+
+    await typeAtEndOfNote(page, "\nUser text");
+    await closeActiveTab(page);
+    releaseGatedOcr();
+
+    await expectNotice(page, "Text extraction complete. Extracted: 1");
+
+    await openNote(page, "Dirty close test");
+    const content = await getActiveNoteContent(page);
+    expect(content).toBe(`${EMBED}\n\n${CALLOUT}\n\nUser text`);
+  });
+});
+
+test.describe("note deletion", () => {
+  test("deleting note mid-extraction", async ({ page, releaseGatedOcr }) => {
+    await seedNote(page, "Deleted note", { content: EMBED });
+    await openNote(page, "Deleted note");
+    await extractActiveNote(page);
+
+    await deleteNote(page, "Deleted note.md");
+    releaseGatedOcr();
+
+    await expectNotice(
+      page,
+      "Text extraction complete. Extracted: 0, skipped: 1",
+    );
+  });
+
+  test("deleting a note before reached in multi-note extraction", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await createFolder(page, "docs");
+    await seedNote(page, "Kept note", { folder: "docs", content: EMBED });
+    await seedNote(page, "Deleted note", { folder: "docs", content: EMBED });
+
+    await extractFolder(page, "docs");
+    await deleteNote(page, "docs/Deleted note.md");
+    releaseGatedOcr();
+
+    await expectNotice(page, "Text extraction complete. Extracted: 1");
+  });
+});
+
+test.describe("line endings", () => {
+  test("a note with \r\n line endings", async ({ page, releaseGatedOcr }) => {
+    await seedNote(page, "Line ending test", {
+      content: `first line\r\n\r\n${EMBED}\r\n`,
+    });
+    await openNote(page, "Line ending test");
+    await extractActiveNote(page);
+    releaseGatedOcr();
+
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+    const content = await getActiveNoteContent(page);
+    expect(content).toBe(`first line\n\n${EMBED}\n\n${CALLOUT}\n\n`);
   });
 });

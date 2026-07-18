@@ -27,3 +27,8 @@ export function stripCodeFence(text: string) {
 
   return innerLines.join("\n");
 }
+
+/** Convert \r\n and \r line endings to \n */
+export function normalizeNewlines(text: string) {
+  return text.replace(/\r\n?/g, "\n");
+}

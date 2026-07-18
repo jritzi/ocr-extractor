@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { EmbedCache } from "obsidian";
 import {
   applyEditPlanToString,
+  assertEditsSortedAndDisjoint,
   buildEditPlan,
   buildMigrationEdits,
   selectEmbedsToProcess,
@@ -242,6 +243,20 @@ describe("plan.ts", () => {
         `> [!ocr-extractor]- Extracted text\n> old\n\n${EMBED}\n\n${CALLOUT}\n\n`,
       );
     });
+
+    it("uses the note's line endings for inserted callouts", () => {
+      const content = `${EMBED}\r\ntext below`;
+      const plan = buildEditPlan(
+        content,
+        [buildEmbed(content, EMBED)],
+        buildEmbedsToMarkdown(),
+      );
+
+      const newContent = applyEditPlanToString(content, plan.edits);
+      expect(newContent).toBe(
+        `${EMBED}\r\n\r\n> [!ocr-extractor]- Extracted text\r\n> Extracted\r\n\r\ntext below`,
+      );
+    });
   });
 
   describe("buildMigrationEdits", () => {
@@ -281,6 +296,50 @@ describe("plan.ts", () => {
       const content = "> [!ocr-extractor]- Extracted text\n> content";
       expect(buildMigrationEdits(content)).toEqual([]);
     });
+
+    it("preserves a user-customized title", () => {
+      const content = "> [!ocr-extractor]- Receipt text\n> content";
+      expect(buildMigrationEdits(content)).toEqual([]);
+    });
+
+    it("preserves user text after a plugin-written title", () => {
+      const content = "> [!ocr-extractor]- Extracted text (checked)\n> content";
+      expect(buildMigrationEdits(content)).toEqual([]);
+    });
+
+    it("ignores legacy header text that is not a whole line", () => {
+      const content = "text before [!summary]- Extracted text text after";
+      expect(buildMigrationEdits(content)).toEqual([]);
+    });
+  });
+
+  describe("assertEditsSortedAndDisjoint", () => {
+    it("accepts sorted, non-overlapping edits", () => {
+      expect(() =>
+        assertEditsSortedAndDisjoint([
+          { from: 0, to: 2, expectedText: "aa", replacement: "x" },
+          { from: 2, to: 4, expectedText: "bb", replacement: "y" },
+        ]),
+      ).not.toThrow();
+    });
+
+    it("throws for overlapping edits", () => {
+      expect(() =>
+        assertEditsSortedAndDisjoint([
+          { from: 0, to: 5, expectedText: "aaaa ", replacement: "x" },
+          { from: 3, to: 8, expectedText: "a bbb", replacement: "y" },
+        ]),
+      ).toThrow();
+    });
+
+    it("throws for unsorted edits", () => {
+      expect(() =>
+        assertEditsSortedAndDisjoint([
+          { from: 6, to: 8, expectedText: "cc", replacement: "x" },
+          { from: 0, to: 2, expectedText: "aa", replacement: "y" },
+        ]),
+      ).toThrow();
+    });
   });
 
   describe("applyEditPlanToString", () => {
@@ -299,6 +358,16 @@ describe("plan.ts", () => {
       expect(() =>
         applyEditPlanToString(content, [
           { from: 0, to: 2, expectedText: "zz", replacement: "yy" },
+        ]),
+      ).toThrow();
+    });
+
+    it("throws when two edits overlap", () => {
+      const content = "aaaa bbbb";
+      expect(() =>
+        applyEditPlanToString(content, [
+          { from: 0, to: 5, expectedText: "aaaa ", replacement: "x" },
+          { from: 3, to: 8, expectedText: "a bbb", replacement: "y" },
         ]),
       ).toThrow();
     });
