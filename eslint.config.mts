@@ -4,6 +4,7 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import obsidianmd from "eslint-plugin-obsidianmd";
+import reactHooks from "eslint-plugin-react-hooks";
 import { includeIgnoreFile } from "@eslint/config-helpers";
 import path from "path";
 import { existsSync } from "fs";
@@ -26,8 +27,9 @@ export default defineConfig([
     "e2e-tests/mock-ocr/*.js",
   ]),
 
+  // Base rules
   {
-    files: ["**/*.{ts,mts,cts}"],
+    files: ["**/*.{ts,tsx,mts,cts}"],
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
@@ -46,7 +48,7 @@ export default defineConfig([
 
   // Obsidian-specific rules
   {
-    files: ["src/**/*.ts"],
+    files: ["src/**/*.{ts,tsx}"],
     ignores: ["src/**/*.test.ts"],
     extends: obsidianmd.configs.recommendedWithLocalesEn,
     rules: {
@@ -69,6 +71,16 @@ export default defineConfig([
     },
   },
 
+  // React rules
+  {
+    files: ["src/**/*.tsx"],
+    extends: [reactHooks.configs["recommended-latest"]],
+    rules: {
+      "react-hooks/exhaustive-deps": "error",
+    },
+  },
+
+  // applyViaEditor async protection
   {
     files: [WRITE_FILE],
     rules: {
@@ -83,5 +95,6 @@ export default defineConfig([
     },
   },
 
+  // Prettier overrides, must be last
   eslintConfigPrettier,
 ]);

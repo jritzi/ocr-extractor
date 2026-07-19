@@ -103,6 +103,10 @@ const context = await esbuild.context({
     "@lezer/lr",
     ...builtinModules,
   ],
+  jsx: "automatic",
+  define: {
+    "process.env.NODE_ENV": prod ? '"production"' : '"development"',
+  },
   format: "cjs",
   target: "es2018",
   logLevel: "info",
