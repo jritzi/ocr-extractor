@@ -7,7 +7,7 @@ export async function extractActiveNote(page: Page) {
 
 export async function extractFolder(page: Page, folderName: string) {
   await runCommand(page, "OCR Extractor: Extract text in folder");
-  await page.getByPlaceholder("Select a folder...").fill(folderName);
+  await page.getByPlaceholder("Select a folder…").fill(folderName);
   await page.keyboard.press("Enter");
 }
 
