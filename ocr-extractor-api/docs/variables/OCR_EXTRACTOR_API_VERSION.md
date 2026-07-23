@@ -6,9 +6,9 @@
 
 # Variable: OCR\_EXTRACTOR\_API\_VERSION
 
-> `const` **OCR\_EXTRACTOR\_API\_VERSION**: `"1.0.0"` = `"1.0.0"`
+> `const` **OCR\_EXTRACTOR\_API\_VERSION**: `"1.1.0"` = `"1.1.0"`
 
-Defined in: [index.ts:23](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/index.ts#L23)
+Defined in: [index.ts:16](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/index.ts#L16)
 
 The API version
 

@@ -1,6 +1,6 @@
 {
   "name": "ocr-extractor-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Types and helpers for the OCR Extractor Obsidian plugin's public API",
   "type": "module",
   "license": "MIT",

@@ -1,20 +1,20 @@
 /**
  * Identifies which kind of {@link OcrError} occurred.
  *
- * - `"unsupported-file"`: the OCR engine can't process this file (e.g. an
- *   unsupported file type)
- * - `"extraction-failed"`: any other failure during extraction (network,
- *   auth, etc.)
+ * - `"unsupported-file"`: The OCR engine can't process this file (e.g. an
+ *   unsupported file type). Only thrown by the deprecated
+ *   {@link OcrExtractorApi.extractText}.
+ * - `"extraction-failed"`: Extracting text from a supported file failed
+ *   (network, auth, corrupt file, etc.).
  *
  * @since 1.0.0
  */
 export type OcrErrorCode = "unsupported-file" | "extraction-failed";
 
 /**
- * The error thrown by {@link OcrExtractorApi.extractText} when extraction
- * fails. Identify it with {@link isOcrError} (not `instanceof`, which won't
- * work across the plugin and npm package boundary). The original error,
- * if any, is included as `cause`.
+ * The error thrown when extraction fails. Identify it with {@link isOcrError}
+ * (not `instanceof`, which won't work across the plugin and npm package
+ * boundary). The original error, if any, is included as `cause`.
  *
  * @since 1.0.0
  */
