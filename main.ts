@@ -21,6 +21,8 @@ import { StatusManager } from "./src/status-manager";
 import { assert } from "./src/utils/assert";
 import type { OcrExtractorApi } from "ocr-extractor-api";
 
+import "./src/styles/index.css";
+
 export const OCR_ENGINES = {
   tesseract: TesseractEngine,
   mistral: MistralEngine,

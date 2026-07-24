@@ -1,0 +1,9 @@
+@keyframes ocr-extractor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ocr-extractor-spinning svg {
+  animation: ocr-extractor-spin 1s linear infinite;
+}

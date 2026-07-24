@@ -1,0 +1,5 @@
+.ocr-extractor-status-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-1);
+}
