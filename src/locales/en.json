@@ -91,19 +91,24 @@
     "testMismatch": "Output (\"{{actual}}\") does not match expected (\"{{expected}}\")."
   },
   "counts": {
-    "attachmentsLabel": "Attachments",
+    "label": "Attachments",
     "extracted_one": "{{count, number}} extracted",
     "extracted_other": "{{count, number}} extracted",
     "skipped_one": "{{count, number}} skipped",
     "skipped_other": "{{count, number}} skipped",
     "failed_one": "{{count, number}} failed",
     "failed_other": "{{count, number}} failed",
-    "attachmentsExtracted_one": "{{count, number}} attachment extracted",
-    "attachmentsExtracted_other": "{{count, number}} attachments extracted",
-    "attachmentsSkipped_one": "{{count, number}} attachment skipped",
-    "attachmentsSkipped_other": "{{count, number}} attachments skipped",
-    "attachmentsFailed_one": "{{count, number}} attachment failed",
-    "attachmentsFailed_other": "{{count, number}} attachments failed"
+    "attachments": {
+      "extracted_one": "{{count, number}} attachment extracted",
+      "extracted_other": "{{count, number}} attachments extracted",
+      "skipped_one": "{{count, number}} attachment skipped",
+      "skipped_other": "{{count, number}} attachments skipped",
+      "failed_one": "{{count, number}} attachment failed",
+      "failed_other": "{{count, number}} attachments failed"
+    }
+  },
+  "duration": {
+    "underSecond": "<1s"
   },
   "reasons": {
     "unsupportedFileType": "unsupported file type",
@@ -120,6 +125,41 @@
     "responseTruncated": "model response cut short",
     "noteChanged": "note changed during extraction",
     "unexpected": "unexpected error"
+  },
+  "report": {
+    "title": "Extraction report",
+    "copyReport": "Copy report",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "filter": "Filter",
+    "empty": "No extraction has run yet",
+    "noMatches": "No attachments match the filter",
+    "startedAt": "Started: {{time}}",
+    "finishedAt": "Finished: {{time}}",
+    "noteCount_one": "{{count, number}} note",
+    "noteCount_other": "{{count, number}} notes",
+    "scope": {
+      "note": "Note: {{name}}",
+      "folder": "Folder: {{path}}",
+      "vault": "Whole vault",
+      "selection": "Selected notes"
+    },
+    "runStatus": {
+      "running": "In progress",
+      "canceling": "Canceling",
+      "complete": "Completed",
+      "fatal": "Stopped",
+      "canceled": "Canceled"
+    },
+    "resultStatus": {
+      "extracted": "Extracted",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    },
+    "resultLine": {
+      "withReason": "{{status}} ({{reason}})",
+      "withDetail": "{{status}} ({{reason}}; {{detail}})"
+    }
   },
   "errors": {
     "unauthorized": "Unauthorized. Check your API key.",
