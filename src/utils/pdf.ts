@@ -14,6 +14,7 @@ GlobalWorkerOptions.workerSrc = URL.createObjectURL(
 );
 
 export class PdfReadError extends Error {}
+export class PasswordProtectedPdfError extends PdfReadError {}
 
 export function isPdf(mimeType: string) {
   return mimeType === "application/pdf";
@@ -60,8 +61,8 @@ export async function convertPdfToImages(
 }
 
 /**
- * Runs `callback` on each page and returns the collected results. Any error
- * thrown here skips the PDF with a PdfReadError.
+ * Runs `callback` on each page and returns the collected results. Any failure
+ * is wrapped in a `PdfReadError`.
  */
 async function mapPdfPages<T>(
   data: Uint8Array,
@@ -95,11 +96,10 @@ async function mapPdfPages<T>(
       await loadingTask.destroy();
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    const reason =
-      error instanceof PasswordException
-        ? "password-protected PDF"
-        : `could not process PDF (${message})`;
-    throw new PdfReadError(reason, { cause: error });
+    const message = String(error);
+    if (error instanceof PasswordException) {
+      throw new PasswordProtectedPdfError(message, { cause: error });
+    }
+    throw new PdfReadError(message, { cause: error });
   }
 }

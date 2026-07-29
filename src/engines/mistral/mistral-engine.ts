@@ -1,9 +1,19 @@
 import { Mistral } from "@mistralai/mistralai";
+import {
+  ConnectionError,
+  RequestTimeoutError,
+} from "@mistralai/mistralai/models/errors/httpclienterrors";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
-import { OcrEngine, UserFacingError } from "../ocr-engine";
+import {
+  AttachmentFailedError,
+  AttachmentSkippedError,
+  type ExtractPagesOptions,
+  FatalError,
+  OcrEngine,
+} from "../ocr-engine";
+import { throwIfFatalHttpStatus } from "../http-error";
 import { MistralSettingsSection } from "./mistral-settings";
 import { toDataUrl } from "../../utils/encoding";
-import { warnSkipped } from "../../utils/logging";
 import { t } from "../../i18n";
 
 const BACKOFF = {
@@ -28,9 +38,7 @@ export class MistralEngine extends OcrEngine {
 
   protected async extractPages(
     data: Uint8Array,
-    mimeType: string,
-    filename: string,
-    signal: AbortSignal,
+    { mimeType, signal }: ExtractPagesOptions,
   ) {
     const apiKey =
       this.secretStorage.getSecret(this.settings.mistralSecret) ?? "";
@@ -62,28 +70,24 @@ export class MistralEngine extends OcrEngine {
       return ocrResponse.pages.map((page) => page.markdown);
     } catch (error: unknown) {
       if (error instanceof MistralError) {
-        if (error.statusCode === 401 || error.statusCode === 403) {
-          throw new UserFacingError(t("errors.unauthorized"));
-        }
-
         if (error.statusCode === 400 || error.statusCode === 422) {
-          warnSkipped(filename, "file type not supported by Mistral OCR");
-          return null;
-        }
-
-        if (error.statusCode === 429) {
-          throw new UserFacingError(t("errors.rateLimited"));
-        }
-
-        if (error.statusCode >= 500) {
-          console.error(
-            `Mistral server error (HTTP ${error.statusCode}):`,
-            error.message,
-          );
-          throw new UserFacingError(
-            t("errors.serverError", { status: error.statusCode }),
+          // These could be one of several skip or fail reasons, but since
+          // Mistral doesn't easily distinguish between them, choose skip
+          throw new AttachmentSkippedError(
+            "unsupportedByEngine",
+            `HTTP ${error.statusCode}: ${error.message}`,
           );
         }
+
+        throwIfFatalHttpStatus(error.statusCode, error);
+      }
+
+      if (error instanceof RequestTimeoutError) {
+        throw new AttachmentFailedError("requestTimeout");
+      }
+
+      if (error instanceof ConnectionError) {
+        throw new FatalError(t("errors.connectionFailed"));
       }
 
       throw error;

@@ -1,5 +1,10 @@
 import type { SecretStorage } from "obsidian";
-import { OcrEngine, UserFacingError } from "../ocr-engine";
+import {
+  AttachmentSkippedError,
+  type ExtractPagesOptions,
+  FatalError,
+  OcrEngine,
+} from "../ocr-engine";
 import { CustomCommandRunner } from "./custom-command-runner";
 import { CustomCommandSettingsSection } from "./custom-command-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
@@ -33,9 +38,7 @@ export class CustomCommandEngine extends OcrEngine {
 
   protected async extractPages(
     data: Uint8Array,
-    mimeType: string,
-    filename: string,
-    signal: AbortSignal,
+    { mimeType, filename, signal }: ExtractPagesOptions,
   ) {
     const command = this.getCommand();
 
@@ -56,13 +59,20 @@ export class CustomCommandEngine extends OcrEngine {
     const dotIndex = filename.lastIndexOf(".");
     const extension = dotIndex !== -1 ? filename.slice(dotIndex) : "";
     const text = await this.runner.run(data, command, extension, signal);
+    if (text === null) {
+      throw new AttachmentSkippedError(
+        "unsupportedByEngine",
+        "command produced no output file",
+      );
+    }
+
     return text ? [text] : [];
   }
 
   private getCommand() {
     const command = this.settings.customCommand.trim();
     if (!command) {
-      throw new UserFacingError(t("errors.noCustomCommand"));
+      throw new FatalError(t("errors.noCustomCommand"));
     }
     return command;
   }

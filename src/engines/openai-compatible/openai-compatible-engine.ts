@@ -1,8 +1,11 @@
-import { OcrEngine } from "../ocr-engine";
+import {
+  AttachmentFailedError,
+  type ExtractPagesOptions,
+  OcrEngine,
+} from "../ocr-engine";
 import { OpenAiCompatibleClient } from "./openai-compatible-client";
 import { OpenAiCompatibleSettingsSection } from "./openai-compatible-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
-import { warnSkipped } from "../../utils/logging";
 import { resizeImage } from "../../utils/image";
 import { toDataUrl } from "../../utils/encoding";
 import { t } from "../../i18n";
@@ -25,9 +28,7 @@ export class OpenAiCompatibleEngine extends OcrEngine {
 
   protected async extractPages(
     data: Uint8Array,
-    mimeType: string,
-    filename: string,
-    signal: AbortSignal,
+    { mimeType, signal }: ExtractPagesOptions,
   ) {
     const client = new OpenAiCompatibleClient({
       baseUrl: this.settings.openAiCompatibleBaseUrl,
@@ -59,9 +60,8 @@ export class OpenAiCompatibleEngine extends OcrEngine {
         dataUrl = await resizeImage(data, mimeType, {
           maxDimension: MAX_IMAGE_DIMENSION,
         });
-      } catch {
-        warnSkipped(filename, "could not resize image");
-        return null;
+      } catch (error) {
+        throw new AttachmentFailedError("imageUnreadable", String(error));
       }
       const text = await client.extractText(dataUrl, signal);
       return text ? [text] : [];

@@ -1,7 +1,6 @@
 import { Platform } from "obsidian";
-import { UserFacingError } from "../ocr-engine";
-import { debugLog } from "../../utils/logging";
-import { t } from "../../i18n";
+import { AttachmentFailedError } from "../ocr-engine";
+import { debugLog, logWarning } from "../../utils/logging";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
@@ -110,17 +109,12 @@ export class CustomCommandRunner {
         message: string;
         stderr?: string;
       };
-      console.error(
-        `Custom command failed (exit code ${code}):`,
-        stderr?.trim() || message,
-      );
+      logWarning(`Custom command failed: ${stderr?.trim() || message}`);
 
       if (killed) {
-        throw new UserFacingError(t("errors.commandTimeout"));
+        throw new AttachmentFailedError("commandTimeout");
       }
-      throw new UserFacingError(
-        t("errors.commandFailed", { code: String(code) }),
-      );
+      throw new AttachmentFailedError("commandFailed", `exit code ${code}`);
     }
   }
 

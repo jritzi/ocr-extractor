@@ -171,6 +171,7 @@
     "openAiCompatibleNotFound": "Model or endpoint not found. Check the base URL and model name.",
     "openAiCompatibleConnectionFailed": "Could not connect to the server. Check the base URL and server status.",
     "connectionFailed": "Connection failed. Check your internet connection.",
+    "tesseractLoadFailed": "Could not load Tesseract. Check your internet connection.",
     "noCustomCommand": "No custom command configured"
   }
 }
