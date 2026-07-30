@@ -8,8 +8,8 @@ const EDITOR_CHANGE_DEBOUNCE_MS = 2_000;
 
 export type InsertResult =
   | { status: "done"; skippedResults: string[] }
-  | { status: "timeout" }
-  | { status: "canceled" };
+  | { status: "timeout"; insertedResults: string[] }
+  | { status: "canceled"; insertedResults: string[] };
 
 /**
  * Insert the extracted text into the note. If the note is being actively
@@ -28,6 +28,10 @@ class SettleController {
   private finished = false;
   private attemptInFlight = false;
   private attemptQueued = false;
+  private timedOut = false;
+
+  /** Markup (`original`) of results inserted by the attempts so far */
+  private readonly inserted = new Set<string>();
 
   // Initialized in run()
   private resolve!: (result: InsertResult) => void;
@@ -89,7 +93,7 @@ class SettleController {
     // Give up if the note never settles, either because no retry fires or
     // there are constant edits without pause
     this.settleTimeoutId = window.setTimeout(
-      () => this.finish({ status: "timeout" }),
+      () => this.handleTimeout(),
       SETTLE_TIMEOUT_MS,
     );
 
@@ -104,11 +108,29 @@ class SettleController {
   }
 
   private handleAbort() {
-    this.finish({ status: "canceled" });
+    this.finish({
+      status: "canceled",
+      insertedResults: [...this.inserted],
+    });
+  }
+
+  private handleTimeout() {
+    this.timedOut = true;
+
+    if (!this.attemptInFlight) {
+      this.finishTimeout();
+    }
+  }
+
+  private finishTimeout() {
+    this.finish({
+      status: "timeout",
+      insertedResults: [...this.inserted],
+    });
   }
 
   private async attempt() {
-    if (this.finished) return;
+    if (this.finished || this.timedOut) return;
 
     // Don't run two attempts at once to avoid duplicate inserts, but queue a
     // retry so one triggered mid-attempt isn't lost
@@ -125,8 +147,15 @@ class SettleController {
         this.embedsToMarkdown,
         this.signal,
       );
+      for (const markup of attemptResult.insertedResults) {
+        this.inserted.add(markup);
+      }
+
       if (this.signal.aborted) {
-        this.finish({ status: "canceled" });
+        this.finish({
+          status: "canceled",
+          insertedResults: [...this.inserted],
+        });
       } else if (attemptResult.done) {
         this.finish({
           status: "done",
@@ -139,6 +168,11 @@ class SettleController {
       this.fail(error);
     } finally {
       this.attemptInFlight = false;
+    }
+
+    if (this.timedOut) {
+      this.finishTimeout();
+      return;
     }
 
     if (this.attemptQueued) {
