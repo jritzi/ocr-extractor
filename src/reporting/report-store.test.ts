@@ -143,7 +143,7 @@ describe("ReportStore", () => {
       reason: "passwordProtectedPdf",
     });
     expect(console.warn).toHaveBeenCalledWith(
-      "Skipping scan.pdf: password-protected PDF",
+      "[OCR Extractor] Skipping scan.pdf: password-protected PDF",
     );
 
     store.recordResult("a.md", "photo.png", {
@@ -152,7 +152,7 @@ describe("ReportStore", () => {
       detail: "Out of memory",
     });
     expect(console.warn).toHaveBeenCalledWith(
-      "Failed to extract text from photo.png: unexpected error (Out of memory)",
+      "[OCR Extractor] Failed to extract text from photo.png: unexpected error (Out of memory)",
     );
 
     store.recordResult("b.md", "note.png", { status: "extracted" });

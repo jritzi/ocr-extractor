@@ -30,6 +30,9 @@ interface EmbedEdit {
 export interface EditPlan {
   edits: PlannedEdit[];
 
+  /** Markup (`original`) of embeds with a callout insertion in `edits` */
+  resultsToInsert: string[];
+
   /**
    * Embeds where the cache hasn't caught up yet with the current content, so we
    * should retry once the note settles.
@@ -93,7 +96,8 @@ export function buildEditPlan(
     });
   }
 
-  const { edits, collidingEmbeds } = splitCollidingEdits(candidates);
+  const { edits, resultsToInsert, collidingEmbeds } =
+    splitCollidingEdits(candidates);
   staleEmbeds.push(...collidingEmbeds);
 
   const cachedEmbedTexts = new Set(embeds.map((embed) => embed.original));
@@ -113,7 +117,7 @@ export function buildEditPlan(
   edits.sort((a, b) => a.from - b.from);
   assertEditsSortedAndDisjoint(edits);
 
-  return { edits, staleEmbeds, orphanedResults };
+  return { edits, resultsToInsert, staleEmbeds, orphanedResults };
 }
 
 /**
@@ -133,10 +137,11 @@ function splitCollidingEdits(candidates: EmbedEdit[]) {
     }
   }
 
+  const planned = sorted.filter((candidate) => !colliding.has(candidate));
+
   return {
-    edits: sorted
-      .filter((candidate) => !colliding.has(candidate))
-      .map((candidate) => candidate.edit),
+    edits: planned.map((candidate) => candidate.edit),
+    resultsToInsert: planned.map((candidate) => candidate.embed.original),
     collidingEmbeds: [...colliding].map((candidate) => candidate.embed),
   };
 }
