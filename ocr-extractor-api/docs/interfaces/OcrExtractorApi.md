@@ -6,7 +6,7 @@
 
 # Interface: OcrExtractorApi
 
-Defined in: [index.ts:69](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/index.ts#L69)
+Defined in: [index.ts:69](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L69)
 
 The OCR Extractor plugin's public API, obtained via [getOcrExtractorApi](../functions/getOcrExtractorApi.md)
 
@@ -20,7 +20,7 @@ The OCR Extractor plugin's public API, obtained via [getOcrExtractorApi](../func
 
 > `readonly` **version**: `string`
 
-Defined in: [index.ts:75](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/index.ts#L75)
+Defined in: [index.ts:75](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L75)
 
 The API version (i.e. [OCR\_EXTRACTOR\_API\_VERSION](../variables/OCR_EXTRACTOR_API_VERSION.md))
 
@@ -34,7 +34,7 @@ The API version (i.e. [OCR\_EXTRACTOR\_API\_VERSION](../variables/OCR_EXTRACTOR_
 
 > `optional` **extract**(`file`, `options?`): `Promise`\<[`OcrResult`](../type-aliases/OcrResult.md)\>
 
-Defined in: [index.ts:99](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/index.ts#L99)
+Defined in: [index.ts:99](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L99)
 
 Run the user's configured OCR engine on an attachment. Does not modify
 any note.
@@ -90,7 +90,7 @@ if (result.status === "extracted") {
 
 > **extractText**(`file`, `options?`): `Promise`\<[`OcrExtractionResult`](OcrExtractionResult.md)\>
 
-Defined in: [index.ts:118](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/index.ts#L118)
+Defined in: [index.ts:118](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L118)
 
 Run the user's configured OCR engine on an attachment and return the
 extracted text. Does not modify any note.

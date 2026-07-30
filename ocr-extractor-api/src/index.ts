@@ -20,7 +20,7 @@ export const OCR_EXTRACTOR_API_VERSION = "1.1.0";
  *
  * - `"extracted"`: text was extracted from the file
  * - `"no-text"`: the file was processed but contained no text
- * - `"unsupported"`: the OCR engine can't process this file type
+ * - `"unsupported"`: the OCR engine can't process this file
  *
  * @since 1.1.0
  */

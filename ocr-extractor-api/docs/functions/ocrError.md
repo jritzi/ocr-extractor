@@ -8,7 +8,7 @@
 
 > **ocrError**(`code`, `message?`, `options?`): [`OcrError`](../interfaces/OcrError.md)
 
-Defined in: [errors.ts:61](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/errors.ts#L61)
+Defined in: [errors.ts:61](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/errors.ts#L61)
 
 Used by the plugin to construct an [OcrError](../interfaces/OcrError.md) with the given code and
 message.

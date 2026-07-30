@@ -8,7 +8,7 @@
 
 > **getOcrExtractorApi**(`app`): [`OcrExtractorApi`](../interfaces/OcrExtractorApi.md) \| `undefined`
 
-Defined in: [index.ts:59](https://github.com/jritzi/ocr-extractor/blob/b2f5df4629fce8ce28f4113db3675c9be5546122/ocr-extractor-api/src/index.ts#L59)
+Defined in: [index.ts:59](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L59)
 
 Get the OCR Extractor API from the Obsidian `app`.
 
