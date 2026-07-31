@@ -7,11 +7,11 @@ interface E2EVersions {
 }
 
 // Run `pnpm latest-obsidian` to find the current latest version
-export const LATEST_VERSION = { name: "latest", obsidian: "1.12.7" };
+export const LATEST_VERSION = { name: "latest", obsidian: "1.13.4" };
 
 export const versions: E2EVersions[] = [
   LATEST_VERSION,
-  { name: "min-app-version", obsidian: "1.11.4" },
-  { name: "min-electron-version", obsidian: "1.12.7", electron: "37.0.0" },
-  { name: "old-installer", obsidian: "1.12.7", electron: "28.2.3" },
+  { name: "min-app-version", obsidian: "1.13.4" },
+  { name: "min-electron-version", obsidian: "1.13.4", electron: "37.0.0" },
+  { name: "old-installer", obsidian: "1.13.4", electron: "28.2.3" },
 ];
