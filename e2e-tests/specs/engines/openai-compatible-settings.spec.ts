@@ -4,7 +4,11 @@ import {
   OPENAI_COMPATIBLE_URL,
   openAiCompatibleSuccessResponse,
 } from "../../helpers/openai-compatible";
-import { openPluginSettings, settingItem } from "../../helpers/plugin";
+import {
+  openPluginSettings,
+  settingDropdown,
+  settingItem,
+} from "../../helpers/plugin";
 
 const MODELS_URL = "http://localhost:11434/v1/models";
 
@@ -31,7 +35,7 @@ test("model dropdown", async ({ page }) => {
 
   await openPluginSettings(page);
 
-  const dropdown = settingItem(page, "Model").locator("select");
+  const dropdown = settingDropdown(page, "Model");
   await expect(dropdown.locator("option")).toHaveText([
     "None",
     "model-1",
