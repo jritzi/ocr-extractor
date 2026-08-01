@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - hotfix/*
   pull_request:
 
 jobs:
@@ -105,7 +106,7 @@ jobs:
         run: xvfb-run --auto-servernum pnpm test:e2e
 
   e2e-linux-all:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/hotfix/'))
     needs: checks
     runs-on: ubuntu-latest
     permissions:
@@ -143,7 +144,7 @@ jobs:
         run: xvfb-run --auto-servernum pnpm test:e2e:all
 
   e2e-macos:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/hotfix/'))
     needs: checks
     runs-on: macos-latest
     permissions:
@@ -176,7 +177,7 @@ jobs:
         run: pnpm test:e2e
 
   e2e-windows:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/hotfix/'))
     needs: checks
     runs-on: windows-latest
     permissions:
