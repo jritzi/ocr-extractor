@@ -23,6 +23,7 @@ import {
   setupPlugin,
 } from "./setup/vault";
 import { expectNoUnexpectedRequests } from "./helpers/http";
+import { closeModal } from "./helpers/obsidian";
 import { LATEST_VERSION } from "./versions";
 
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
@@ -130,7 +131,7 @@ export const test = base.extend<ObsidianFixtures>({
     }
   },
 
-  page: async ({ electronApp, allowErrors }, use, testInfo) => {
+  page: async ({ electronApp, allowErrors }, use) => {
     const page = await electronApp.firstWindow();
     let hasConsoleErrors = false;
 
@@ -149,16 +150,7 @@ export const test = base.extend<ObsidianFixtures>({
     await page
       .getByRole("button", { name: "Trust author and enable plugins" })
       .click();
-
-    const settingsModal = page.locator(".modal.mod-settings");
-    const closeButton = settingsModal.locator(".modal-close-button");
-    if (testInfo.project.name === "old-installer") {
-      // The close button is not visible with this combination of versions
-      await closeButton.dispatchEvent("click");
-    } else {
-      await closeButton.click();
-    }
-    await expect(settingsModal).not.toBeVisible();
+    await closeModal(page, page.locator(".modal.mod-settings"));
 
     await injectHttpInterceptor(page);
     await use(page);

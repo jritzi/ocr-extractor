@@ -1,5 +1,6 @@
 {
   "alreadyShownFreshStart": true,
+  "settingsPopoutWindow": false,
   "trashOption": "local",
   "attachmentFolderPath": "./attachments"
 }

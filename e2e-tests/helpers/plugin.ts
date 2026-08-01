@@ -32,6 +32,10 @@ export function settingItem(page: Page, label: string) {
   return page.locator(".setting-item").filter({ hasText: label });
 }
 
+export function settingDropdown(page: Page, label: string) {
+  return settingItem(page, label).getByRole("combobox");
+}
+
 export async function toggleSetting(page: Page, label: string) {
   await settingItem(page, label).getByRole("checkbox").click();
 }
