@@ -118,7 +118,7 @@ export async function addFrontmatter(
 
 export async function runCommand(page: Page, command: string) {
   await page.getByLabel("Open command palette").click();
-  await page.getByPlaceholder("Select a command to add...").fill(command);
+  await page.getByPlaceholder("Select a command...").fill(command);
   await page.keyboard.press("Enter");
 }
 
@@ -126,9 +126,8 @@ export function getModal(page: Page) {
   return page.locator(".modal");
 }
 
-export async function closeModal(page: Page) {
-  const modal = getModal(page);
-  await modal.locator(".modal-close-button").click();
+export async function closeModal(page: Page, modal = getModal(page)) {
+  await modal.locator(".modal-header-button").click();
   await expect(modal).not.toBeVisible();
 }
 
@@ -136,6 +135,14 @@ export async function clickModalButton(page: Page, buttonName: string) {
   const modal = getModal(page);
   await modal.getByRole("button", { name: buttonName }).click();
   await expect(modal).not.toBeVisible();
+}
+
+export function callout(page: Page, type: string) {
+  return page.locator(`.callout[data-callout="${type}"]`);
+}
+
+export function calloutIcon(page: Page, type: string) {
+  return callout(page, type).locator(".callout-icon svg");
 }
 
 function editorTextbox(page: Page) {

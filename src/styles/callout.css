@@ -1,4 +1,4 @@
 .callout[data-callout="ocr-extractor"] {
-  --callout-color: var(--color-cyan-rgb);
+  --callout-color: var(--color-cyan);
   --callout-icon: lucide-scan-text;
 }
