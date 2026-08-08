@@ -13,8 +13,8 @@ import { t } from "../i18n";
 /** Embed text exactly as written in the note (`original`) */
 export type EmbedMarkup = string;
 
-/** Extracted Markdown per embed, null when nothing was extracted */
-export type EmbedsToMarkdown = Map<EmbedMarkup, string | null>;
+/** Extracted Markdown per embed */
+export type EmbedsToMarkdown = Map<EmbedMarkup, string>;
 
 export interface PlannedEdit {
   from: number;

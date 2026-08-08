@@ -18,6 +18,8 @@ import { createApi } from "./src/api";
 import { registerActions } from "./src/actions";
 import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
+import { OcrEngineManager } from "./src/engines/ocr-engine-manager";
+import { ReportStore } from "./src/reporting/report-store";
 import { assert } from "./src/utils/assert";
 import type { OcrExtractorApi } from "ocr-extractor-api";
 
@@ -32,9 +34,11 @@ export const OCR_ENGINES = {
 
 export default class OcrExtractorPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
+  reportStore = new ReportStore();
 
   // Initialized in onload()
   statusManager!: StatusManager;
+  engineManager!: OcrEngineManager;
   extractor!: TextExtractor;
   api!: OcrExtractorApi;
 
@@ -42,6 +46,7 @@ export default class OcrExtractorPlugin extends Plugin {
     await setLanguage(getLanguage());
     await this.loadSettings();
     this.statusManager = new StatusManager(this);
+    this.engineManager = new OcrEngineManager(this);
     this.extractor = new TextExtractor(this);
     this.api = createApi(this);
     this.addSettingTab(new SettingTab(this.app, this));
@@ -57,7 +62,7 @@ export default class OcrExtractorPlugin extends Plugin {
     // Abort the run before terminating the engine so in-flight OCR resolves
     // as canceled instead of rejecting
     this.statusManager?.cleanup();
-    void this.extractor?.cleanup();
+    void this.engineManager?.terminate();
   }
 
   async saveSetting<K extends keyof PluginSettings>(
@@ -66,7 +71,7 @@ export default class OcrExtractorPlugin extends Plugin {
   ) {
     this.settings[name] = value;
     await this.saveData(this.settings);
-    this.extractor.markSettingsChanged();
+    this.engineManager.markSettingsChanged();
   }
 
   private async loadSettings() {

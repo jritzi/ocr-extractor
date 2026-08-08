@@ -1,41 +1,37 @@
-import OcrExtractorPlugin, { OCR_ENGINES } from "../main";
-import {
-  EmbedCache,
-  getLinkpath,
-  MarkdownView,
-  Platform,
-  TFile,
-  TFolder,
-} from "obsidian";
-import { OcrEngine, UserFacingError } from "./engines/ocr-engine";
+import OcrExtractorPlugin from "../main";
+import { EmbedCache, MarkdownView, Platform, TFile, TFolder } from "obsidian";
+import { FatalError } from "./engines/ocr-engine";
 import { EmbedsToMarkdown, selectEmbedsToProcess } from "./editing/plan";
 import { InsertResult, insertWhenSettled } from "./editing/settle";
 import pLimit from "p-limit";
 import { assert } from "./utils/assert";
-import { debugLog, warnSkipped } from "./utils/logging";
-import { showErrorNotice, showNotice } from "./utils/notice";
-import { shouldUseMobileEngineFallback } from "./settings";
+import { debugLog, logError, logWarning } from "./utils/logging";
+import { showNotice } from "./utils/notice";
 import {
+  attachmentPath,
   getEmbeds,
   isObsidianNative,
   markdownFilesInFolder,
   resolveEmbedFile,
 } from "./utils/file";
+import { RunScope } from "./reporting/run-report";
+import {
+  EmbedResult,
+  EmbedResults,
+  recordResultsAfterInsert,
+  recordResultsBeforeInsert,
+} from "./record-results";
 import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
 import { SelectFolderModal } from "./ui/select-folder-modal";
 import { t } from "./i18n";
 
 export class TextExtractor {
-  // Initialized in buildEngine()
-  private engine!: OcrEngine;
-
   private app = this.plugin.app;
-  private settingsChanged = false;
-  private usingMobileEngineFallback = false;
+  private store = this.plugin.reportStore;
+  private statusManager = this.plugin.statusManager;
+  private engineManager = this.plugin.engineManager;
 
-  constructor(private plugin: OcrExtractorPlugin) {
-    this.buildEngine();
-  }
+  constructor(private plugin: OcrExtractorPlugin) {}
 
   canProcessActiveFile() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -43,212 +39,147 @@ export class TextExtractor {
   }
 
   processActiveFile() {
-    assert(this.canProcessActiveFile(), "Command disabled when can't process");
+    assert(this.canProcessActiveFile(), "Callers check before processing");
 
     const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
     this.processSingleFile(view.file!);
   }
 
   canProcessSingleFile() {
-    return this.plugin.statusManager.isIdle();
+    return this.statusManager.isIdle();
   }
 
   processSingleFile(file: TFile) {
     assert(this.canProcessSingleFile(), "Callers check before processing");
-    this.startExtractingFile(file);
+    this.startExtractingFiles([file], { type: "note", path: file.path });
   }
 
   canProcessMultipleFiles() {
     // Desktop-only until progress feedback added for mobile (status bar is desktop-only)
-    return Platform.isDesktop && this.plugin.statusManager.isIdle();
+    return Platform.isDesktop && this.statusManager.isIdle();
   }
 
   processFolder(folder?: TFolder) {
-    assert(
-      this.canProcessMultipleFiles(),
-      "Command disabled when can't process",
-    );
+    assert(this.canProcessMultipleFiles(), "Callers check before processing");
 
     if (folder) {
-      this.startExtractingFiles(markdownFilesInFolder(folder));
+      this.startExtractingFolder(folder);
     } else {
-      new SelectFolderModal(this.app, (selected) => {
-        this.startExtractingFiles(markdownFilesInFolder(selected));
-      }).open();
+      new SelectFolderModal(this.app, (selected) =>
+        this.startExtractingFolder(selected),
+      ).open();
     }
   }
 
   processAllFiles() {
-    assert(
-      this.canProcessMultipleFiles(),
-      "Command disabled when can't process",
-    );
+    assert(this.canProcessMultipleFiles(), "Callers check before processing");
 
     new ConfirmExtractAllModal(this.app, () => {
-      this.startExtractingFiles(this.app.vault.getMarkdownFiles());
+      this.startExtractingFiles(this.app.vault.getMarkdownFiles(), {
+        type: "vault",
+      });
     }).open();
   }
 
   processSelection(files: TFile[]) {
-    assert(
-      this.canProcessMultipleFiles(),
-      "Command disabled when can't process",
-    );
-    this.startExtractingFiles(files);
+    assert(this.canProcessMultipleFiles(), "Callers check before processing");
+    this.startExtractingFiles(files, { type: "selection" });
   }
 
-  markSettingsChanged() {
-    this.settingsChanged = true;
+  private startExtractingFolder(folder: TFolder) {
+    this.startExtractingFiles(markdownFilesInFolder(folder), {
+      type: "folder",
+      path: folder.path,
+    });
   }
 
-  cleanup() {
-    return this.engine.terminate();
-  }
-
-  async processOcr(file: TFile, signal: AbortSignal) {
-    const binary = await this.app.vault.readBinary(file);
-    return this.engine.processOcr(new Uint8Array(binary), file.name, signal);
-  }
-
-  private buildEngine() {
-    let engineName = this.plugin.settings.ocrEngine;
-    this.usingMobileEngineFallback = false;
-    if (shouldUseMobileEngineFallback(this.plugin.settings)) {
-      this.usingMobileEngineFallback = true;
-      engineName = "tesseract";
-    }
-
-    const EngineClass = OCR_ENGINES[engineName];
-    this.engine = new EngineClass(
-      // Clone to isolate engine from live settings changes
-      structuredClone(this.plugin.settings),
-      this.plugin.app.secretStorage,
-    );
-  }
-
-  private async rebuildEngine() {
-    const previousEngine = this.engine;
-    this.buildEngine();
-    this.settingsChanged = false;
-    await previousEngine.terminate();
-  }
-
-  private startExtractingFile(file: TFile) {
-    this.plugin.statusManager.setProcessingSingleNote();
-    void this.runExtraction([file], { multiNote: false });
-  }
-
-  private startExtractingFiles(files: TFile[]) {
+  private startExtractingFiles(files: TFile[], scope: RunScope) {
     if (files.length === 0) return;
-    this.plugin.statusManager.setProcessingMultipleNotes(files.length);
-    void this.runExtraction(files, { multiNote: true });
+    this.statusManager.setProcessing(scope, files.length);
+    void this.runExtraction(files);
   }
 
-  private async runExtraction(
-    files: TFile[],
-    { multiNote }: { multiNote: boolean },
-  ) {
-    const statusManager = this.plugin.statusManager;
-    let totalExtracted = 0;
-    let totalSkipped = 0;
-
-    const reclassifyAsSkipped = (count: number) => {
-      totalExtracted -= count;
-      totalSkipped += count;
-    };
-
+  private async runExtraction(files: TFile[]) {
     try {
-      if (this.settingsChanged) {
-        await this.rebuildEngine();
-      }
+      await this.engineManager.rebuildIfNeeded();
 
-      if (this.usingMobileEngineFallback) {
+      if (this.engineManager.usingMobileFallback) {
         showNotice(
           t("notices.mobileEngineFallback", { pluginName: t("pluginName") }),
         );
       }
 
-      for (const [index, file] of files.entries()) {
-        if (statusManager.getSignal().aborted) {
+      for (const noteFile of files) {
+        if (this.statusManager.getSignal().aborted) {
           break;
         }
 
-        debugLog(`Processing file ${file.path}`);
-        if (multiNote) {
-          statusManager.updateProgress(index + 1, files.length);
-        }
-
-        if (this.isNoteMissing(file)) {
-          warnSkipped(file.path, "note deleted during extraction");
-          continue;
-        }
-
-        const content = await this.app.vault.cachedRead(file);
-        const embeds = getEmbeds(this.app, file);
-        const { embedsToMarkdown, skippedEmbeds, extractedCount } =
-          await this.extractTextFromEmbeds(file, content, embeds);
-        totalSkipped += skippedEmbeds.length;
-        totalExtracted += extractedCount;
-
-        let result: InsertResult;
-        try {
-          result = await insertWhenSettled(
-            this.app,
-            file,
-            embedsToMarkdown,
-            statusManager.getSignal(),
-          );
-        } catch (error) {
-          if (this.isNoteMissing(file)) {
-            warnSkipped(file.path, "note deleted during extraction");
-            reclassifyAsSkipped(extractedCount);
-            continue;
-          }
-          throw error;
-        }
-
-        if (result.status === "done") {
-          for (const markup of result.skippedResults) {
-            const embed = embeds.find((embed) => embed.original === markup);
-            warnSkipped(
-              embed ? getLinkpath(embed.link) : markup,
-              "embed changed or removed during extraction",
-            );
-          }
-
-          reclassifyAsSkipped(result.skippedResults.length);
-        } else if (result.status === "timeout") {
-          // Treat the whole note as skipped, will be improved in OCR-49
-          showErrorNotice(t("notices.fileChanged", { path: file.path }));
-          reclassifyAsSkipped(extractedCount);
-        } else {
-          // Nothing needed for "canceled"
-        }
+        debugLog(`Processing file ${noteFile.path}`);
+        this.store.noteStarted();
+        await this.processNote(noteFile);
+        this.store.noteProcessed();
       }
 
-      if (statusManager.isCanceling()) {
-        statusManager.setCanceled();
-      } else if (!statusManager.getSignal().aborted) {
-        statusManager.setComplete(totalExtracted, totalSkipped);
+      if (this.statusManager.isCanceling()) {
+        this.statusManager.setCanceled();
+      } else if (!this.statusManager.isUnloading()) {
+        this.statusManager.setComplete();
+      }
+    } catch (error) {
+      if (this.statusManager.isUnloading()) return;
+
+      if (error instanceof FatalError) {
+        logWarning(`Extraction stopped: ${error.message}`, error.cause);
+        this.statusManager.setFatal(error.message);
       } else {
-        // Aborted without canceling means unloading the plugin, so don't
-        // show a completion notice
-      }
-    } catch (e: unknown) {
-      let message: string;
-      if (e instanceof UserFacingError) {
-        message = e.message;
-      } else {
-        console.error(e);
-        message = t("errors.extractionFailed");
-      }
-
-      const unloading =
-        statusManager.getSignal().aborted && !statusManager.isCanceling();
-      if (!unloading) {
-        statusManager.setError(message);
+        logError("Extraction stopped by an unexpected error", error);
+        this.statusManager.setFatal(t("errors.extractionFailed"));
       }
     }
+  }
+
+  private async processNote(noteFile: TFile) {
+    if (this.isNoteMissing(noteFile)) {
+      // Note deleted mid-run, so ignore it
+      return;
+    }
+
+    const content = await this.app.vault.cachedRead(noteFile);
+    const embeds = getEmbeds(this.app, noteFile);
+    const { results, embedsToMarkdown } = await this.extractTextFromEmbeds(
+      noteFile,
+      content,
+      embeds,
+    );
+
+    const extractedPaths = recordResultsBeforeInsert(
+      this.store,
+      noteFile.path,
+      results,
+    );
+
+    let insertResult: InsertResult;
+    try {
+      insertResult = await insertWhenSettled(
+        this.app,
+        noteFile,
+        embedsToMarkdown,
+        this.statusManager.getSignal(),
+      );
+    } catch (error) {
+      if (this.isNoteMissing(noteFile)) {
+        // Note deleted mid-run, so ignore it
+        return;
+      }
+      throw error;
+    }
+
+    recordResultsAfterInsert(
+      this.store,
+      noteFile.path,
+      extractedPaths,
+      insertResult,
+    );
   }
 
   private async extractTextFromEmbeds(
@@ -257,55 +188,72 @@ export class TextExtractor {
     embeds: EmbedCache[],
   ) {
     const embedsToProcess = selectEmbedsToProcess(fileContent, embeds);
-    const skippedEmbeds: EmbedCache[] = [];
-    let extractedCount = 0;
+    const results: EmbedResults = new Map();
 
     // Limit concurrency
     const limit = pLimit(5);
 
-    const entries = await Promise.all(
+    await Promise.all(
       embedsToProcess.map((embed) =>
         limit(async () => {
-          let markdown: string | null = null;
-          const embedFile = resolveEmbedFile(
-            this.app,
-            embed.link,
-            noteFile.path,
-          );
-
-          if (!embedFile) {
-            warnSkipped(getLinkpath(embed.link), "file not found");
-            skippedEmbeds.push(embed);
-          } else if (isObsidianNative(embedFile)) {
-            // Skip without warning
-          } else {
-            markdown = await this.processOcr(
-              embedFile,
-              this.plugin.statusManager.getSignal(),
-            );
-
-            // Skip on "" (ran, no text) as well as null (couldn't process)
-            if (!markdown) {
-              // When aborted, null means the OCR was canceled, not skipped
-              if (!this.plugin.statusManager.getSignal().aborted) {
-                warnSkipped(getLinkpath(embed.link), "no text extracted");
-              }
-              skippedEmbeds.push(embed);
-            } else {
-              extractedCount++;
-            }
+          const processed = await this.processEmbed(noteFile, embed);
+          if (processed) {
+            results.set(embed.original, processed);
           }
-
-          return [embed.original, markdown] as const;
         }),
       ),
     );
 
-    const embedsToMarkdown: EmbedsToMarkdown = new Map(entries);
-    return { embedsToMarkdown, skippedEmbeds, extractedCount };
+    const embedsToMarkdown: EmbedsToMarkdown = new Map();
+    for (const [markup, { result }] of results) {
+      if (result.status === "extracted") {
+        embedsToMarkdown.set(markup, result.markdown);
+      }
+    }
+
+    return { results, embedsToMarkdown };
   }
 
-  private isNoteMissing(file: TFile) {
-    return !this.app.vault.getFileByPath(file.path);
+  private async processEmbed(
+    noteFile: TFile,
+    embed: EmbedCache,
+  ): Promise<EmbedResult | null> {
+    const signal = this.statusManager.getSignal();
+    let embedFile: TFile | null = null;
+
+    try {
+      embedFile = resolveEmbedFile(this.app, embed.link, noteFile.path);
+      if (!embedFile) {
+        return {
+          path: attachmentPath(null, embed.link),
+          result: { status: "failed", reason: "fileNotFound" },
+        };
+      }
+
+      if (isObsidianNative(embedFile)) {
+        return null;
+      }
+
+      const result = await this.engineManager.processOcr(embedFile, signal);
+      if (result.status === "canceled" || signal.aborted) {
+        return null;
+      }
+
+      return { path: embedFile.path, result };
+    } catch (error) {
+      if (error instanceof FatalError || signal.aborted) {
+        throw error;
+      }
+
+      logError("Unexpected error extracting an attachment:", error);
+      return {
+        path: attachmentPath(embedFile, embed.link),
+        result: { status: "failed", reason: "unexpected" },
+      };
+    }
+  }
+
+  private isNoteMissing(noteFile: TFile) {
+    return !this.app.vault.getFileByPath(noteFile.path);
   }
 }

@@ -11,11 +11,11 @@ import {
   toMinimalChange,
 } from "./plan";
 
-/** Every OCR result was either inserted or permanently skipped */
+/** Every OCR result was either inserted or orphaned */
 interface DoneResult {
   done: true;
   insertedResults: EmbedMarkup[];
-  skippedResults: EmbedMarkup[];
+  orphanedResults: EmbedMarkup[];
 }
 
 /** The attempt did not complete (some inserts are still pending) */
@@ -144,6 +144,6 @@ function resultFromPlan(plan: EditPlan): AttemptResult {
   return {
     done: true,
     insertedResults: plan.resultsToInsert,
-    skippedResults: plan.orphanedResults,
+    orphanedResults: plan.orphanedResults,
   };
 }

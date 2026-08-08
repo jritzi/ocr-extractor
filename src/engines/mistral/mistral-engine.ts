@@ -68,7 +68,7 @@ export class MistralEngine extends OcrEngine {
       );
 
       return ocrResponse.pages.map((page) => page.markdown);
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof MistralError) {
         if (error.statusCode === 400 || error.statusCode === 422) {
           // These could be one of several skip or fail reasons, but since

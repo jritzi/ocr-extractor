@@ -7,7 +7,7 @@ const SETTLE_TIMEOUT_MS = 60_000;
 const EDITOR_CHANGE_DEBOUNCE_MS = 2_000;
 
 export type InsertResult =
-  | { status: "done"; skippedResults: EmbedMarkup[] }
+  | { status: "done"; orphanedResults: EmbedMarkup[] }
   | { status: "timeout"; insertedResults: EmbedMarkup[] }
   | { status: "canceled"; insertedResults: EmbedMarkup[] };
 
@@ -159,7 +159,7 @@ class SettleController {
       } else if (attemptResult.done) {
         this.finish({
           status: "done",
-          skippedResults: attemptResult.skippedResults,
+          orphanedResults: attemptResult.orphanedResults,
         });
       }
     } catch (error) {

@@ -20,7 +20,7 @@ export function createApi(plugin: OcrExtractorPlugin): OcrExtractorApi {
 
     let result: EngineResult;
     try {
-      result = await plugin.extractor.processOcr(file, signal);
+      result = await plugin.engineManager.processOcr(file, signal);
     } catch (error) {
       // Avoid mislabeling an abort as `extraction-failed`
       signal.throwIfAborted();

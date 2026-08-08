@@ -1,6 +1,6 @@
 /**
- * How an attachment is identified: its vault path when the file exists, or the
- * embed's link text when the embed resolves to nothing
+ * The path that identifies an attachment (its vault path if the file exists,
+ * or the embed's link text for a broken embed)
  */
 export type AttachmentPath = string;
 

@@ -39,7 +39,7 @@ export function resolveEmbedFile(
   return app.metadataCache.getFirstLinkpathDest(linkpath, sourcePath);
 }
 
-export function embedPath(
+export function attachmentPath(
   embedFile: TFile | null,
   embedLink: string,
 ): AttachmentPath {
