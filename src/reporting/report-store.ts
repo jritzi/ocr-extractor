@@ -1,6 +1,7 @@
 import { t } from "../i18n";
 import { assert } from "../utils/assert";
 import { warnFailed, warnSkipped } from "../utils/logging";
+import type { AttachmentPath } from "../utils/path";
 import {
   AttachmentEntry,
   AttachmentResult,
@@ -38,7 +39,7 @@ export class ReportStore {
 
   recordResult(
     notePath: string,
-    attachmentPath: string,
+    attachmentPath: AttachmentPath,
     result: AttachmentResult,
   ) {
     const report = this.currentReport();

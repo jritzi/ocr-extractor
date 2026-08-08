@@ -4,6 +4,7 @@
  */
 
 import { ResultReason } from "../result-reason";
+import type { AttachmentPath } from "../utils/path";
 
 export type AttachmentResult =
   | { readonly status: "extracted" }
@@ -19,8 +20,7 @@ export type AttachmentResult =
     };
 
 export interface AttachmentEntry {
-  /** Resolved vault path, or the embed's link text for a broken embed */
-  readonly path: string;
+  readonly path: AttachmentPath;
   readonly result: AttachmentResult;
 }
 

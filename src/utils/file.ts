@@ -1,4 +1,5 @@
 import { App, getLinkpath, TFile, TFolder } from "obsidian";
+import type { AttachmentPath } from "./path";
 
 // Obsidian-native file types that should not have text extracted if embedded
 const OBSIDIAN_EXTENSIONS = new Set(["md", "canvas", "base"]);
@@ -38,10 +39,9 @@ export function resolveEmbedFile(
   return app.metadataCache.getFirstLinkpathDest(linkpath, sourcePath);
 }
 
-/**
- * The path that identifies a file in reports (its vault path if it exists, or
- * its link path otherwise)
- */
-export function embedPath(embedFile: TFile | null, embedLink: string) {
+export function embedPath(
+  embedFile: TFile | null,
+  embedLink: string,
+): AttachmentPath {
   return embedFile?.path ?? getLinkpath(embedLink);
 }

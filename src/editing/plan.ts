@@ -10,8 +10,11 @@ import {
 import { assert } from "../utils/assert";
 import { t } from "../i18n";
 
-/** Extracted Markdown per embed, keyed by embed markup (`original`) */
-export type EmbedsToMarkdown = Map<string, string | null>;
+/** Embed text exactly as written in the note (`original`) */
+export type EmbedMarkup = string;
+
+/** Extracted Markdown per embed, null when nothing was extracted */
+export type EmbedsToMarkdown = Map<EmbedMarkup, string | null>;
 
 export interface PlannedEdit {
   from: number;
@@ -30,8 +33,8 @@ interface EmbedEdit {
 export interface EditPlan {
   edits: PlannedEdit[];
 
-  /** Markup (`original`) of embeds with a callout insertion in `edits` */
-  resultsToInsert: string[];
+  /** Embeds with a callout insertion in `edits` */
+  resultsToInsert: EmbedMarkup[];
 
   /**
    * Embeds where the cache hasn't caught up yet with the current content, so we
@@ -40,10 +43,10 @@ export interface EditPlan {
   staleEmbeds: EmbedCache[];
 
   /**
-   * Markup (`original`) of embeds with no match found in the note content
-   * (edited or removed by the user). Empty while any embed is still stale.
+   * Embeds with no match found in the note content (edited or removed by the
+   * user). Empty while any embed is still stale.
    */
-  orphanedResults: string[];
+  orphanedResults: EmbedMarkup[];
 }
 
 export function selectEmbedsToProcess(content: string, embeds: EmbedCache[]) {

@@ -6,6 +6,7 @@ import {
   assertEditsSortedAndDisjoint,
   buildEditPlan,
   EditPlan,
+  EmbedMarkup,
   EmbedsToMarkdown,
   toMinimalChange,
 } from "./plan";
@@ -13,17 +14,14 @@ import {
 /** Every OCR result was either inserted or permanently skipped */
 interface DoneResult {
   done: true;
-  /** Embed markup (`original`) for results that were inserted */
-  insertedResults: string[];
-  /** Embed markup (`original`) for results that were permanently skipped */
-  skippedResults: string[];
+  insertedResults: EmbedMarkup[];
+  skippedResults: EmbedMarkup[];
 }
 
 /** The attempt did not complete (some inserts are still pending) */
 interface PendingResult {
   done: false;
-  /** Embed markup (`original`) for results that were inserted */
-  insertedResults: string[];
+  insertedResults: EmbedMarkup[];
 }
 
 export type AttemptResult = DoneResult | PendingResult;

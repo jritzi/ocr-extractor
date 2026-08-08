@@ -1,3 +1,9 @@
+/**
+ * How an attachment is identified: its vault path when the file exists, or the
+ * embed's link text when the embed resolves to nothing
+ */
+export type AttachmentPath = string;
+
 /** The final segment of a vault path (e.g. "scan.pdf" for "dir/scan.pdf") */
 export function basename(path: string) {
   return path.split("/").pop() ?? path;
