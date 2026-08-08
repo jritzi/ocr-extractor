@@ -121,32 +121,6 @@ export function buildEditPlan(
 }
 
 /**
- * Split candidate edits into disjoint edits to plan and colliding embeds to
- * report as stale. Validated edits can only collide when stale cache positions
- * collapse onto the same occurrence of a duplicated embed, so a collision is
- * treated like any other stale embed and retried once the note settles.
- */
-function splitCollidingEdits(candidates: EmbedEdit[]) {
-  const sorted = [...candidates].sort((a, b) => a.edit.from - b.edit.from);
-  const colliding = new Set<EmbedEdit>();
-
-  for (let index = 1; index < sorted.length; index++) {
-    if (sorted[index - 1].edit.to > sorted[index].edit.from) {
-      colliding.add(sorted[index - 1]);
-      colliding.add(sorted[index]);
-    }
-  }
-
-  const planned = sorted.filter((candidate) => !colliding.has(candidate));
-
-  return {
-    edits: planned.map((candidate) => candidate.edit),
-    resultsToInsert: planned.map((candidate) => candidate.embed.original),
-    collidingEmbeds: [...colliding].map((candidate) => candidate.embed),
-  };
-}
-
-/**
  * Build edits updating callout headers from old plugin versions or not in the
  * current language.
  */
@@ -250,4 +224,30 @@ export function assertEditsSortedAndDisjoint(edits: PlannedEdit[]) {
       "Plan edits must be sorted and not overlap",
     );
   }
+}
+
+/**
+ * Split candidate edits into disjoint edits to plan and colliding embeds to
+ * report as stale. Validated edits can only collide when stale cache positions
+ * collapse onto the same occurrence of a duplicated embed, so a collision is
+ * treated like any other stale embed and retried once the note settles.
+ */
+function splitCollidingEdits(candidates: EmbedEdit[]) {
+  const sorted = [...candidates].sort((a, b) => a.edit.from - b.edit.from);
+  const colliding = new Set<EmbedEdit>();
+
+  for (let index = 1; index < sorted.length; index++) {
+    if (sorted[index - 1].edit.to > sorted[index].edit.from) {
+      colliding.add(sorted[index - 1]);
+      colliding.add(sorted[index]);
+    }
+  }
+
+  const planned = sorted.filter((candidate) => !colliding.has(candidate));
+
+  return {
+    edits: planned.map((candidate) => candidate.edit),
+    resultsToInsert: planned.map((candidate) => candidate.embed.original),
+    collidingEmbeds: [...colliding].map((candidate) => candidate.embed),
+  };
 }

@@ -1,14 +1,18 @@
 import { t } from "../i18n";
 import { describeReason } from "../result-reason";
 import { formatDateTime, formatDuration } from "../utils/datetime";
+import { basename } from "../utils/path";
 import {
   AttachmentResult,
   countResults,
+  firstFailure,
   isMultiNote,
   RESULT_STATUSES,
+  ResultCounts,
   ResultStatus,
   RunReport,
   RunScope,
+  totalResults,
 } from "./run-report";
 
 export function describeScope(scope: RunScope) {
@@ -31,7 +35,7 @@ export function describeRunStatus(report: RunReport) {
 export function describeEarlyStop(report: RunReport) {
   if (
     (report.status !== "fatal" && report.status !== "canceled") ||
-    !isMultiNote(report)
+    !isMultiNote(report.scope)
   ) {
     return null;
   }
@@ -50,6 +54,37 @@ export function describeCount(
   return nameAttachments
     ? t(`counts.attachments.${status}`, { count })
     : t(`counts.${status}`, { count });
+}
+
+export function describeCompletion(report: RunReport) {
+  const counts = countResults(report);
+  if (totalResults(counts) === 0) {
+    return [t("notices.nothingToExtract")];
+  }
+
+  // For a single note run with one failure, show the failure in the message
+  const namedFailure =
+    counts.failed === 1 && report.totalNotes === 1
+      ? firstFailure(report)
+      : null;
+
+  const lines = [t("notices.complete")];
+
+  if (namedFailure) {
+    // The named line below already covers the one failure, so it isn't counted
+    const counted = RESULT_STATUSES.filter((status) => status !== "failed");
+    lines.push(
+      ...describeCounts(counts, counted),
+      t("notices.failedSingle", {
+        name: basename(namedFailure.path),
+        reason: describeReason(namedFailure.reason),
+      }),
+    );
+  } else {
+    lines.push(...describeCounts(counts, RESULT_STATUSES));
+  }
+
+  return lines;
 }
 
 export function describeResultStatus(status: ResultStatus) {
@@ -80,7 +115,7 @@ export function describeResult(
 }
 
 /** Plain-text version of the run report for the copy button */
-export function buildReportText(report: RunReport) {
+export function buildCopyText(report: RunReport) {
   const counts = countResults(report);
   const lines = [
     t("report.title"),
@@ -120,4 +155,15 @@ export function buildReportText(report: RunReport) {
   }
 
   return lines.join("\n");
+}
+
+function describeCounts(
+  counts: ResultCounts,
+  statuses: readonly ResultStatus[],
+) {
+  return statuses
+    .filter((status) => counts[status] > 0)
+    .map((status, index) =>
+      describeCount(status, counts[status], { nameAttachments: index === 0 }),
+    );
 }

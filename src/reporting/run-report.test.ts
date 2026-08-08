@@ -5,25 +5,10 @@ import { buildReport } from "./run-report.factory";
 describe("run-report.ts", () => {
   describe("isMultiNote", () => {
     it("counts every scope type except a single note as multi-note", () => {
-      expect(
-        isMultiNote(buildReport({ scope: { type: "note", path: "a.md" } })),
-      ).toBe(false);
-      expect(
-        isMultiNote(buildReport({ scope: { type: "folder", path: "Scans" } })),
-      ).toBe(true);
-      expect(isMultiNote(buildReport({ scope: { type: "vault" } }))).toBe(true);
-      expect(isMultiNote(buildReport({ scope: { type: "selection" } }))).toBe(
-        true,
-      );
-    });
-
-    it("stays multi-note for a folder run that covered one note", () => {
-      const report = buildReport({
-        scope: { type: "folder", path: "Scans" },
-        totalNotes: 1,
-      });
-
-      expect(isMultiNote(report)).toBe(true);
+      expect(isMultiNote({ type: "note", path: "a.md" })).toBe(false);
+      expect(isMultiNote({ type: "folder", path: "Scans" })).toBe(true);
+      expect(isMultiNote({ type: "vault" })).toBe(true);
+      expect(isMultiNote({ type: "selection" })).toBe(true);
     });
   });
 

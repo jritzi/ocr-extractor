@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildReportText,
+  buildCopyText,
+  describeCompletion,
   describeCount,
   describeEarlyStop,
   describeResult,
@@ -158,12 +159,97 @@ describe("report-text.ts", () => {
     });
   });
 
-  describe("buildReportText", () => {
-    const reportText = (overrides: Partial<RunReport> = {}) =>
-      buildReportText(buildReport(overrides));
+  describe("describeCompletion", () => {
+    const completion = (overrides: Partial<RunReport>) =>
+      describeCompletion(buildReport(overrides));
+
+    const notes = (results: AttachmentResult[]) => [
+      {
+        path: "Note.md",
+        attachments: results.map((result, index) => ({
+          path: `attachments/scan-${index}.pdf`,
+          result,
+        })),
+      },
+    ];
+
+    const repeat = (result: AttachmentResult, count: number) =>
+      Array.from({ length: count }, () => result);
+
+    it("includes the word 'attachments' on the first count line only", () => {
+      expect(
+        completion({
+          totalNotes: 3,
+          notes: notes([
+            ...repeat({ status: "extracted" }, 12),
+            ...repeat({ status: "skipped", reason: "noTextFound" }, 3),
+            ...repeat({ status: "failed", reason: "rejectedByEngine" }, 2),
+          ]),
+        }),
+      ).toEqual([
+        "Text extraction complete",
+        "12 attachments extracted",
+        "3 skipped",
+        "2 failed",
+      ]);
+
+      expect(
+        completion({
+          totalNotes: 3,
+          notes: notes(repeat({ status: "skipped", reason: "noTextFound" }, 3)),
+        }),
+      ).toEqual(["Text extraction complete", "3 attachments skipped"]);
+    });
+
+    it("includes the filename for a single failure in a single-note run", () => {
+      expect(
+        completion({
+          totalNotes: 1,
+          notes: notes([
+            { status: "extracted" },
+            { status: "failed", reason: "passwordProtectedPdf" },
+          ]),
+        }),
+      ).toEqual([
+        "Text extraction complete",
+        "1 attachment extracted",
+        "Failed: scan-1.pdf (password-protected PDF)",
+      ]);
+    });
+
+    it("doesn't include the filename for a single failure in a multi-note run", () => {
+      expect(
+        completion({
+          totalNotes: 2,
+          notes: notes([{ status: "failed", reason: "passwordProtectedPdf" }]),
+        }),
+      ).toEqual(["Text extraction complete", "1 attachment failed"]);
+    });
+
+    it("doesn't include the filename for multiple failures in a single-note run", () => {
+      expect(
+        completion({
+          totalNotes: 1,
+          notes: notes(
+            repeat({ status: "failed", reason: "passwordProtectedPdf" }, 2),
+          ),
+        }),
+      ).toEqual(["Text extraction complete", "2 attachments failed"]);
+    });
+
+    it("shows 'Nothing to extract' when the run produced no results", () => {
+      expect(completion({ totalNotes: 4, notes: [] })).toEqual([
+        "Nothing to extract",
+      ]);
+    });
+  });
+
+  describe("buildCopyText", () => {
+    const copyText = (overrides: Partial<RunReport> = {}) =>
+      buildCopyText(buildReport(overrides));
 
     it("formats the provided report data", () => {
-      const text = reportText({
+      const text = copyText({
         startedAt: Date.parse("2025-07-18T18:00:00Z"),
         finishedAt: Date.parse("2025-07-18T18:02:03Z"),
         totalNotes: 2,
@@ -217,7 +303,7 @@ describe("report-text.ts", () => {
     });
 
     it("reports a fatal message with progress details", () => {
-      const text = reportText({
+      const text = copyText({
         status: "fatal",
         fatalMessage: "Unauthorized. Check your API key.",
         scope: { type: "folder", path: "Scans" },
@@ -240,7 +326,7 @@ describe("report-text.ts", () => {
 
     it("omits the finish line while a run is still in progress", () => {
       expect(
-        reportText({ status: "running", finishedAt: undefined }),
+        copyText({ status: "running", finishedAt: undefined }),
       ).not.toContain("Finished:");
     });
   });

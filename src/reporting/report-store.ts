@@ -30,6 +30,7 @@ export class ReportStore {
       scope,
       totalNotes,
       status: "running",
+      notesStarted: 0,
       notesProcessed: 0,
       notes: [],
     });
@@ -68,6 +69,14 @@ export class ReportStore {
       : [...report.notes, { path: notePath, attachments: [newEntry] }];
 
     this.setReport({ ...report, notes });
+  }
+
+  noteStarted() {
+    const report = this.currentReport();
+    this.setReport({
+      ...report,
+      notesStarted: report.notesStarted + 1,
+    });
   }
 
   noteProcessed() {

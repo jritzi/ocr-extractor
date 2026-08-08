@@ -35,6 +35,7 @@ describe("ReportStore", () => {
   it("clears the previous run's results when a second run starts", () => {
     const store = new ReportStore();
     store.startRun({ type: "vault" }, 2);
+    store.noteStarted();
     store.recordResult("a.md", "img.png", { status: "extracted" });
     store.noteProcessed();
     store.completeRun();
@@ -43,6 +44,7 @@ describe("ReportStore", () => {
 
     const report = currentReport(store);
     expect(report.notes).toEqual([]);
+    expect(report.notesStarted).toBe(0);
     expect(report.notesProcessed).toBe(0);
     expect(report.totalNotes).toBe(1);
     expect(report.scope).toEqual({ type: "note", path: "b.md" });
@@ -56,20 +58,24 @@ describe("ReportStore", () => {
     const { startedAt } = currentReport(store);
     expect(startedAt).toBeTypeOf("number");
 
+    store.noteStarted();
     store.recordResult("a.md", "img.png", { status: "extracted" });
     store.noteProcessed();
     store.completeRun();
     expect(currentReport(store).startedAt).toBe(startedAt);
   });
 
-  it("counts each processed note", () => {
+  it("counts started and processed notes separately", () => {
     const store = new ReportStore();
     store.startRun({ type: "vault" }, 2);
-    expect(currentReport(store).notesProcessed).toBe(0);
 
+    store.noteStarted();
     store.noteProcessed();
-    store.noteProcessed();
-    expect(currentReport(store).notesProcessed).toBe(2);
+    store.noteStarted();
+
+    const report = currentReport(store);
+    expect(report.notesStarted).toBe(2);
+    expect(report.notesProcessed).toBe(1);
   });
 
   it("replaces the report reference on every change", () => {
@@ -77,12 +83,16 @@ describe("ReportStore", () => {
     store.startRun({ type: "vault" }, 2);
     const first = currentReport(store);
 
-    store.recordResult("a.md", "img.png", { status: "extracted" });
+    store.noteStarted();
     const second = currentReport(store);
     expect(second).not.toBe(first);
 
+    store.recordResult("a.md", "img.png", { status: "extracted" });
+    const third = currentReport(store);
+    expect(third).not.toBe(second);
+
     store.noteProcessed();
-    expect(currentReport(store)).not.toBe(second);
+    expect(currentReport(store)).not.toBe(third);
   });
 
   it("sets finishedAt only once the run ends", () => {
@@ -227,7 +237,7 @@ describe("ReportStore", () => {
     expect(listener).toHaveBeenCalledTimes(1);
 
     unsubscribe();
-    store.noteProcessed();
+    store.noteStarted();
     expect(listener).toHaveBeenCalledTimes(1);
   });
 });

@@ -6,6 +6,7 @@ export function buildReport(overrides: Partial<RunReport> = {}): RunReport {
     scope: { type: "vault" },
     status: "complete",
     totalNotes: 0,
+    notesStarted: 0,
     notesProcessed: 0,
     notes: [],
     ...overrides,

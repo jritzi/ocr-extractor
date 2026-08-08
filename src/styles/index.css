@@ -1,5 +1,4 @@
 /* Global styles not specific to a single component */
 @import "./animation.css";
-@import "./status-bar.css";
 @import "./callout.css";
 @import "./notice.css";

@@ -51,6 +51,7 @@ export interface RunReport {
   readonly totalNotes: number;
   readonly status: RunStatus;
   readonly fatalMessage?: string;
+  readonly notesStarted: number;
   readonly notesProcessed: number;
   readonly notes: readonly NoteEntry[];
 }
@@ -66,8 +67,8 @@ export const RESULT_STATUSES: readonly ResultStatus[] = [
 
 export type ResultCounts = Readonly<Record<ResultStatus, number>>;
 
-export function isMultiNote(report: RunReport) {
-  return report.scope.type !== "note";
+export function isMultiNote(scope: RunScope) {
+  return scope.type !== "note";
 }
 
 export function countResults(report: RunReport): ResultCounts {
@@ -78,6 +79,10 @@ export function countResults(report: RunReport): ResultCounts {
     }
   }
   return counts;
+}
+
+export function totalResults(counts: ResultCounts) {
+  return Object.values(counts).reduce((total, count) => total + count, 0);
 }
 
 export function firstFailure(report: RunReport) {
