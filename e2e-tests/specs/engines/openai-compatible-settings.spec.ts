@@ -5,6 +5,7 @@ import {
   openAiCompatibleSuccessResponse,
 } from "../../helpers/openai-compatible";
 import {
+  expectNotice,
   openPluginSettings,
   settingDropdown,
   settingItem,
@@ -60,7 +61,5 @@ test("test button", async ({ page }) => {
     .getByRole("button", { name: "Test" })
     .click();
 
-  await expect(
-    page.locator(".notice").getByText("Test succeeded"),
-  ).toBeVisible();
+  await expectNotice(page, "Test succeeded");
 });

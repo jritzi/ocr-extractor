@@ -79,23 +79,23 @@ for (const status of [400, 422]) {
     await openNote(page, "Note");
     await extractActiveNote(page);
 
-    await expectNotice(
-      page,
-      "Text extraction complete. Extracted: 0, skipped: 1",
-    );
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment skipped",
+    ]);
     await expectNoCallout(page);
   });
 }
 
 test("skipped attachment on unsupported file type", async ({ page }) => {
-  await seedNote(page, "Note", { content: "![[attachments/sample.xml]]" });
+  await seedNote(page, "Note", { content: "![[attachments/unsupported.xml]]" });
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  await expectNotice(
-    page,
-    "Text extraction complete. Extracted: 0, skipped: 1",
-  );
+  await expectNotice(page, [
+    "Text extraction complete",
+    "1 attachment skipped",
+  ]);
   await expectNoCallout(page);
 });
 
