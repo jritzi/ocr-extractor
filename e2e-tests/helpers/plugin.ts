@@ -20,12 +20,17 @@ export async function cancelExtraction(page: Page) {
   await runCommand(page, "OCR Extractor: Cancel extraction");
 }
 
-export function extractionNotice(page: Page) {
-  return notice(page).filter({ hasText: "Extracting text" });
+export function notice(page: Page) {
+  return page.locator(".notice");
 }
 
-export async function expectNotice(page: Page, text: string) {
-  await expect(notice(page).getByText(text)).toBeVisible();
+export async function expectNotice(page: Page, text: string | string[]) {
+  if (!Array.isArray(text)) {
+    await expect(notice(page).getByText(text)).toBeVisible();
+    return;
+  }
+
+  await expect(noticeLines(page)).toHaveText(text);
 }
 
 export function extractionStatusBar(page: Page) {
@@ -52,6 +57,10 @@ export async function toggleSetting(page: Page, label: string) {
   await settingItem(page, label).getByRole("checkbox").click();
 }
 
+export function callout(page: Page) {
+  return page.locator(".callout");
+}
+
 export async function expectCallout(page: Page, expectedText: string | RegExp) {
   await callout(page).click();
   await expect(page.locator(".callout-content")).toHaveText(expectedText);
@@ -66,10 +75,9 @@ export async function expectNoCallout(page: Page) {
   await expect(callout(page)).not.toBeVisible();
 }
 
-function notice(page: Page) {
-  return page.locator(".notice");
-}
-
-function callout(page: Page) {
-  return page.locator(".callout");
+function noticeLines(page: Page) {
+  return notice(page)
+    .locator(".ocr-extractor-notice-lines")
+    .last()
+    .locator(":scope > div");
 }

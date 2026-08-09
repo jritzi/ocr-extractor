@@ -100,14 +100,14 @@ test.describe("unsupported file type", () => {
   test.use({ settings: { ocrEngine: "openAiCompatible" } });
 
   test("extract: unsupported result", async ({ page }) => {
-    expect(await extract(page, "attachments/sample.xml")).toEqual({
+    expect(await extract(page, "attachments/unsupported.xml")).toEqual({
       success: true,
       result: { status: "unsupported" },
     });
   });
 
   test("extractText: unsupported-file error", async ({ page }) => {
-    expect(await extractText(page, "attachments/sample.xml")).toEqual({
+    expect(await extractText(page, "attachments/unsupported.xml")).toEqual({
       success: false,
       error: { name: "OcrError", code: "unsupported-file" },
     });

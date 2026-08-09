@@ -30,9 +30,9 @@ import { LATEST_VERSION } from "./versions";
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
 
 export const MOCK_OCR_COMMANDS = {
-  fast: `node "${join(E2E, "mock-ocr", "fast.js")}" {input} {output}`,
-  error: `node "${join(E2E, "mock-ocr", "error.js")}" {input} {output}`,
-  gated: `node "${join(E2E, "mock-ocr", "gated.js")}" {input} {output}`,
+  fast: `node "${join(E2E, "mock-ocr", "fast.mjs")}" {input} {output}`,
+  error: `node "${join(E2E, "mock-ocr", "error.mjs")}" {input} {output}`,
+  gated: `node "${join(E2E, "mock-ocr", "gated.mjs")}" {input} {output}`,
 };
 
 // Minimal typing for the Electron app object inside Playwright's evaluate context
@@ -54,7 +54,6 @@ export interface ObsidianFixtures {
   electronVersion: string | undefined;
   mockOcrOutput: string;
   settings: StoredSettings;
-  allowErrors: boolean;
   gatedOcrReleaseFile: string;
   releaseGatedOcr: () => void;
   electronApp: ElectronApplication;
@@ -66,7 +65,6 @@ export const test = base.extend<ObsidianFixtures>({
   electronVersion: [undefined, { option: true }],
   mockOcrOutput: [MOCK_OCR_OUTPUT, { option: true }],
   settings: [{}, { option: true }],
-  allowErrors: [false, { option: true }],
 
   // eslint-disable-next-line no-empty-pattern -- Required by Playwright
   gatedOcrReleaseFile: async ({}, use) => {
@@ -158,11 +156,12 @@ export const test = base.extend<ObsidianFixtures>({
           }
         }
       }
-      rmSync(tmpBase, { recursive: true, force: true });
+      // Remove tmp directory, retrying if the app is still flushing files
+      rmSync(tmpBase, { recursive: true, force: true, maxRetries: 5 });
     }
   },
 
-  page: async ({ electronApp, allowErrors }, use) => {
+  page: async ({ electronApp }, use) => {
     const page = await electronApp.firstWindow();
     let hasConsoleErrors = false;
 
@@ -173,12 +172,12 @@ export const test = base.extend<ObsidianFixtures>({
     page.on("console", (message) => {
       if (message.type() === "error") {
         hasConsoleErrors = true;
-        if (!allowErrors) console.error(truncate(message.text()));
+        console.error(truncate(message.text()));
       }
     });
     page.on("pageerror", (error) => {
       hasConsoleErrors = true;
-      if (!allowErrors) console.error(truncate(error.stack ?? error.message));
+      console.error(truncate(error.stack ?? error.message));
     });
 
     // Always shown when opening a fresh vault with community plugins
@@ -191,10 +190,9 @@ export const test = base.extend<ObsidianFixtures>({
     await use(page);
 
     await expectNoUnexpectedRequests(page);
-    expect(
-      allowErrors || !hasConsoleErrors,
-      "Unexpected console errors (see above)",
-    ).toBe(true);
+    expect(hasConsoleErrors, "Unexpected console errors (see above)").toBe(
+      false,
+    );
   },
 });
 
