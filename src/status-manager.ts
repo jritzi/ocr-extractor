@@ -2,6 +2,7 @@ import OcrExtractorPlugin from "../main";
 import { Notice } from "obsidian";
 import { debugLog } from "./utils/logging";
 import { StatusBarItem } from "./ui/status-bar-item";
+import { showReportView } from "./ui/report-view";
 import { showLoadingNotice, showNotice } from "./utils/notice";
 import { ReportStore } from "./reporting/report-store";
 import {
@@ -170,7 +171,7 @@ export class StatusManager {
   private showDetailsAction() {
     return {
       label: t("notices.showDetails"),
-      onClick: () => void this.plugin.showReportView(),
+      onClick: () => void showReportView(this.plugin.app),
     };
   }
 

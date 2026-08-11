@@ -20,6 +20,7 @@ import { registerAutoExtractEvents } from "./src/auto-extract";
 import { StatusManager } from "./src/status-manager";
 import { OcrEngineManager } from "./src/engines/ocr-engine-manager";
 import { ReportStore } from "./src/reporting/report-store";
+import { registerReportView } from "./src/ui/report-view";
 import { assert } from "./src/utils/assert";
 import type { OcrExtractorApi } from "ocr-extractor-api";
 
@@ -45,12 +46,15 @@ export default class OcrExtractorPlugin extends Plugin {
   async onload() {
     await setLanguage(getLanguage());
     await this.loadSettings();
+
     this.statusManager = new StatusManager(this);
     this.engineManager = new OcrEngineManager(this);
     this.extractor = new TextExtractor(this);
     this.api = createApi(this);
-    this.addSettingTab(new SettingTab(this.app, this));
+
     registerActions(this);
+    registerReportView(this);
+    this.addSettingTab(new SettingTab(this.app, this));
 
     this.app.workspace.onLayoutReady(() => {
       this.checkInstallerVersion();
