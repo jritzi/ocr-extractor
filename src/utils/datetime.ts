@@ -4,7 +4,7 @@ type DurationUnit = "hour" | "minute" | "second";
 
 /** Human-readable duration, e.g. "1h 4m", "2m 3s", "8s", or "<1s" */
 export function formatDuration(milliseconds: number) {
-  if (milliseconds < 1000) return t("view.durationUnderSecond");
+  if (milliseconds < 1000) return t("duration.underSecond");
 
   const totalSeconds = Math.round(milliseconds / 1000);
   const hours = Math.floor(totalSeconds / 3600);

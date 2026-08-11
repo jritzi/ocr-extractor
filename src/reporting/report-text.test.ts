@@ -21,7 +21,7 @@ describe("report-text.ts", () => {
       expect(describeScope({ type: "folder", path: "Attachments/Scans" })).toBe(
         "Folder: Attachments/Scans",
       );
-      expect(describeScope({ type: "vault" })).toBe("Whole vault");
+      expect(describeScope({ type: "vault" })).toBe("All notes");
       expect(describeScope({ type: "selection" })).toBe("Selected notes");
     });
   });
@@ -34,7 +34,7 @@ describe("report-text.ts", () => {
       expect(runStatus("running")).toBe("In progress");
       expect(runStatus("canceling")).toBe("Canceling");
       expect(runStatus("complete")).toBe("Completed");
-      expect(runStatus("fatal")).toBe("Stopped");
+      expect(runStatus("fatal")).toBe("Error");
       expect(runStatus("canceled")).toBe("Canceled");
     });
   });
@@ -286,7 +286,7 @@ describe("report-text.ts", () => {
       expect(text).toBe(
         [
           "Extraction report",
-          "Whole vault",
+          "All notes",
           "Started: Jul 18, 2025, 6:00 PM · 2 notes",
           "Finished: Jul 18, 2025, 6:02 PM · 2m 3s",
           "Completed",
@@ -316,7 +316,7 @@ describe("report-text.ts", () => {
           "Extraction report",
           "Folder: Scans",
           "Started: Jul 18, 2025, 6:00 PM · 2 notes",
-          "Stopped",
+          "Error",
           "Unauthorized. Check your API key.",
           "Stopped after 1 of 2 notes",
           "Attachments: 0 extracted · 0 skipped · 0 failed",

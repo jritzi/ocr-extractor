@@ -49,7 +49,7 @@
     "dismiss": "Dismiss",
     "installerUpdate": {
       "title": "Installer update required",
-      "body": "OCR Extractor requires a newer Obsidian installer version to work correctly. Please download and install the latest Obsidian (you do not need to uninstall first).",
+      "body": "OCR Extractor requires a newer Obsidian installer version to work correctly. Please download and install the latest version of Obsidian (you do not need to uninstall first).",
       "download": "Download Obsidian",
       "learnMore": "Learn more"
     },
@@ -77,7 +77,7 @@
     "stoppedAfterNotes_one": "Stopped after {{processed, number}} of {{count, number}} note",
     "stoppedAfterNotes_other": "Stopped after {{processed, number}} of {{count, number}} notes",
     "showDetails": "Show details",
-    "reportCopied": "Report copied to the clipboard",
+    "reportCopied": "Report copied to clipboard",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",
     "mobileEngineFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
     "mobileEngineFallbackSetting": "{{pluginName}}: Custom commands are not available on mobile, Tesseract will be used instead",
@@ -87,8 +87,8 @@
     "testSucceeded": "Test succeeded",
     "testFailed": "Test failed: {{message}}",
     "testFailedUnexpected": "Test failed: Unexpected error",
-    "testNoOutput": "Command succeeded but no output file produced",
-    "testMismatch": "Output (\"{{actual}}\") does not match expected (\"{{expected}}\")."
+    "testNoOutput": "Command succeeded but produced no output file",
+    "testMismatch": "Expected \"{{expected}}\" but got \"{{actual}}\""
   },
   "counts": {
     "label": "Attachments",
@@ -141,14 +141,14 @@
     "scope": {
       "note": "Note: {{name}}",
       "folder": "Folder: {{path}}",
-      "vault": "Whole vault",
+      "vault": "All notes",
       "selection": "Selected notes"
     },
     "runStatus": {
       "running": "In progress",
       "canceling": "Canceling",
       "complete": "Completed",
-      "fatal": "Stopped",
+      "fatal": "Error",
       "canceled": "Canceled"
     },
     "resultStatus": {
