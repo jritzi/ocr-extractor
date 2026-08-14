@@ -2,55 +2,56 @@ import type { EngineResult } from "./engines/ocr-engine";
 import type { EmbedMarkup } from "./editing/plan";
 import type { InsertResult } from "./editing/settle";
 import type { ReportStore } from "./reporting/report-store";
+import type { AttachmentEntry } from "./reporting/run-report";
 import type { AttachmentPath } from "./utils/path";
 
 export type EmbedResult = {
   path: AttachmentPath;
   result: Exclude<EngineResult, { status: "canceled" }>;
 };
-export type EmbedResults = Map<EmbedMarkup, EmbedResult>;
+export type EmbedResults = Map<EmbedMarkup, EmbedResult & { order: number }>;
 
-type ExtractedPaths = Map<EmbedMarkup, AttachmentPath>;
+type PendingEntries = Omit<AttachmentEntry, "result">[];
 
 /**
- * Records skipped/failed results and returns the extracted results to record
- * later after their callouts are written
+ * Records skipped/failed results and returns entries for extracted results
+ * (to record later after their callouts are written)
  */
 export function recordResultsBeforeInsert(
   store: ReportStore,
   notePath: string,
   results: EmbedResults,
 ) {
-  const extractedPaths: ExtractedPaths = new Map();
+  const pendingEntries: PendingEntries = [];
 
-  for (const [markup, { path, result }] of results) {
+  for (const [markup, { path, result, order }] of results) {
+    const entry = { path, markup, order };
     if (result.status === "extracted") {
-      extractedPaths.set(markup, path);
+      pendingEntries.push(entry);
     } else {
-      store.recordResult(notePath, path, result);
+      store.recordResult(notePath, { ...entry, result });
     }
   }
 
-  return extractedPaths;
+  return pendingEntries;
 }
 
 export function recordResultsAfterInsert(
   store: ReportStore,
   notePath: string,
-  extractedPaths: ExtractedPaths,
+  pendingEntries: PendingEntries,
   insertResult: InsertResult,
 ) {
   if (insertResult.status === "done") {
     const orphaned = new Set(insertResult.orphanedResults);
 
-    for (const [markup, path] of extractedPaths) {
-      store.recordResult(
-        notePath,
-        path,
-        orphaned.has(markup)
+    for (const entry of pendingEntries) {
+      store.recordResult(notePath, {
+        ...entry,
+        result: orphaned.has(entry.markup)
           ? { status: "failed", reason: "noteChanged" }
           : { status: "extracted" },
-      );
+      });
     }
 
     return;
@@ -58,13 +59,16 @@ export function recordResultsAfterInsert(
 
   const inserted = new Set(insertResult.insertedResults);
 
-  for (const [markup, path] of extractedPaths) {
-    if (inserted.has(markup)) {
-      store.recordResult(notePath, path, { status: "extracted" });
+  for (const entry of pendingEntries) {
+    if (inserted.has(entry.markup)) {
+      store.recordResult(notePath, {
+        ...entry,
+        result: { status: "extracted" },
+      });
     } else if (insertResult.status === "timeout") {
-      store.recordResult(notePath, path, {
-        status: "failed",
-        reason: "noteChanged",
+      store.recordResult(notePath, {
+        ...entry,
+        result: { status: "failed", reason: "noteChanged" },
       });
     } else {
       // Canceled results are not recorded

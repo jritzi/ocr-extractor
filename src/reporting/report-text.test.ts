@@ -10,7 +10,7 @@ import {
   describeScope,
 } from "./report-text";
 import { AttachmentResult, RunReport, RunStatus } from "./run-report";
-import { buildReport } from "./run-report.factory";
+import { buildNoteEntry, buildRunReport } from "./run-report.test-utils";
 
 describe("report-text.ts", () => {
   describe("describeScope", () => {
@@ -29,7 +29,7 @@ describe("report-text.ts", () => {
   describe("describeRunStatus", () => {
     it("describes the run's status", () => {
       const runStatus = (status: RunStatus) =>
-        describeRunStatus(buildReport({ status }));
+        describeRunStatus(buildRunReport({ status }));
 
       expect(runStatus("running")).toBe("In progress");
       expect(runStatus("canceling")).toBe("Canceling");
@@ -41,7 +41,7 @@ describe("report-text.ts", () => {
 
   describe("describeEarlyStop", () => {
     const earlyStop = (overrides: Partial<RunReport>) =>
-      describeEarlyStop(buildReport(overrides));
+      describeEarlyStop(buildRunReport(overrides));
 
     it("reports progress for a run ended early", () => {
       expect(
@@ -161,16 +161,15 @@ describe("report-text.ts", () => {
 
   describe("describeCompletion", () => {
     const completion = (overrides: Partial<RunReport>) =>
-      describeCompletion(buildReport(overrides));
+      describeCompletion(buildRunReport(overrides));
 
     const notes = (results: AttachmentResult[]) => [
-      {
-        path: "Note.md",
+      buildNoteEntry({
         attachments: results.map((result, index) => ({
           path: `attachments/scan-${index}.pdf`,
           result,
         })),
-      },
+      }),
     ];
 
     const repeat = (result: AttachmentResult, count: number) =>
@@ -246,7 +245,7 @@ describe("report-text.ts", () => {
 
   describe("buildCopyText", () => {
     const copyText = (overrides: Partial<RunReport> = {}) =>
-      buildCopyText(buildReport(overrides));
+      buildCopyText(buildRunReport(overrides));
 
     it("formats the provided report data", () => {
       const text = copyText({
@@ -254,7 +253,7 @@ describe("report-text.ts", () => {
         finishedAt: Date.parse("2025-07-18T18:02:03Z"),
         totalNotes: 2,
         notes: [
-          {
+          buildNoteEntry({
             path: "Folder/First note.md",
             attachments: [
               {
@@ -266,8 +265,8 @@ describe("report-text.ts", () => {
                 result: { status: "failed", reason: "pdfUnreadable" },
               },
             ],
-          },
-          {
+          }),
+          buildNoteEntry({
             path: "Second note.md",
             attachments: [
               {
@@ -279,7 +278,7 @@ describe("report-text.ts", () => {
                 },
               },
             ],
-          },
+          }),
         ],
       });
 

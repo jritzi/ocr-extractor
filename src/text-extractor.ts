@@ -152,7 +152,7 @@ export class TextExtractor {
       embeds,
     );
 
-    const extractedPaths = recordResultsBeforeInsert(
+    const pendingEntries = recordResultsBeforeInsert(
       this.store,
       noteFile.path,
       results,
@@ -177,7 +177,7 @@ export class TextExtractor {
     recordResultsAfterInsert(
       this.store,
       noteFile.path,
-      extractedPaths,
+      pendingEntries,
       insertResult,
     );
   }
@@ -188,21 +188,25 @@ export class TextExtractor {
     embeds: EmbedCache[],
   ) {
     const embedsToProcess = selectEmbedsToProcess(fileContent, embeds);
-    const results: EmbedResults = new Map();
 
     // Limit concurrency
     const limit = pLimit(5);
 
-    await Promise.all(
+    const processed = await Promise.all(
       embedsToProcess.map((embed) =>
-        limit(async () => {
-          const processed = await this.processEmbed(noteFile, embed);
-          if (processed) {
-            results.set(embed.original, processed);
-          }
-        }),
+        limit(() => this.processEmbed(noteFile, embed)),
       ),
     );
+
+    // Embeds finish in arbitrary order, so get order from the note, not the
+    // results
+    const results: EmbedResults = new Map();
+    embedsToProcess.forEach((embed, index) => {
+      const result = processed[index];
+      if (result) {
+        results.set(embed.original, { ...result, order: index });
+      }
+    });
 
     const embedsToMarkdown: EmbedsToMarkdown = new Map();
     for (const [markup, { result }] of results) {

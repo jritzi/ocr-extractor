@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countResults, firstFailure, isMultiNote } from "./run-report";
-import { buildReport } from "./run-report.factory";
+import { buildNoteEntry, buildRunReport } from "./run-report.test-utils";
 
 describe("run-report.ts", () => {
   describe("isMultiNote", () => {
@@ -14,9 +14,9 @@ describe("run-report.ts", () => {
 
   describe("countResults", () => {
     it("counts results across notes", () => {
-      const report = buildReport({
+      const report = buildRunReport({
         notes: [
-          {
+          buildNoteEntry({
             path: "a.md",
             attachments: [
               { path: "img.png", result: { status: "extracted" } },
@@ -25,8 +25,8 @@ describe("run-report.ts", () => {
                 result: { status: "failed", reason: "pdfUnreadable" },
               },
             ],
-          },
-          {
+          }),
+          buildNoteEntry({
             path: "b.md",
             attachments: [
               {
@@ -34,7 +34,7 @@ describe("run-report.ts", () => {
                 result: { status: "skipped", reason: "unsupportedFileType" },
               },
             ],
-          },
+          }),
         ],
       });
 
@@ -46,7 +46,7 @@ describe("run-report.ts", () => {
     });
 
     it("returns zero counts before any result is recorded", () => {
-      expect(countResults(buildReport({ notes: [] }))).toEqual({
+      expect(countResults(buildRunReport({ notes: [] }))).toEqual({
         extracted: 0,
         skipped: 0,
         failed: 0,
@@ -56,10 +56,9 @@ describe("run-report.ts", () => {
 
   describe("firstFailure", () => {
     it("returns the failure when one attachment failed", () => {
-      const report = buildReport({
+      const report = buildRunReport({
         notes: [
-          {
-            path: "a.md",
+          buildNoteEntry({
             attachments: [
               { path: "img.png", result: { status: "extracted" } },
               {
@@ -67,18 +66,17 @@ describe("run-report.ts", () => {
                 result: { status: "failed", reason: "pdfUnreadable" },
               },
             ],
-          },
+          }),
         ],
       });
 
       expect(firstFailure(report)?.path).toBe("scan.pdf");
     });
 
-    it("returns the earliest recorded failure when several failed", () => {
-      const report = buildReport({
+    it("returns the first failure in the note when several failed", () => {
+      const report = buildRunReport({
         notes: [
-          {
-            path: "a.md",
+          buildNoteEntry({
             attachments: [
               {
                 path: "one.pdf",
@@ -89,7 +87,7 @@ describe("run-report.ts", () => {
                 result: { status: "failed", reason: "pdfUnreadable" },
               },
             ],
-          },
+          }),
         ],
       });
 
@@ -97,10 +95,9 @@ describe("run-report.ts", () => {
     });
 
     it("returns null when nothing failed", () => {
-      const report = buildReport({
+      const report = buildRunReport({
         notes: [
-          {
-            path: "a.md",
+          buildNoteEntry({
             attachments: [
               { path: "img.png", result: { status: "extracted" } },
               {
@@ -108,7 +105,7 @@ describe("run-report.ts", () => {
                 result: { status: "skipped", reason: "unsupportedFileType" },
               },
             ],
-          },
+          }),
         ],
       });
 

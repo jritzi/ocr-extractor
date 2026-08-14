@@ -1,13 +1,13 @@
 import { t } from "../i18n";
 import { assert } from "../utils/assert";
 import { warnFailed, warnSkipped } from "../utils/logging";
-import type { AttachmentPath } from "../utils/path";
-import {
-  AttachmentEntry,
-  AttachmentResult,
-  RunReport,
-  RunScope,
-} from "./run-report";
+import { AttachmentEntry, NoteEntry, RunReport, RunScope } from "./run-report";
+
+// Match what Obsidian uses internally, but over whole paths
+const collator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+});
 
 /** Record of the current (or most recent) extraction run */
 export class ReportStore {
@@ -37,12 +37,9 @@ export class ReportStore {
     });
   }
 
-  recordResult(
-    notePath: string,
-    attachmentPath: AttachmentPath,
-    result: AttachmentResult,
-  ) {
+  recordResult(notePath: string, entry: AttachmentEntry) {
     const report = this.currentReport();
+    const { result } = entry;
 
     if (result.status !== "extracted") {
       // Console messages use English regardless of the user's language
@@ -51,23 +48,24 @@ export class ReportStore {
         ? `${reasonText} (${result.detail})`
         : reasonText;
       if (result.status === "skipped") {
-        warnSkipped(attachmentPath, consoleText);
+        warnSkipped(entry.path, consoleText);
       } else {
-        warnFailed(attachmentPath, consoleText);
+        warnFailed(entry.path, consoleText);
       }
     }
 
-    const newEntry: AttachmentEntry = { path: attachmentPath, result };
     const existingNote = report.notes.find((note) => note.path === notePath);
 
     // Consumers compare notes by reference, so don't rebuild the other notes
     const notes = existingNote
       ? report.notes.map((note) =>
-          note.path === notePath
-            ? { ...note, attachments: [...note.attachments, newEntry] }
-            : note,
+          note === existingNote ? withAttachment(note, entry) : note,
         )
-      : [...report.notes, { path: notePath, attachments: [newEntry] }];
+      : insertSorted(
+          report.notes,
+          { path: notePath, attachments: [entry] },
+          comparePaths,
+        );
 
     this.setReport({ ...report, notes });
   }
@@ -129,4 +127,30 @@ export class ReportStore {
       listener();
     }
   }
+}
+
+function withAttachment(note: NoteEntry, entry: AttachmentEntry): NoteEntry {
+  return {
+    ...note,
+    attachments: insertSorted(
+      note.attachments,
+      entry,
+      (a, b) => a.order - b.order,
+    ),
+  };
+}
+
+function insertSorted<T>(
+  items: readonly T[],
+  item: T,
+  compare: (a: T, b: T) => number,
+) {
+  const index = items.findIndex((existing) => compare(item, existing) < 0);
+  return index === -1
+    ? [...items, item]
+    : [...items.slice(0, index), item, ...items.slice(index)];
+}
+
+function comparePaths(a: { path: string }, b: { path: string }) {
+  return collator.compare(a.path, b.path);
 }

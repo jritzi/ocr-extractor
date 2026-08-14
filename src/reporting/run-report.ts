@@ -3,6 +3,7 @@
  * store can never mutate a report (breaking React's assumptions).
  */
 
+import type { EmbedMarkup } from "../editing/plan";
 import { ResultReason } from "../result-reason";
 import type { AttachmentPath } from "../utils/path";
 
@@ -21,13 +22,15 @@ export type AttachmentResult =
 
 export interface AttachmentEntry {
   readonly path: AttachmentPath;
+  readonly markup: EmbedMarkup;
+  readonly order: number;
   readonly result: AttachmentResult;
 }
 
 export interface NoteEntry {
   /** Resolved vault path */
   readonly path: string;
-  /** One per embed (so a file embedded twice appears twice) */
+  /** One per unique markup processed, in the order they appear in the note */
   readonly attachments: readonly AttachmentEntry[];
 }
 
