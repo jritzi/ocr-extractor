@@ -1,5 +1,10 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
-import { getActiveNoteContent, openNote, seedNote } from "../helpers/obsidian";
+import {
+  createFolder,
+  getActiveNoteContent,
+  openNote,
+  seedNote,
+} from "../helpers/obsidian";
 import {
   callout,
   expectCallout,
@@ -7,6 +12,7 @@ import {
   expectNotice,
   extractActiveNote,
   extractAllNotes,
+  extractFolder,
   extractionStatusBar,
   notice,
 } from "../helpers/plugin";
@@ -42,6 +48,24 @@ test("multiple embeds in one note", async ({ page }) => {
   expect(content).toContain(
     `![[attachments/sample.png]]\n\n${calloutMarkdown}`,
   );
+});
+
+test("already extracted embed", async ({ page }) => {
+  await seedNote(page, "Already extracted test", {
+    content: "![[attachments/sample.pdf]]",
+  });
+  await openNote(page, "Already extracted test");
+  await extractActiveNote(page);
+  await expectNotice(page, "Text extraction complete");
+
+  await extractActiveNote(page);
+  await expectNotice(page, "Nothing to extract");
+});
+
+test("empty folder", async ({ page }) => {
+  await createFolder(page, "Empty folder");
+  await extractFolder(page, "Empty folder");
+  await expectNotice(page, "Nothing to extract");
 });
 
 test.describe("password-protected PDFs", () => {

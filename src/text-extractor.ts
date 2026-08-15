@@ -94,8 +94,13 @@ export class TextExtractor {
   }
 
   private startExtractingFiles(files: TFile[], scope: RunScope) {
-    if (files.length === 0) return;
     this.statusManager.setProcessing(scope, files.length);
+
+    if (files.length === 0) {
+      this.statusManager.setComplete();
+      return;
+    }
+
     void this.runExtraction(files);
   }
 

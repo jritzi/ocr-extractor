@@ -32,10 +32,10 @@ describe("recordResultsBeforeInsert", () => {
         },
       ],
       [
-        "![[locked.pdf]]",
+        "![[corrupt.pdf]]",
         {
-          path: "attachments/locked.pdf",
-          result: { status: "failed", reason: "passwordProtectedPdf" },
+          path: "attachments/corrupt.pdf",
+          result: { status: "failed", reason: "pdfUnreadable" },
           order: 1,
         },
       ],
@@ -51,9 +51,9 @@ describe("recordResultsBeforeInsert", () => {
         order: 0,
       },
       {
-        path: "attachments/locked.pdf",
-        markup: "![[locked.pdf]]",
-        result: { status: "failed", reason: "passwordProtectedPdf" },
+        path: "attachments/corrupt.pdf",
+        markup: "![[corrupt.pdf]]",
+        result: { status: "failed", reason: "pdfUnreadable" },
         order: 1,
       },
     ]);
@@ -79,10 +79,10 @@ describe("recordResultsBeforeInsert", () => {
         },
       ],
       [
-        "![[locked.pdf]]",
+        "![[corrupt.pdf]]",
         {
-          path: "attachments/locked.pdf",
-          result: { status: "failed", reason: "passwordProtectedPdf" },
+          path: "attachments/corrupt.pdf",
+          result: { status: "failed", reason: "pdfUnreadable" },
           order: 2,
         },
       ],

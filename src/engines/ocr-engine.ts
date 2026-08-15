@@ -10,7 +10,7 @@ import {
 import { raceAbort } from "../utils/async";
 import { normalizeNewlines } from "../utils/markdown";
 import { OcrEngineSettingsClass } from "./ocr-engine-settings";
-import type { ResultReason } from "../result-reason";
+import type { FailureReason, ResultReason, SkipReason } from "../result-reason";
 
 /**
  * An error that stops the whole run, because it's a problem that would fail
@@ -20,9 +20,9 @@ import type { ResultReason } from "../result-reason";
 export class FatalError extends Error {}
 
 /** Errors raised in the engine layer and converted into result values */
-abstract class AttachmentError extends Error {
+abstract class AttachmentError<Reason extends ResultReason> extends Error {
   constructor(
-    readonly reason: ResultReason,
+    readonly reason: Reason,
     /** Extra detail for the console and copied report (not translated) */
     readonly detail?: string,
   ) {
@@ -31,10 +31,10 @@ abstract class AttachmentError extends Error {
 }
 
 /** There is nothing wrong with the file, but there is nothing to extract */
-export class AttachmentSkippedError extends AttachmentError {}
+export class AttachmentSkippedError extends AttachmentError<SkipReason> {}
 
 /** Extraction failed on a file that likely has text to extract */
-export class AttachmentFailedError extends AttachmentError {}
+export class AttachmentFailedError extends AttachmentError<FailureReason> {}
 
 export interface ExtractPagesOptions {
   /** Detected from the file's contents, not its extension */
@@ -46,8 +46,8 @@ export interface ExtractPagesOptions {
 /** The result of processing one attachment */
 export type EngineResult =
   | { status: "extracted"; markdown: string }
-  | { status: "skipped"; reason: ResultReason; detail?: string }
-  | { status: "failed"; reason: ResultReason; detail?: string }
+  | { status: "skipped"; reason: SkipReason; detail?: string }
+  | { status: "failed"; reason: FailureReason; detail?: string }
   | { status: "canceled" };
 
 const PAGE_SEPARATOR = "\n\n---\n\n";

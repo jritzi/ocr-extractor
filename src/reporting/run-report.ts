@@ -4,19 +4,19 @@
  */
 
 import type { EmbedMarkup } from "../editing/plan";
-import { ResultReason } from "../result-reason";
+import { FailureReason, SkipReason } from "../result-reason";
 import type { AttachmentPath } from "../utils/path";
 
 export type AttachmentResult =
   | { readonly status: "extracted" }
   | {
       readonly status: "skipped";
-      readonly reason: ResultReason;
+      readonly reason: SkipReason;
       readonly detail?: string;
     }
   | {
       readonly status: "failed";
-      readonly reason: ResultReason;
+      readonly reason: FailureReason;
       readonly detail?: string;
     };
 

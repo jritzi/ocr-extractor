@@ -1,0 +1,109 @@
+import { App } from "obsidian";
+import { useState, useSyncExternalStore } from "react";
+import { ReportStore } from "../../reporting/report-store";
+import { RunReport } from "../../reporting/run-report";
+import {
+  filterNotes,
+  isFiltering,
+  StatusFilter,
+} from "../../reporting/status-filter";
+import { t } from "../../i18n";
+import { ReportHeader } from "./report-header";
+import { NoteGroup } from "./note-group";
+import "./report-app.css";
+
+interface ReportAppProps {
+  store: ReportStore;
+  app: App;
+}
+
+export function ReportApp({ store, app }: ReportAppProps) {
+  const report = useSyncExternalStore(store.subscribe, () => store.getReport());
+
+  const [collapsedPaths, setCollapsedPaths] = useState<ReadonlySet<string>>(
+    new Set(),
+  );
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>({
+    extracted: true,
+    skipped: true,
+    failed: true,
+  });
+
+  const filtering = isFiltering(statusFilter);
+  const notes = report?.notes ?? [];
+  const visibleNotes = filtering ? filterNotes(notes, statusFilter) : notes;
+
+  const allCollapsed =
+    visibleNotes.length > 0 &&
+    visibleNotes.every((note) => collapsedPaths.has(note.path));
+
+  function toggleCollapsed(path: string) {
+    setCollapsedPaths((current) => {
+      const next = new Set(current);
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
+  }
+
+  function toggleAllCollapsed() {
+    setCollapsedPaths(
+      allCollapsed ? new Set() : new Set(visibleNotes.map((note) => note.path)),
+    );
+  }
+
+  let body;
+  if (!report) {
+    body = <div className="pane-empty">{t("report.noRun")}</div>;
+  } else if (visibleNotes.length > 0) {
+    body = (
+      <div className="ocr-extractor-report-notes">
+        {visibleNotes.map((note) => (
+          <NoteGroup
+            key={note.path}
+            note={note}
+            app={app}
+            collapsed={collapsedPaths.has(note.path)}
+            onToggle={() => toggleCollapsed(note.path)}
+          />
+        ))}
+      </div>
+    );
+  } else {
+    const emptyMessage = describeEmpty(report, filtering);
+    if (emptyMessage) {
+      body = <div className="ocr-extractor-report-empty">{emptyMessage}</div>;
+    }
+  }
+
+  return (
+    <>
+      <ReportHeader
+        report={report}
+        allCollapsed={allCollapsed}
+        onToggleAll={toggleAllCollapsed}
+        statusFilter={statusFilter}
+        onToggleStatus={(status) =>
+          setStatusFilter((current) => ({
+            ...current,
+            [status]: !current[status],
+          }))
+        }
+      />
+      {body}
+    </>
+  );
+}
+
+function describeEmpty(report: RunReport, filtering: boolean) {
+  if (filtering) {
+    return t("report.noMatches");
+  }
+  if (report.status === "complete") {
+    return t("notices.nothingToExtract");
+  }
+  return null;
+}

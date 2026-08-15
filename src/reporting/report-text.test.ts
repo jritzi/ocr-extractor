@@ -206,13 +206,13 @@ describe("report-text.ts", () => {
           totalNotes: 1,
           notes: notes([
             { status: "extracted" },
-            { status: "failed", reason: "passwordProtectedPdf" },
+            { status: "failed", reason: "pdfUnreadable" },
           ]),
         }),
       ).toEqual([
         "Text extraction complete",
         "1 attachment extracted",
-        "Failed: scan-1.pdf (password-protected PDF)",
+        "Failed: scan-1.pdf (could not read PDF)",
       ]);
     });
 
@@ -220,7 +220,7 @@ describe("report-text.ts", () => {
       expect(
         completion({
           totalNotes: 2,
-          notes: notes([{ status: "failed", reason: "passwordProtectedPdf" }]),
+          notes: notes([{ status: "failed", reason: "pdfUnreadable" }]),
         }),
       ).toEqual(["Text extraction complete", "1 attachment failed"]);
     });
@@ -230,7 +230,7 @@ describe("report-text.ts", () => {
         completion({
           totalNotes: 1,
           notes: notes(
-            repeat({ status: "failed", reason: "passwordProtectedPdf" }, 2),
+            repeat({ status: "failed", reason: "pdfUnreadable" }, 2),
           ),
         }),
       ).toEqual(["Text extraction complete", "2 attachments failed"]);
