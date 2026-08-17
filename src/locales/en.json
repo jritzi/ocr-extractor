@@ -78,6 +78,7 @@
     "stoppedAfterNotes_other": "Stopped after {{processed, number}} of {{count, number}} notes",
     "showDetails": "Show details",
     "reportCopied": "Report copied to clipboard",
+    "noteNotFound": "Couldn't find {{name}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",
     "mobileEngineFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
     "mobileEngineFallbackSetting": "{{pluginName}}: Custom commands are not available on mobile, Tesseract will be used instead",

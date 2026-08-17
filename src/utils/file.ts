@@ -45,3 +45,25 @@ export function attachmentPath(
 ): AttachmentPath {
   return embedFile?.path ?? getLinkpath(embedLink);
 }
+
+export function findEmbedLine(
+  app: App,
+  notePath: string,
+  embed: { markup: string; path: AttachmentPath },
+) {
+  const embeds = app.metadataCache.getCache(notePath)?.embeds ?? [];
+
+  // Match the full markup (e.g. `![[a.pdf#page=2]]`), fall back to the path
+  let match = embeds.find((candidate) => candidate.original === embed.markup);
+  if (!match) {
+    match = embeds.find(
+      (candidate) =>
+        attachmentPath(
+          resolveEmbedFile(app, candidate.link, notePath),
+          candidate.link,
+        ) === embed.path,
+    );
+  }
+
+  return match?.position.start.line;
+}

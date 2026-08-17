@@ -65,9 +65,9 @@ export function ReportApp({ store, app }: ReportAppProps) {
           <NoteGroup
             key={note.path}
             note={note}
-            app={app}
             collapsed={collapsedPaths.has(note.path)}
             onToggle={() => toggleCollapsed(note.path)}
+            app={app}
           />
         ))}
       </div>

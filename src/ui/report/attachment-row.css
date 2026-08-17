@@ -1,0 +1,15 @@
+.ocr-extractor-report-attachment-name,
+.ocr-extractor-report-attachment-result {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ocr-extractor-report-attachment-result {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.ocr-extractor-report-result-failed .ocr-extractor-report-attachment-result {
+  color: var(--text-error);
+}

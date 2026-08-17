@@ -23,8 +23,10 @@
   "license": "MIT",
   "dependencies": {
     "@mistralai/mistralai": "^2.2.5",
+    "clsx": "^2.1.1",
     "file-type": "^22.0.1",
     "i18next": "^26.0.6",
+    "motion": "^13.1.0",
     "openai": "^6.42.0",
     "p-limit": "^7.3.0",
     "pdfjs-dist": "6.1.200",

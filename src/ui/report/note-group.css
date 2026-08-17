@@ -1,0 +1,15 @@
+/* Collapsing animates height to 0 */
+.ocr-extractor-report-note-item > .tree-item-children {
+  overflow: hidden;
+}
+
+.ocr-extractor-report-note-name,
+.ocr-extractor-report-note-folder {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ocr-extractor-report-note-item > .tree-item-self {
+  align-items: center;
+}
