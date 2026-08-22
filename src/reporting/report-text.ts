@@ -150,7 +150,7 @@ export function describeCompletion(report: RunReport) {
 export function buildCopyText(report: RunReport) {
   const counts = countResults(report);
   const lines = [
-    t("report.title"),
+    t("report.title", { pluginName: t("pluginName") }),
     describeScope(report.scope),
     describeStart(report),
   ];

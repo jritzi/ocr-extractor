@@ -1,24 +1,22 @@
 import { Menu, Platform, TFile, TFolder } from "obsidian";
-import { assert } from "./utils/assert";
 import { isMarkdown } from "./utils/file";
 import OcrExtractorPlugin from "../main";
 import { t } from "./i18n";
+import { showReportView } from "./ui/report-view";
 
-const PLUGIN_ICON = "scan-text";
+export const PLUGIN_ICON = "scan-text";
 
 export function registerActions(plugin: OcrExtractorPlugin) {
   addExtractActiveNoteCommand(plugin);
+  addExtractFolderCommand(plugin);
+  addExtractAllNotesCommand(plugin);
+  addCancelExtractionCommand(plugin);
+  addShowReportCommand(plugin);
+
   addExtractNoteMenuItem(plugin);
   addExtractEditorMenuItem(plugin);
-
-  addExtractFolderCommand(plugin);
   addExtractFolderMenuItem(plugin);
-
-  addExtractAllNotesCommand(plugin);
-
   addExtractSelectionMenuItem(plugin);
-
-  addCancelExtractionCommand(plugin);
 
   addRibbonIcon(plugin);
 }
@@ -38,6 +36,68 @@ function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
 
       return false;
     },
+  });
+}
+
+function addExtractFolderCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "extract-folder",
+    name: t("commands.extractFolder"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.extractor.canProcessMultipleFiles()) {
+        if (!checking) {
+          plugin.extractor.processFolder();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
+}
+
+function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "extract-all-notes",
+    name: t("commands.extractAllNotes"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.extractor.canProcessMultipleFiles()) {
+        if (!checking) {
+          plugin.extractor.processAllFiles();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
+}
+
+function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "cancel-extraction",
+    name: t("commands.cancelExtraction"),
+    checkCallback: (checking: boolean) => {
+      if (plugin.statusManager.isProcessing()) {
+        if (!checking) {
+          plugin.statusManager.setCanceling();
+        }
+
+        return true;
+      }
+
+      return false;
+    },
+  });
+}
+
+function addShowReportCommand(plugin: OcrExtractorPlugin) {
+  plugin.addCommand({
+    id: "show-report",
+    name: t("commands.showReport"),
+    callback: () => void showReportView(plugin.app),
   });
 }
 
@@ -73,24 +133,6 @@ function addExtractEditorMenuItem(plugin: OcrExtractorPlugin) {
   );
 }
 
-function addExtractFolderCommand(plugin: OcrExtractorPlugin) {
-  plugin.addCommand({
-    id: "extract-folder",
-    name: t("commands.extractFolder"),
-    checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessMultipleFiles()) {
-        if (!checking) {
-          plugin.extractor.processFolder();
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-  });
-}
-
 function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("file-menu", (menu, file) => {
@@ -105,24 +147,6 @@ function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
       );
     }),
   );
-}
-
-function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
-  plugin.addCommand({
-    id: "extract-all-notes",
-    name: t("commands.extractAllNotes"),
-    checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessMultipleFiles()) {
-        if (!checking) {
-          plugin.extractor.processAllFiles();
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-  });
 }
 
 function addExtractSelectionMenuItem(plugin: OcrExtractorPlugin) {
@@ -144,32 +168,19 @@ function addExtractSelectionMenuItem(plugin: OcrExtractorPlugin) {
   );
 }
 
-function addCancelExtractionCommand(plugin: OcrExtractorPlugin) {
-  plugin.addCommand({
-    id: "cancel-extraction",
-    name: t("commands.cancelExtraction"),
-    checkCallback: (checking: boolean) => {
-      if (plugin.statusManager.isProcessing()) {
-        if (!checking) {
-          plugin.statusManager.setCanceling();
-        }
-
-        return true;
-      }
-
-      return false;
-    },
-  });
-}
-
 function addRibbonIcon(plugin: OcrExtractorPlugin) {
-  plugin.addRibbonIcon(PLUGIN_ICON, t("pluginName"), (event) => {
-    const menu = new Menu();
+  let activeMenu: Menu | null = null;
+  let dismissingMenu = false;
 
-    assert(
-      event.currentTarget instanceof Element,
-      "A ribbon click always has an Element as its currentTarget",
-    );
+  const button = plugin.addRibbonIcon(PLUGIN_ICON, t("pluginName"), () => {
+    if (dismissingMenu) {
+      dismissingMenu = false;
+      return;
+    }
+
+    const menu = new Menu();
+    menu.onHide(() => (activeMenu = null));
+    activeMenu = menu;
 
     menu.addItem((item) =>
       item
@@ -194,7 +205,20 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
       );
     }
 
-    const rect = event.currentTarget.getBoundingClientRect();
-    menu.showAtPosition({ x: rect.right + 2, y: rect.top + 7 });
+    menu.addSeparator();
+    menu.addItem((item) =>
+      item
+        .setTitle(t("commands.showReport"))
+        .onClick(() => void showReportView(plugin.app)),
+    );
+
+    // Show to the right of the button rather than where the mouse clicked
+    const rect = button.getBoundingClientRect();
+    menu.showAtPosition({ x: rect.right, y: rect.top });
+  });
+
+  // Prevent reopening a (non-native) menu with a click while open
+  plugin.registerDomEvent(button, "mousedown", () => {
+    dismissingMenu = activeMenu !== null;
   });
 }

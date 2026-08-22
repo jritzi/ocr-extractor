@@ -26,7 +26,7 @@ export class ReportView extends ItemView {
   }
 
   getDisplayText() {
-    return t("report.title");
+    return t("report.title", { pluginName: t("pluginName") });
   }
 
   override getIcon() {

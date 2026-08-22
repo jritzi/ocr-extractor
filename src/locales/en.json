@@ -10,7 +10,7 @@
     "extractAllNotes": "Extract text in all notes",
     "extractSelection": "Extract text in selected notes",
     "cancelExtraction": "Cancel extraction",
-    "showExtractionReport": "Show extraction report"
+    "showReport": "Show report"
   },
   "settings": {
     "ocrEngine": "OCR engine",
@@ -128,7 +128,7 @@
     "unexpected": "unexpected error"
   },
   "report": {
-    "title": "Extraction report",
+    "title": "{{pluginName}} report",
     "copyReport": "Copy report",
     "collapseAll": "Collapse all",
     "expandAll": "Expand all",
