@@ -9,6 +9,7 @@ import {
   describeResultStatus,
   describeRunStatus,
   describeScope,
+  describeStart,
 } from "./report-text";
 import { AttachmentResult } from "./run-report";
 import {
@@ -28,6 +29,22 @@ describe("report-text.ts", () => {
       );
       expect(describeScope({ type: "vault" })).toBe("All notes");
       expect(describeScope({ type: "selection" })).toBe("Selected notes");
+    });
+  });
+
+  describe("describeStart", () => {
+    const start = (overrides: RunReportOverrides) =>
+      describeStart(buildRunReport(overrides));
+
+    it("reports when a run started and the number of notes", () => {
+      const startedAt = Date.parse("2026-03-04T15:30:00Z");
+
+      expect(start({ startedAt, totalNotes: 1 })).toBe(
+        "Started: Mar 4, 2026, 3:30 PM · 1 note",
+      );
+      expect(start({ startedAt, totalNotes: 2 })).toBe(
+        "Started: Mar 4, 2026, 3:30 PM · 2 notes",
+      );
     });
   });
 
@@ -274,8 +291,8 @@ describe("report-text.ts", () => {
 
     it("formats the provided report data", () => {
       const text = copyText({
-        startedAt: Date.parse("2025-07-18T18:00:00Z"),
-        finishedAt: Date.parse("2025-07-18T18:02:03Z"),
+        startedAt: Date.parse("2026-03-04T15:30:00Z"),
+        finishedAt: Date.parse("2026-03-04T15:32:03Z"),
         totalNotes: 2,
         notes: [
           buildNoteEntry({
@@ -311,8 +328,8 @@ describe("report-text.ts", () => {
         [
           "OCR Extractor report",
           "All notes",
-          "Started: Jul 18, 2025, 6:00 PM · 2 notes",
-          "Finished: Jul 18, 2025, 6:02 PM · 2m 3s",
+          "Started: Mar 4, 2026, 3:30 PM · 2 notes",
+          "Finished: Mar 4, 2026, 3:32 PM · 2m 3s",
           "Completed",
           "Attachments: 1 extracted · 1 skipped · 1 failed",
           "",
@@ -331,6 +348,7 @@ describe("report-text.ts", () => {
         status: "fatal",
         fatalMessage: "Unauthorized. Check your API key.",
         scope: { type: "folder", path: "Scans" },
+        startedAt: Date.parse("2026-03-04T15:30:00Z"),
         totalNotes: 2,
         notesProcessed: 1,
       });
@@ -339,7 +357,7 @@ describe("report-text.ts", () => {
         [
           "OCR Extractor report",
           "Folder: Scans",
-          "Started: Jul 18, 2025, 6:00 PM · 2 notes",
+          "Started: Mar 4, 2026, 3:30 PM · 2 notes",
           "Error",
           "Unauthorized. Check your API key.",
           "Stopped after 1 of 2 notes",

@@ -43,6 +43,10 @@ export async function openNote(page: Page, name: string) {
   await expect(page.locator(".inline-title").getByText(name)).toBeVisible();
 }
 
+export function activeNoteTitle(page: Page) {
+  return page.locator(".workspace-leaf.mod-active .inline-title");
+}
+
 export async function typeAtStartOfNote(
   page: Page,
   text: string,

@@ -115,13 +115,14 @@ export class TextExtractor {
       }
 
       for (const noteFile of files) {
-        if (this.statusManager.getSignal().aborted) {
-          break;
-        }
+        if (this.statusManager.getSignal().aborted) break;
 
         debugLog(`Processing file ${noteFile.path}`);
         this.store.noteStarted();
         await this.processNote(noteFile);
+
+        if (this.statusManager.getSignal().aborted) break;
+
         this.store.noteProcessed();
       }
 
