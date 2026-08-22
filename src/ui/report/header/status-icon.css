@@ -1,0 +1,10 @@
+.ocr-extractor-report-status-icon {
+  --icon-size: var(--icon-s);
+  --icon-stroke: var(--icon-s-stroke-width);
+  display: inline-flex;
+  color: var(--text-muted);
+}
+
+.ocr-extractor-report-status-icon-error {
+  color: var(--text-error);
+}

@@ -1,8 +1,9 @@
 .ocr-extractor-report-attachment-name,
 .ocr-extractor-report-attachment-result {
   overflow: hidden;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
   text-overflow: ellipsis;
+  white-space: var(--nav-item-white-space);
 }
 
 .ocr-extractor-report-attachment-result {

@@ -6,8 +6,9 @@
 .ocr-extractor-report-note-name,
 .ocr-extractor-report-note-folder {
   overflow: hidden;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
   text-overflow: ellipsis;
+  white-space: var(--nav-item-white-space);
 }
 
 .ocr-extractor-report-note-item > .tree-item-self {

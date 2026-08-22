@@ -150,15 +150,15 @@ describe("ReportStore", () => {
 
     const complete = endRun((store) => store.completeRun());
     expect(complete.status).toBe("complete");
-    expect(complete.fatalMessage).toBeUndefined();
 
     const fatal = endRun((store) => store.fatalRun("Unauthorized"));
-    expect(fatal.status).toBe("fatal");
-    expect(fatal.fatalMessage).toBe("Unauthorized");
+    expect(fatal).toMatchObject({
+      status: "fatal",
+      fatalMessage: "Unauthorized",
+    });
 
     const canceled = endRun((store) => store.cancelRun());
     expect(canceled.status).toBe("canceled");
-    expect(canceled.fatalMessage).toBeUndefined();
 
     for (const report of [complete, fatal, canceled]) {
       expect(report.finishedAt).toBeTypeOf("number");

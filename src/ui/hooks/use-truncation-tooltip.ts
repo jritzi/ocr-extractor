@@ -4,17 +4,7 @@ import { useEffect, useRef } from "react";
 // Ensure the tooltip always stays in the viewport (side positions can clip)
 const PLACEMENT = { placement: "bottom" } as const;
 
-export function useTooltip<T extends HTMLElement>(text: string) {
-  const ref = useRef<T>(null);
-
-  useEffect(() => {
-    if (ref.current) setTooltip(ref.current, text, PLACEMENT);
-  }, [text]);
-
-  return ref;
-}
-
-export function useOverflowTooltip<T extends HTMLElement>(text: string) {
+export function useTruncationTooltip<T extends HTMLElement>(text: string) {
   const ref = useRef<T>(null);
 
   useEffect(() => {

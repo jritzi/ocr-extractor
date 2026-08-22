@@ -2,12 +2,12 @@ import type { MouseEvent } from "react";
 import { App } from "obsidian";
 import { motion } from "motion/react";
 import clsx from "clsx";
-import { NoteEntry } from "../../reporting/run-report";
+import { NoteEntry } from "../../../reporting/run-report";
 import { AttachmentRow } from "./attachment-row";
-import { openNoteFromClick } from "../../utils/workspace";
-import { useIcon } from "./use-icon";
-import { useOverflowTooltip } from "./use-tooltip";
-import { noteName, parentFolder } from "../../utils/path";
+import { openNoteFromClick } from "../../../utils/workspace";
+import { useIcon } from "../../hooks/use-icon";
+import { useTruncationTooltip } from "../../hooks/use-truncation-tooltip";
+import { noteName, parentFolder } from "../../../utils/path";
 import "./note-group.css";
 
 interface NoteGroupProps {
@@ -19,8 +19,8 @@ interface NoteGroupProps {
 
 export function NoteGroup({ note, collapsed, onToggle, app }: NoteGroupProps) {
   const folder = parentFolder(note.path);
-  const nameRef = useOverflowTooltip<HTMLDivElement>(noteName(note.path));
-  const folderRef = useOverflowTooltip<HTMLDivElement>(folder);
+  const nameRef = useTruncationTooltip<HTMLDivElement>(noteName(note.path));
+  const folderRef = useTruncationTooltip<HTMLDivElement>(folder);
   const chevronRef = useIcon<HTMLSpanElement>("right-triangle");
 
   function open(event: MouseEvent) {

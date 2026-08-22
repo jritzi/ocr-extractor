@@ -1,11 +1,12 @@
 import type { MouseEvent } from "react";
 import { App } from "obsidian";
-import { AttachmentEntry } from "../../reporting/run-report";
-import { describeResult } from "../../reporting/report-text";
-import { basename } from "../../utils/path";
-import { useOverflowTooltip } from "./use-tooltip";
-import { openNoteFromClick } from "../../utils/workspace";
-import { findEmbedLine } from "../../utils/file";
+import clsx from "clsx";
+import { AttachmentEntry } from "../../../reporting/run-report";
+import { describeResult } from "../../../reporting/report-text";
+import { basename } from "../../../utils/path";
+import { useTruncationTooltip } from "../../hooks/use-truncation-tooltip";
+import { openNoteFromClick } from "../../../utils/workspace";
+import { findEmbedLine } from "../../../utils/file";
 import "./attachment-row.css";
 
 interface AttachmentRowProps {
@@ -20,13 +21,14 @@ export function AttachmentRow({
   app,
 }: AttachmentRowProps) {
   const { path, result } = attachment;
-  const nameRef = useOverflowTooltip<HTMLDivElement>(path);
+  const name = basename(path);
+  const nameRef = useTruncationTooltip<HTMLDivElement>(name);
 
   const resultText =
     result.status === "extracted"
       ? ""
       : describeResult(result, { style: "compact" });
-  const resultRef = useOverflowTooltip<HTMLDivElement>(resultText);
+  const resultRef = useTruncationTooltip<HTMLDivElement>(resultText);
 
   function open(event: MouseEvent) {
     void openNoteFromClick(
@@ -38,15 +40,18 @@ export function AttachmentRow({
   }
 
   return (
-    <div className="tree-item ocr-extractor-report-attachment-item">
+    <div className="tree-item">
       <div
-        className={`tree-item-self is-clickable ocr-extractor-report-result-${result.status}`}
+        className={clsx(
+          "tree-item-self is-clickable",
+          result.status === "failed" && "ocr-extractor-report-result-failed",
+        )}
         onClick={open}
         onAuxClick={open}
       >
         <div className="tree-item-inner">
           <div ref={nameRef} className="ocr-extractor-report-attachment-name">
-            {basename(path)}
+            {name}
           </div>
           {resultText && (
             <div

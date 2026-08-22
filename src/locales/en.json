@@ -92,7 +92,7 @@
     "testMismatch": "Expected \"{{expected}}\" but got \"{{actual}}\""
   },
   "counts": {
-    "label": "Attachments",
+    "label": "Attachments:",
     "extracted_one": "{{count, number}} extracted",
     "extracted_other": "{{count, number}} extracted",
     "skipped_one": "{{count, number}} skipped",
@@ -140,7 +140,7 @@
     "noteCount_one": "{{count, number}} note",
     "noteCount_other": "{{count, number}} notes",
     "scope": {
-      "note": "Note: {{name}}",
+      "note": "Note: {{path}}",
       "folder": "Folder: {{path}}",
       "vault": "All notes",
       "selection": "Selected notes"

@@ -4,19 +4,24 @@ import {
   describeCompletion,
   describeCount,
   describeEarlyStop,
+  describeEmpty,
   describeResult,
   describeResultStatus,
   describeRunStatus,
   describeScope,
 } from "./report-text";
-import { AttachmentResult, RunReport, RunStatus } from "./run-report";
-import { buildNoteEntry, buildRunReport } from "./run-report.test-utils";
+import { AttachmentResult } from "./run-report";
+import {
+  buildNoteEntry,
+  buildRunReport,
+  RunReportOverrides,
+} from "./run-report.test-utils";
 
 describe("report-text.ts", () => {
   describe("describeScope", () => {
     it("describes every type of run scope", () => {
       expect(describeScope({ type: "note", path: "Folder/A note.md" })).toBe(
-        "Note: Folder/A note.md",
+        "Note: Folder/A note",
       );
       expect(describeScope({ type: "folder", path: "Attachments/Scans" })).toBe(
         "Folder: Attachments/Scans",
@@ -28,19 +33,16 @@ describe("report-text.ts", () => {
 
   describe("describeRunStatus", () => {
     it("describes the run's status", () => {
-      const runStatus = (status: RunStatus) =>
-        describeRunStatus(buildRunReport({ status }));
-
-      expect(runStatus("running")).toBe("In progress");
-      expect(runStatus("canceling")).toBe("Canceling");
-      expect(runStatus("complete")).toBe("Completed");
-      expect(runStatus("fatal")).toBe("Error");
-      expect(runStatus("canceled")).toBe("Canceled");
+      expect(describeRunStatus("running")).toBe("In progress");
+      expect(describeRunStatus("canceling")).toBe("Canceling");
+      expect(describeRunStatus("complete")).toBe("Completed");
+      expect(describeRunStatus("fatal")).toBe("Error");
+      expect(describeRunStatus("canceled")).toBe("Canceled");
     });
   });
 
   describe("describeEarlyStop", () => {
-    const earlyStop = (overrides: Partial<RunReport>) =>
+    const earlyStop = (overrides: RunReportOverrides) =>
       describeEarlyStop(buildRunReport(overrides));
 
     it("reports progress for a run ended early", () => {
@@ -48,7 +50,12 @@ describe("report-text.ts", () => {
         earlyStop({ status: "canceled", totalNotes: 2, notesProcessed: 1 }),
       ).toBe("Stopped after 1 of 2 notes");
       expect(
-        earlyStop({ status: "fatal", totalNotes: 2, notesProcessed: 0 }),
+        earlyStop({
+          status: "fatal",
+          fatalMessage: "Unauthorized",
+          totalNotes: 2,
+          notesProcessed: 0,
+        }),
       ).toBe("Stopped after 0 of 2 notes");
     });
 
@@ -159,8 +166,26 @@ describe("report-text.ts", () => {
     });
   });
 
+  describe("describeEmpty", () => {
+    it("describes when there is nothing to extract", () => {
+      expect(describeEmpty("complete", { filtering: false })).toBe(
+        "Nothing to extract",
+      );
+    });
+
+    it("describes when nothing matches the filter", () => {
+      expect(describeEmpty("complete", { filtering: true })).toBe(
+        "No attachments match the filter",
+      );
+    });
+
+    it("returns null while running", () => {
+      expect(describeEmpty("running", { filtering: false })).toBeNull();
+    });
+  });
+
   describe("describeCompletion", () => {
-    const completion = (overrides: Partial<RunReport>) =>
+    const completion = (overrides: RunReportOverrides) =>
       describeCompletion(buildRunReport(overrides));
 
     const notes = (results: AttachmentResult[]) => [
@@ -244,7 +269,7 @@ describe("report-text.ts", () => {
   });
 
   describe("buildCopyText", () => {
-    const copyText = (overrides: Partial<RunReport> = {}) =>
+    const copyText = (overrides: RunReportOverrides = {}) =>
       buildCopyText(buildRunReport(overrides));
 
     it("formats the provided report data", () => {

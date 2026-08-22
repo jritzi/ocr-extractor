@@ -47,17 +47,21 @@ export type RunStatus =
   | "fatal"
   | "canceled";
 
-export interface RunReport {
+export interface RunReportBase {
   readonly startedAt: number;
   readonly finishedAt?: number;
   readonly scope: RunScope;
   readonly totalNotes: number;
-  readonly status: RunStatus;
-  readonly fatalMessage?: string;
   readonly notesStarted: number;
   readonly notesProcessed: number;
   readonly notes: readonly NoteEntry[];
 }
+
+export type RunReport = RunReportBase &
+  (
+    | { readonly status: Exclude<RunStatus, "fatal"> }
+    | { readonly status: "fatal"; readonly fatalMessage: string }
+  );
 
 export type ResultStatus = AttachmentResult["status"];
 

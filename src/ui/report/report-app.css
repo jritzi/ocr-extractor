@@ -1,9 +1,3 @@
-.ocr-extractor-report-empty {
-  color: var(--text-faint);
-  font-size: var(--font-ui-small);
-  padding: var(--size-4-2) var(--size-4-3) var(--size-4-3);
-}
-
 .ocr-extractor-report-notes {
   flex: 1;
   overflow-y: auto;

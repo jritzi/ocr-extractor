@@ -1,0 +1,30 @@
+.ocr-extractor-report-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
+  padding: var(--size-4-3);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  border-bottom: var(--border-width) solid var(--background-modifier-border);
+  overflow-wrap: anywhere;
+}
+
+.ocr-extractor-report-status {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-1);
+  color: var(--text-normal);
+  font-size: var(--font-ui-small);
+}
+
+.ocr-extractor-report-status-error {
+  color: var(--text-error);
+}
+
+.ocr-extractor-report-fatal {
+  color: var(--text-error);
+}
+
+.ocr-extractor-report-count-failed {
+  color: var(--text-error);
+}

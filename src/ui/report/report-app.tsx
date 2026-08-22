@@ -1,15 +1,15 @@
 import { App } from "obsidian";
 import { useState, useSyncExternalStore } from "react";
 import { ReportStore } from "../../reporting/report-store";
-import { RunReport } from "../../reporting/run-report";
+import { describeEmpty } from "../../reporting/report-text";
 import {
   filterNotes,
   isFiltering,
   StatusFilter,
 } from "../../reporting/status-filter";
 import { t } from "../../i18n";
-import { ReportHeader } from "./report-header";
-import { NoteGroup } from "./note-group";
+import { ReportHeader } from "./header/report-header";
+import { NoteGroup } from "./tree/note-group";
 import "./report-app.css";
 
 interface ReportAppProps {
@@ -73,9 +73,9 @@ export function ReportApp({ store, app }: ReportAppProps) {
       </div>
     );
   } else {
-    const emptyMessage = describeEmpty(report, filtering);
+    const emptyMessage = describeEmpty(report.status, { filtering });
     if (emptyMessage) {
-      body = <div className="ocr-extractor-report-empty">{emptyMessage}</div>;
+      body = <div className="pane-empty">{emptyMessage}</div>;
     }
   }
 
@@ -96,14 +96,4 @@ export function ReportApp({ store, app }: ReportAppProps) {
       {body}
     </>
   );
-}
-
-function describeEmpty(report: RunReport, filtering: boolean) {
-  if (filtering) {
-    return t("report.noMatches");
-  }
-  if (report.status === "complete") {
-    return t("notices.nothingToExtract");
-  }
-  return null;
 }

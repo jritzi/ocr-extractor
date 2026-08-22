@@ -1,4 +1,4 @@
-import { Menu, MenuItem, Plugin, setIcon } from "obsidian";
+import { Menu, Plugin, setIcon } from "obsidian";
 import { t } from "../i18n";
 import "./status-bar-item.css";
 
@@ -16,8 +16,8 @@ export class StatusBarItem {
     this.item.onclick = (event: MouseEvent) => {
       const menu = new Menu();
 
-      menu.addItem((menuItem: MenuItem) =>
-        menuItem.setTitle(t("status.cancel")).onClick(onCancel),
+      menu.addItem((item) =>
+        item.setTitle(t("status.cancel")).onClick(onCancel),
       );
 
       menu.showAtMouseEvent(event);

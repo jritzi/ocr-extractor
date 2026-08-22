@@ -1,7 +1,7 @@
 import { t } from "../i18n";
 import { describeReason } from "../result-reason";
 import { formatDateTime, formatDuration } from "../utils/datetime";
-import { basename } from "../utils/path";
+import { basename, withoutNoteExtension } from "../utils/path";
 import {
   AttachmentResult,
   countResults,
@@ -12,13 +12,14 @@ import {
   ResultStatus,
   RunReport,
   RunScope,
+  RunStatus,
   totalResults,
 } from "./run-report";
 
 export function describeScope(scope: RunScope) {
   switch (scope.type) {
     case "note":
-      return t("report.scope.note", { name: scope.path });
+      return t("report.scope.note", { path: withoutNoteExtension(scope.path) });
     case "folder":
       return t("report.scope.folder", { path: scope.path });
     case "vault":
@@ -28,8 +29,26 @@ export function describeScope(scope: RunScope) {
   }
 }
 
-export function describeRunStatus(report: RunReport) {
-  return t(`report.runStatus.${report.status}`);
+export function describeStart(report: RunReport) {
+  const time = t("report.startedAt", {
+    time: formatDateTime(report.startedAt),
+  });
+  return `${time} · ${t("report.noteCount", { count: report.totalNotes })}`;
+}
+
+export function describeFinish(report: RunReport) {
+  if (report.finishedAt === undefined) {
+    return null;
+  }
+
+  const time = t("report.finishedAt", {
+    time: formatDateTime(report.finishedAt),
+  });
+  return `${time} · ${formatDuration(report.finishedAt - report.startedAt)}`;
+}
+
+export function describeRunStatus(status: RunStatus) {
+  return t(`report.runStatus.${status}`);
 }
 
 export function describeEarlyStop(report: RunReport) {
@@ -54,6 +73,46 @@ export function describeCount(
   return nameAttachments
     ? t(`counts.attachments.${status}`, { count })
     : t(`counts.${status}`, { count });
+}
+
+export function describeResultStatus(status: ResultStatus) {
+  return t(`report.resultStatus.${status}`);
+}
+
+export function describeResult(
+  result: AttachmentResult,
+  { style }: { style: "compact" | "full" },
+) {
+  const status = describeResultStatus(result.status);
+  if (result.status === "extracted") {
+    return status;
+  }
+
+  const reason = describeReason(result.reason);
+  if (style === "compact") {
+    return `${status} · ${reason}`;
+  }
+
+  return result.detail
+    ? t("report.resultLine.withDetail", {
+        status,
+        reason,
+        detail: result.detail,
+      })
+    : t("report.resultLine.withReason", { status, reason });
+}
+
+export function describeEmpty(
+  status: RunStatus,
+  { filtering }: { filtering: boolean },
+) {
+  if (filtering) {
+    return t("report.noMatches");
+  }
+  if (status === "complete") {
+    return t("notices.nothingToExtract");
+  }
+  return null;
 }
 
 export function describeCompletion(report: RunReport) {
@@ -87,60 +146,32 @@ export function describeCompletion(report: RunReport) {
   return lines;
 }
 
-export function describeResultStatus(status: ResultStatus) {
-  return t(`report.resultStatus.${status}`);
-}
-
-export function describeResult(
-  result: AttachmentResult,
-  { style }: { style: "compact" | "full" },
-) {
-  const status = describeResultStatus(result.status);
-  if (result.status === "extracted") {
-    return status;
-  }
-
-  const reason = describeReason(result.reason);
-  if (style === "compact") {
-    return `${status} · ${reason}`;
-  }
-
-  return result.detail
-    ? t("report.resultLine.withDetail", {
-        status,
-        reason,
-        detail: result.detail,
-      })
-    : t("report.resultLine.withReason", { status, reason });
-}
-
 /** Plain-text version of the run report for the copy button */
 export function buildCopyText(report: RunReport) {
   const counts = countResults(report);
   const lines = [
     t("report.title"),
     describeScope(report.scope),
-    `${t("report.startedAt", { time: formatDateTime(report.startedAt) })} · ${t("report.noteCount", { count: report.totalNotes })}`,
+    describeStart(report),
   ];
 
-  if (report.finishedAt !== undefined) {
-    lines.push(
-      `${t("report.finishedAt", { time: formatDateTime(report.finishedAt) })} · ${formatDuration(report.finishedAt - report.startedAt)}`,
-    );
+  const finishMessage = describeFinish(report);
+  if (finishMessage) {
+    lines.push(finishMessage);
   }
 
-  lines.push(describeRunStatus(report));
+  lines.push(describeRunStatus(report.status));
 
-  if (report.status === "fatal" && report.fatalMessage) {
+  if (report.status === "fatal") {
     lines.push(report.fatalMessage);
   }
-  const earlyStop = describeEarlyStop(report);
-  if (earlyStop) {
-    lines.push(earlyStop);
+  const earlyStopMessage = describeEarlyStop(report);
+  if (earlyStopMessage) {
+    lines.push(earlyStopMessage);
   }
 
   lines.push(
-    `${t("counts.label")}: ${RESULT_STATUSES.map((status) =>
+    `${t("counts.label")} ${RESULT_STATUSES.map((status) =>
       describeCount(status, counts[status], { nameAttachments: false }),
     ).join(" · ")}`,
   );

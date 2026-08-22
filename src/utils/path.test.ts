@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { basename, noteName, parentFolder } from "./path";
+import { basename, noteName, parentFolder, withoutNoteExtension } from "./path";
 
 describe("path.ts", () => {
   describe("basename", () => {
@@ -9,6 +9,18 @@ describe("path.ts", () => {
 
     it("returns the filename for a file at the vault root", () => {
       expect(basename("receipt.pdf")).toBe("receipt.pdf");
+    });
+  });
+
+  describe("withoutNoteExtension", () => {
+    it("removes the extension from a note path", () => {
+      expect(withoutNoteExtension("Projects/v1.2/Meeting notes.md")).toBe(
+        "Projects/v1.2/Meeting notes",
+      );
+    });
+
+    it("throws for a path that isn't a note", () => {
+      expect(() => withoutNoteExtension("Attachments/receipt.pdf")).toThrow();
     });
   });
 

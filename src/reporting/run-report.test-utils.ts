@@ -1,6 +1,18 @@
-import { AttachmentEntry, NoteEntry, RunReport } from "./run-report";
+import {
+  AttachmentEntry,
+  NoteEntry,
+  RunReport,
+  RunReportBase,
+  RunStatus,
+} from "./run-report";
 
-export function buildRunReport(overrides: Partial<RunReport> = {}): RunReport {
+export type RunReportOverrides = Partial<RunReportBase> &
+  (
+    | { status?: Exclude<RunStatus, "fatal"> }
+    | { status: "fatal"; fatalMessage: string }
+  );
+
+export function buildRunReport(overrides: RunReportOverrides = {}): RunReport {
   return {
     startedAt: Date.parse("2025-07-18T18:00:00Z"),
     scope: { type: "vault" },
