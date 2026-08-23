@@ -17,7 +17,6 @@ import {
 import { RunScope } from "./reporting/run-report";
 import {
   EmbedResult,
-  EmbedResults,
   recordResultsAfterInsert,
   recordResultsBeforeInsert,
 } from "./record-results";
@@ -33,34 +32,34 @@ export class TextExtractor {
 
   constructor(private plugin: OcrExtractorPlugin) {}
 
-  canProcessActiveFile() {
+  canProcessActiveNote() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    return !!view?.file && this.canProcessSingleFile();
+    return !!view?.file && this.canProcessSingleNote();
   }
 
-  processActiveFile() {
-    assert(this.canProcessActiveFile(), "Callers check before processing");
+  processActiveNote() {
+    assert(this.canProcessActiveNote(), "Callers check before processing");
 
     const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
-    this.processSingleFile(view.file!);
+    this.processSingleNote(view.file!);
   }
 
-  canProcessSingleFile() {
+  canProcessSingleNote() {
     return this.statusManager.isIdle();
   }
 
-  processSingleFile(file: TFile) {
-    assert(this.canProcessSingleFile(), "Callers check before processing");
-    this.startExtractingFiles([file], { type: "note", path: file.path });
+  processSingleNote(note: TFile) {
+    assert(this.canProcessSingleNote(), "Callers check before processing");
+    this.startExtractingFiles([note], { type: "note", path: note.path });
   }
 
-  canProcessMultipleFiles() {
+  canProcessMultipleNotes() {
     // Desktop-only until progress feedback added for mobile (status bar is desktop-only)
     return Platform.isDesktop && this.statusManager.isIdle();
   }
 
   processFolder(folder?: TFolder) {
-    assert(this.canProcessMultipleFiles(), "Callers check before processing");
+    assert(this.canProcessMultipleNotes(), "Callers check before processing");
 
     if (folder) {
       this.startExtractingFolder(folder);
@@ -71,8 +70,8 @@ export class TextExtractor {
     }
   }
 
-  processAllFiles() {
-    assert(this.canProcessMultipleFiles(), "Callers check before processing");
+  processAllNotes() {
+    assert(this.canProcessMultipleNotes(), "Callers check before processing");
 
     new ConfirmExtractAllModal(this.app, () => {
       this.startExtractingFiles(this.app.vault.getMarkdownFiles(), {
@@ -81,9 +80,9 @@ export class TextExtractor {
     }).open();
   }
 
-  processSelection(files: TFile[]) {
-    assert(this.canProcessMultipleFiles(), "Callers check before processing");
-    this.startExtractingFiles(files, { type: "selection" });
+  processSelection(notes: TFile[]) {
+    assert(this.canProcessMultipleNotes(), "Callers check before processing");
+    this.startExtractingFiles(notes, { type: "selection" });
   }
 
   private startExtractingFolder(folder: TFolder) {
@@ -206,18 +205,17 @@ export class TextExtractor {
 
     // Embeds finish in arbitrary order, so get order from the note, not the
     // results
-    const results: EmbedResults = new Map();
-    embedsToProcess.forEach((embed, index) => {
-      const result = processed[index];
+    const results: EmbedResult[] = [];
+    processed.forEach((result, index) => {
       if (result) {
-        results.set(embed.original, { ...result, order: index });
+        results.push({ ...result, order: index });
       }
     });
 
     const embedsToMarkdown: EmbedsToMarkdown = new Map();
-    for (const [markup, { result }] of results) {
-      if (result.status === "extracted") {
-        embedsToMarkdown.set(markup, result.markdown);
+    for (const { markup, engineResult } of results) {
+      if (engineResult.status === "extracted") {
+        embedsToMarkdown.set(markup, engineResult.markdown);
       }
     }
 
@@ -227,7 +225,7 @@ export class TextExtractor {
   private async processEmbed(
     noteFile: TFile,
     embed: EmbedCache,
-  ): Promise<EmbedResult | null> {
+  ): Promise<Omit<EmbedResult, "order"> | null> {
     const signal = this.statusManager.getSignal();
     let embedFile: TFile | null = null;
 
@@ -236,7 +234,8 @@ export class TextExtractor {
       if (!embedFile) {
         return {
           path: attachmentPath(null, embed.link),
-          result: { status: "failed", reason: "fileNotFound" },
+          markup: embed.original,
+          engineResult: { status: "failed", reason: "fileNotFound" },
         };
       }
 
@@ -244,12 +243,12 @@ export class TextExtractor {
         return null;
       }
 
-      const result = await this.engineManager.processOcr(embedFile, signal);
-      if (result.status === "canceled" || signal.aborted) {
+      const engineResult = await this.engineManager.extract(embedFile, signal);
+      if (engineResult.status === "canceled" || signal.aborted) {
         return null;
       }
 
-      return { path: embedFile.path, result };
+      return { path: embedFile.path, markup: embed.original, engineResult };
     } catch (error) {
       if (error instanceof FatalError || signal.aborted) {
         throw error;
@@ -258,7 +257,8 @@ export class TextExtractor {
       logError("Unexpected error extracting an attachment:", error);
       return {
         path: attachmentPath(embedFile, embed.link),
-        result: { status: "failed", reason: "unexpected" },
+        markup: embed.original,
+        engineResult: { status: "failed", reason: "unexpected" },
       };
     }
   }

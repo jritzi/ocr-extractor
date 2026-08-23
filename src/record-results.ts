@@ -7,9 +7,10 @@ import type { AttachmentPath } from "./utils/path";
 
 export type EmbedResult = {
   path: AttachmentPath;
-  result: Exclude<EngineResult, { status: "canceled" }>;
+  markup: EmbedMarkup;
+  order: number;
+  engineResult: Exclude<EngineResult, { status: "canceled" }>;
 };
-export type EmbedResults = Map<EmbedMarkup, EmbedResult & { order: number }>;
 
 type PendingEntries = Omit<AttachmentEntry, "result">[];
 
@@ -20,16 +21,15 @@ type PendingEntries = Omit<AttachmentEntry, "result">[];
 export function recordResultsBeforeInsert(
   store: ReportStore,
   notePath: string,
-  results: EmbedResults,
+  results: readonly EmbedResult[],
 ) {
   const pendingEntries: PendingEntries = [];
 
-  for (const [markup, { path, result, order }] of results) {
-    const entry = { path, markup, order };
-    if (result.status === "extracted") {
+  for (const { engineResult, ...entry } of results) {
+    if (engineResult.status === "extracted") {
       pendingEntries.push(entry);
     } else {
-      store.recordResult(notePath, { ...entry, result });
+      store.recordResult(notePath, { ...entry, result: engineResult });
     }
   }
 

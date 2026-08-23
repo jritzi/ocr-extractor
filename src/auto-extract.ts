@@ -68,7 +68,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       if (!plugin.settings.autoExtractAttachments) return;
 
       if (newCount > prevCount) {
-        if (!plugin.extractor.canProcessSingleFile()) {
+        if (!plugin.extractor.canProcessSingleNote()) {
           showNotice(
             t("notices.autoExtractSkippedWhileBusy", {
               pluginName: t("pluginName"),
@@ -76,7 +76,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
           );
           return;
         }
-        plugin.extractor.processSingleFile(file);
+        plugin.extractor.processSingleNote(file);
       }
     }),
   );

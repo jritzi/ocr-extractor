@@ -28,13 +28,9 @@ export class OcrEngineManager {
     await previousEngine.terminate();
   }
 
-  async processOcr(attachment: TFile, signal: AbortSignal) {
+  async extract(attachment: TFile, signal: AbortSignal) {
     const binary = await this.plugin.app.vault.readBinary(attachment);
-    return this.engine.processOcr(
-      new Uint8Array(binary),
-      attachment.name,
-      signal,
-    );
+    return this.engine.extract(new Uint8Array(binary), attachment.name, signal);
   }
 
   terminate() {

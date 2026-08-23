@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ReportStore } from "./reporting/report-store";
 import {
-  EmbedResults,
+  EmbedResult,
   recordResultsAfterInsert,
   recordResultsBeforeInsert,
 } from "./record-results";
@@ -22,24 +22,20 @@ function recordedAttachments(store: ReportStore) {
 describe("recordResultsBeforeInsert", () => {
   it("records skipped and failed results", () => {
     const store = startedStore();
-    const results: EmbedResults = new Map([
-      [
-        "![[blank.png]]",
-        {
-          path: "attachments/blank.png",
-          result: { status: "skipped", reason: "noTextFound" },
-          order: 0,
-        },
-      ],
-      [
-        "![[corrupt.pdf]]",
-        {
-          path: "attachments/corrupt.pdf",
-          result: { status: "failed", reason: "pdfUnreadable" },
-          order: 1,
-        },
-      ],
-    ]);
+    const results: EmbedResult[] = [
+      {
+        path: "attachments/blank.png",
+        markup: "![[blank.png]]",
+        order: 0,
+        engineResult: { status: "skipped", reason: "noTextFound" },
+      },
+      {
+        path: "attachments/corrupt.pdf",
+        markup: "![[corrupt.pdf]]",
+        order: 1,
+        engineResult: { status: "failed", reason: "pdfUnreadable" },
+      },
+    ];
 
     recordResultsBeforeInsert(store, NOTE, results);
 
@@ -61,32 +57,26 @@ describe("recordResultsBeforeInsert", () => {
 
   it("keeps the order each result arrived with", () => {
     const store = startedStore();
-    const results: EmbedResults = new Map([
-      [
-        "![[blank.png]]",
-        {
-          path: "attachments/blank.png",
-          result: { status: "skipped", reason: "noTextFound" },
-          order: 0,
-        },
-      ],
-      [
-        "![[receipt.pdf]]",
-        {
-          path: "attachments/receipt.pdf",
-          result: { status: "extracted", markdown: "Total: $12" },
-          order: 1,
-        },
-      ],
-      [
-        "![[corrupt.pdf]]",
-        {
-          path: "attachments/corrupt.pdf",
-          result: { status: "failed", reason: "pdfUnreadable" },
-          order: 2,
-        },
-      ],
-    ]);
+    const results: EmbedResult[] = [
+      {
+        path: "attachments/blank.png",
+        markup: "![[blank.png]]",
+        order: 0,
+        engineResult: { status: "skipped", reason: "noTextFound" },
+      },
+      {
+        path: "attachments/receipt.pdf",
+        markup: "![[receipt.pdf]]",
+        order: 1,
+        engineResult: { status: "extracted", markdown: "Total: $12" },
+      },
+      {
+        path: "attachments/corrupt.pdf",
+        markup: "![[corrupt.pdf]]",
+        order: 2,
+        engineResult: { status: "failed", reason: "pdfUnreadable" },
+      },
+    ];
 
     const pendingEntries = recordResultsBeforeInsert(store, NOTE, results);
 
@@ -98,16 +88,14 @@ describe("recordResultsBeforeInsert", () => {
 
   it("returns extracted results without recording them", () => {
     const store = startedStore();
-    const results: EmbedResults = new Map([
-      [
-        "![[receipt.pdf]]",
-        {
-          path: "attachments/receipt.pdf",
-          result: { status: "extracted", markdown: "Total: $12" },
-          order: 0,
-        },
-      ],
-    ]);
+    const results: EmbedResult[] = [
+      {
+        path: "attachments/receipt.pdf",
+        markup: "![[receipt.pdf]]",
+        order: 0,
+        engineResult: { status: "extracted", markdown: "Total: $12" },
+      },
+    ];
 
     const pendingEntries = recordResultsBeforeInsert(store, NOTE, results);
 
@@ -218,24 +206,20 @@ describe("recordResultsAfterInsert", () => {
 describe("using both functions together", () => {
   it("puts an earlier embed first even when the insert recorded it last", () => {
     const store = startedStore();
-    const results: EmbedResults = new Map([
-      [
-        "![[receipt.pdf]]",
-        {
-          path: "attachments/receipt.pdf",
-          result: { status: "extracted", markdown: "Total: $12" },
-          order: 0,
-        },
-      ],
-      [
-        "![[blank.png]]",
-        {
-          path: "attachments/blank.png",
-          result: { status: "skipped", reason: "noTextFound" },
-          order: 1,
-        },
-      ],
-    ]);
+    const results: EmbedResult[] = [
+      {
+        path: "attachments/receipt.pdf",
+        markup: "![[receipt.pdf]]",
+        order: 0,
+        engineResult: { status: "extracted", markdown: "Total: $12" },
+      },
+      {
+        path: "attachments/blank.png",
+        markup: "![[blank.png]]",
+        order: 1,
+        engineResult: { status: "skipped", reason: "noTextFound" },
+      },
+    ];
 
     const pendingEntries = recordResultsBeforeInsert(store, NOTE, results);
     recordResultsAfterInsert(store, NOTE, pendingEntries, {

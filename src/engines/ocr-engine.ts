@@ -71,7 +71,7 @@ export abstract class OcrEngine {
    * Main entry point called by the plugin to extract text. Subclasses should
    * not override this (they should implement `extractPages()` instead).
    */
-  async processOcr(
+  async extract(
     data: Uint8Array,
     filename: string,
     signal: AbortSignal,

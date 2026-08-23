@@ -26,9 +26,9 @@ function addExtractActiveNoteCommand(plugin: OcrExtractorPlugin) {
     id: "extract-current-note", // uses old name, but must be stable across versions
     name: t("commands.extractActiveNote"),
     checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessActiveFile()) {
+      if (plugin.extractor.canProcessActiveNote()) {
         if (!checking) {
-          plugin.extractor.processActiveFile();
+          plugin.extractor.processActiveNote();
         }
 
         return true;
@@ -44,7 +44,7 @@ function addExtractFolderCommand(plugin: OcrExtractorPlugin) {
     id: "extract-folder",
     name: t("commands.extractFolder"),
     checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessMultipleFiles()) {
+      if (plugin.extractor.canProcessMultipleNotes()) {
         if (!checking) {
           plugin.extractor.processFolder();
         }
@@ -62,9 +62,9 @@ function addExtractAllNotesCommand(plugin: OcrExtractorPlugin) {
     id: "extract-all-notes",
     name: t("commands.extractAllNotes"),
     checkCallback: (checking: boolean) => {
-      if (plugin.extractor.canProcessMultipleFiles()) {
+      if (plugin.extractor.canProcessMultipleNotes()) {
         if (!checking) {
-          plugin.extractor.processAllFiles();
+          plugin.extractor.processAllNotes();
         }
 
         return true;
@@ -105,13 +105,13 @@ function addExtractNoteMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("file-menu", (menu, file) => {
       if (!(file instanceof TFile) || !isMarkdown(file)) return;
-      if (!plugin.extractor.canProcessSingleFile()) return;
+      if (!plugin.extractor.canProcessSingleNote()) return;
 
       menu.addItem((item) =>
         item
           .setTitle(t("commands.extractNote"))
           .setIcon(PLUGIN_ICON)
-          .onClick(() => plugin.extractor.processSingleFile(file)),
+          .onClick(() => plugin.extractor.processSingleNote(file)),
       );
     }),
   );
@@ -121,13 +121,13 @@ function addExtractEditorMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("editor-menu", (menu, _editor, { file }) => {
       if (!file || !isMarkdown(file)) return;
-      if (!plugin.extractor.canProcessSingleFile()) return;
+      if (!plugin.extractor.canProcessSingleNote()) return;
 
       menu.addItem((item) =>
         item
           .setTitle(t("commands.extractNote"))
           .setIcon(PLUGIN_ICON)
-          .onClick(() => plugin.extractor.processSingleFile(file)),
+          .onClick(() => plugin.extractor.processSingleNote(file)),
       );
     }),
   );
@@ -137,7 +137,7 @@ function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("file-menu", (menu, file) => {
       if (!(file instanceof TFolder)) return;
-      if (!plugin.extractor.canProcessMultipleFiles()) return;
+      if (!plugin.extractor.canProcessMultipleNotes()) return;
 
       menu.addItem((item) =>
         item
@@ -156,7 +156,7 @@ function addExtractSelectionMenuItem(plugin: OcrExtractorPlugin) {
         (file): file is TFile => file instanceof TFile && isMarkdown(file),
       );
       if (markdownFiles.length === 0) return;
-      if (!plugin.extractor.canProcessMultipleFiles()) return;
+      if (!plugin.extractor.canProcessMultipleNotes()) return;
 
       menu.addItem((item) =>
         item
@@ -185,23 +185,23 @@ function addRibbonIcon(plugin: OcrExtractorPlugin) {
     menu.addItem((item) =>
       item
         .setTitle(t("commands.extractActiveNote"))
-        .setDisabled(!plugin.extractor.canProcessActiveFile())
-        .onClick(() => plugin.extractor.processActiveFile()),
+        .setDisabled(!plugin.extractor.canProcessActiveNote())
+        .onClick(() => plugin.extractor.processActiveNote()),
     );
 
     if (Platform.isDesktop) {
       menu.addItem((item) =>
         item
           .setTitle(t("commands.extractFolder"))
-          .setDisabled(!plugin.extractor.canProcessMultipleFiles())
+          .setDisabled(!plugin.extractor.canProcessMultipleNotes())
           .onClick(() => plugin.extractor.processFolder()),
       );
 
       menu.addItem((item) =>
         item
           .setTitle(t("commands.extractAllNotes"))
-          .setDisabled(!plugin.extractor.canProcessMultipleFiles())
-          .onClick(() => plugin.extractor.processAllFiles()),
+          .setDisabled(!plugin.extractor.canProcessMultipleNotes())
+          .onClick(() => plugin.extractor.processAllNotes()),
       );
     }
 
