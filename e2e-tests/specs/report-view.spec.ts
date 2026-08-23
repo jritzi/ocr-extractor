@@ -22,9 +22,12 @@ import {
   expectCountFailed,
   expectCountNotFailed,
   expectFatalMessage,
+  expectNoteCollapsed,
+  expectNoteExpanded,
   expectStatusError,
   reportAttachmentRow,
   reportAttachmentRows,
+  reportNoteCollapseIcon,
   reportNoteRow,
   reportSummaryLines,
   reportView,
@@ -100,6 +103,30 @@ test("full run with note and attachment results", async ({ page }) => {
 
   await reportAttachmentRow(page, "Second note", "sample.png").click();
   await expect(activeNoteTitle(page)).toHaveText("Second note");
+});
+
+test("collapsing and expanding", async ({ page }) => {
+  await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
+  await seedNote(page, "Note 2", { content: "![[attachments/sample.png]]" });
+  await extractAllNotes(page);
+
+  await showReportView(page);
+  await expectNoteExpanded(page, "Note 1");
+  await expectNoteExpanded(page, "Note 2");
+
+  await reportNoteCollapseIcon(page, "Note 1").click();
+  await expectNoteCollapsed(page, "Note 1");
+  await expectNoteExpanded(page, "Note 2");
+  await reportNoteCollapseIcon(page, "Note 1").click();
+  await expectNoteExpanded(page, "Note 1");
+
+  await reportView(page).getByRole("button", { name: "Collapse all" }).click();
+  await expectNoteCollapsed(page, "Note 1");
+  await expectNoteCollapsed(page, "Note 2");
+
+  await reportView(page).getByRole("button", { name: "Expand all" }).click();
+  await expectNoteExpanded(page, "Note 1");
+  await expectNoteExpanded(page, "Note 2");
 });
 
 test("copied report text", async ({ page }) => {

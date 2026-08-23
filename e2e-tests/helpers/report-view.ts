@@ -40,6 +40,18 @@ export function reportNoteRow(page: Page, noteName: string) {
   return noteGroup(page, noteName).locator(":scope > .tree-item-self");
 }
 
+export function reportNoteCollapseIcon(page: Page, noteName: string) {
+  return reportNoteRow(page, noteName).locator(".collapse-icon");
+}
+
+export async function expectNoteCollapsed(page: Page, noteName: string) {
+  await expect(noteAttachments(page, noteName)).toHaveCSS("height", "0px");
+}
+
+export async function expectNoteExpanded(page: Page, noteName: string) {
+  await expect(noteAttachments(page, noteName)).not.toHaveCSS("height", "0px");
+}
+
 export function reportAttachmentRows(page: Page, noteName: string) {
   return noteGroup(page, noteName).locator(
     ".tree-item-children .tree-item-self",
@@ -92,4 +104,8 @@ function noteGroup(page: Page, noteName: string) {
         hasText: noteName,
       }),
     });
+}
+
+function noteAttachments(page: Page, noteName: string) {
+  return noteGroup(page, noteName).locator(":scope > .tree-item-children");
 }

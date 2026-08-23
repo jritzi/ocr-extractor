@@ -5,6 +5,7 @@ import {
   describeCount,
   describeEarlyStop,
   describeEmpty,
+  describeFinish,
   describeResult,
   describeResultStatus,
   describeRunStatus,
@@ -45,6 +46,24 @@ describe("report-text.ts", () => {
       expect(start({ startedAt, totalNotes: 2 })).toBe(
         "Started: Mar 4, 2026, 3:30 PM · 2 notes",
       );
+    });
+  });
+
+  describe("describeFinish", () => {
+    const finish = (overrides: RunReportOverrides) =>
+      describeFinish(buildRunReport(overrides));
+
+    it("reports when a run finished and how long it took", () => {
+      expect(
+        finish({
+          startedAt: Date.parse("2026-03-04T15:30:00Z"),
+          finishedAt: Date.parse("2026-03-04T15:32:03Z"),
+        }),
+      ).toBe("Finished: Mar 4, 2026, 3:32 PM · 2m 3s");
+    });
+
+    it("returns null for a run still in progress", () => {
+      expect(finish({ status: "running", finishedAt: undefined })).toBeNull();
     });
   });
 
