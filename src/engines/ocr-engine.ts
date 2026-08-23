@@ -12,6 +12,14 @@ import { normalizeNewlines } from "../utils/markdown";
 import { OcrEngineSettingsClass } from "./ocr-engine-settings";
 import type { FailureReason, ResultReason, SkipReason } from "../result-reason";
 
+export type OcrEngineClass = (new (
+  ...args: ConstructorParameters<typeof OcrEngine>
+) => OcrEngine) & {
+  /** The label shown on the setting tab */
+  getLabel(): string;
+  getSettingsSection(): OcrEngineSettingsClass | null;
+};
+
 /**
  * An error that stops the whole run, because it's a problem that would fail
  * every remaining attachment with the same error. Its `message` is shown
@@ -57,15 +65,6 @@ export abstract class OcrEngine {
     protected settings: PluginSettings,
     protected secretStorage: SecretStorage,
   ) {}
-
-  /** The label shown on the setting tab */
-  static getLabel(): string {
-    throw new Error("getLabel() not implemented");
-  }
-
-  static getSettingsSection(): OcrEngineSettingsClass | null {
-    throw new Error("getSettingsSection() not implemented");
-  }
 
   /**
    * Main entry point called by the plugin to extract text. Subclasses should

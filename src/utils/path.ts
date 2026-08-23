@@ -8,7 +8,8 @@ export type AttachmentPath = string;
 
 /** The final segment of a vault path (e.g. "scan.pdf" for "dir/scan.pdf") */
 export function basename(path: string) {
-  return path.split("/").pop() ?? path;
+  const segments = path.split("/");
+  return segments[segments.length - 1];
 }
 
 /** The containing folder of a vault path, or "" if at the vault root */

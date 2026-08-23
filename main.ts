@@ -13,6 +13,7 @@ import { TesseractEngine } from "./src/engines/tesseract/tesseract-engine";
 import { MistralEngine } from "./src/engines/mistral/mistral-engine";
 import { OpenAiCompatibleEngine } from "./src/engines/openai-compatible/openai-compatible-engine";
 import { CustomCommandEngine } from "./src/engines/custom-command/custom-command-engine";
+import type { OcrEngineClass } from "./src/engines/ocr-engine";
 import { TextExtractor } from "./src/text-extractor";
 import { createApi } from "./src/api";
 import { registerActions } from "./src/actions";
@@ -31,7 +32,7 @@ export const OCR_ENGINES = {
   mistral: MistralEngine,
   openAiCompatible: OpenAiCompatibleEngine,
   customCommand: CustomCommandEngine,
-} as const;
+} satisfies Record<string, OcrEngineClass>;
 
 export default class OcrExtractorPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
