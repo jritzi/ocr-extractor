@@ -10,6 +10,10 @@ import { logError, logWarning } from "../utils/logging";
 import { showNotice } from "../utils/notice";
 import { t } from "../i18n";
 
+export type OcrEngineSettingsClass = new (
+  ...args: ConstructorParameters<typeof OcrEngineSettings>
+) => OcrEngineSettings;
+
 export abstract class OcrEngineSettings {
   constructor(
     protected readonly group: SettingGroup,
@@ -40,7 +44,3 @@ export abstract class OcrEngineSettings {
 
   abstract display(): void;
 }
-
-export type OcrEngineSettingsClass = new (
-  ...args: ConstructorParameters<typeof OcrEngineSettings>
-) => OcrEngineSettings;

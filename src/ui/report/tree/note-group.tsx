@@ -18,8 +18,9 @@ interface NoteGroupProps {
 }
 
 export function NoteGroup({ note, collapsed, onToggle, app }: NoteGroupProps) {
+  const name = noteName(note.path);
   const folder = parentFolder(note.path);
-  const nameRef = useTruncationTooltip<HTMLDivElement>(noteName(note.path));
+  const nameRef = useTruncationTooltip<HTMLDivElement>(name);
   const folderRef = useTruncationTooltip<HTMLDivElement>(folder);
   const chevronRef = useIcon<HTMLSpanElement>("right-triangle");
 
@@ -48,7 +49,7 @@ export function NoteGroup({ note, collapsed, onToggle, app }: NoteGroupProps) {
         />
         <div className="tree-item-inner">
           <div ref={nameRef} className="ocr-extractor-report-note-name">
-            {noteName(note.path)}
+            {name}
           </div>
           {folder && (
             <div

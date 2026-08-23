@@ -3,8 +3,8 @@
  * store can never mutate a report (breaking React's assumptions).
  */
 
-import type { EmbedMarkup } from "../editing/plan";
 import { FailureReason, SkipReason } from "../result-reason";
+import type { EmbedMarkup } from "../utils/file";
 import type { AttachmentPath } from "../utils/path";
 
 export type AttachmentResult =

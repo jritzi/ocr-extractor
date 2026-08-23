@@ -134,7 +134,7 @@
     "expandAll": "Expand all",
     "filter": "Filter",
     "noRun": "No extraction has run yet.",
-    "noMatches": "No attachments match the filter",
+    "noMatches": "No attachments match the filter.",
     "startedAt": "Started: {{time}}",
     "finishedAt": "Finished: {{time}}",
     "noteCount_one": "{{count, number}} note",

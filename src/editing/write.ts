@@ -1,12 +1,11 @@
 import { App, Editor, EmbedCache, TFile } from "obsidian";
-import { getEmbeds } from "../utils/file";
+import { EmbedMarkup, getEmbeds } from "../utils/file";
 import { getMarkdownViews } from "../utils/workspace";
 import {
   applyEditPlanToString,
   assertEditsSortedAndDisjoint,
   buildEditPlan,
   EditPlan,
-  EmbedMarkup,
   EmbedsToMarkdown,
   toMinimalChange,
 } from "./plan";

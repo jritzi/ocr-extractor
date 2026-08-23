@@ -1,8 +1,8 @@
 import type { EngineResult } from "./engines/ocr-engine";
-import type { EmbedMarkup } from "./editing/plan";
 import type { InsertResult } from "./editing/settle";
 import type { ReportStore } from "./reporting/report-store";
 import type { AttachmentEntry } from "./reporting/run-report";
+import type { EmbedMarkup } from "./utils/file";
 import type { AttachmentPath } from "./utils/path";
 
 export type EmbedResult = {

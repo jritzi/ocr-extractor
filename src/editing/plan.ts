@@ -8,10 +8,8 @@ import {
   LEGACY_CALLOUT_HEADER_REGEX,
 } from "../utils/callout";
 import { assert } from "../utils/assert";
+import type { EmbedMarkup } from "../utils/file";
 import { t } from "../i18n";
-
-/** Embed text exactly as written in the note (`original`) */
-export type EmbedMarkup = string;
 
 /** Extracted Markdown per embed */
 export type EmbedsToMarkdown = Map<EmbedMarkup, string>;
@@ -104,7 +102,7 @@ export function buildEditPlan(
   staleEmbeds.push(...collidingEmbeds);
 
   const cachedEmbedTexts = new Set(embeds.map((embed) => embed.original));
-  const orphanedResults: string[] = [];
+  const orphanedResults: EmbedMarkup[] = [];
 
   // A missing embed is only trustworthy once nothing is stale, since cache lag
   // can briefly hide an embed that is not actually gone

@@ -1,6 +1,7 @@
 import { App, debounce, EventRef, TFile } from "obsidian";
 import { attemptInsert } from "./write";
-import { EmbedMarkup, EmbedsToMarkdown } from "./plan";
+import { EmbedsToMarkdown } from "./plan";
+import type { EmbedMarkup } from "../utils/file";
 import { debugLog } from "../utils/logging";
 
 const SETTLE_TIMEOUT_MS = 60_000;
@@ -31,7 +32,7 @@ class SettleController {
   private timedOut = false;
 
   /** Markup (`original`) of results inserted by the attempts so far */
-  private readonly inserted = new Set<string>();
+  private readonly inserted = new Set<EmbedMarkup>();
 
   // Initialized in run()
   private resolve!: (result: InsertResult) => void;

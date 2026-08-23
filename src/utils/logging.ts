@@ -19,12 +19,12 @@ export function debugLog(message: string) {
   }
 }
 
-export function warnSkipped(filename: string, reason: string) {
-  logWarning(`Skipping ${filename}: ${reason}`);
+export function warnSkipped(path: string, reason: string) {
+  logWarning(`Skipping ${path}: ${reason}`);
 }
 
-export function warnFailed(filename: string, reason: string) {
-  logWarning(`Failed to extract text from ${filename}: ${reason}`);
+export function warnFailed(path: string, reason: string) {
+  logWarning(`Failed to extract text from ${path}: ${reason}`);
 }
 
 export function logWarning(message: string, cause?: unknown) {

@@ -1,6 +1,16 @@
 import OcrExtractorPlugin from "../main";
-import { EmbedCache, MarkdownView, Platform, TFile, TFolder } from "obsidian";
+import {
+  App,
+  EmbedCache,
+  MarkdownView,
+  Platform,
+  TFile,
+  TFolder,
+} from "obsidian";
 import { FatalError } from "./engines/ocr-engine";
+import { OcrEngineManager } from "./engines/ocr-engine-manager";
+import { StatusManager } from "./status-manager";
+import { ReportStore } from "./reporting/report-store";
 import { EmbedsToMarkdown, selectEmbedsToProcess } from "./editing/plan";
 import { InsertResult, insertWhenSettled } from "./editing/settle";
 import pLimit from "p-limit";
@@ -25,12 +35,17 @@ import { SelectFolderModal } from "./ui/select-folder-modal";
 import { t } from "./i18n";
 
 export class TextExtractor {
-  private app = this.plugin.app;
-  private store = this.plugin.reportStore;
-  private statusManager = this.plugin.statusManager;
-  private engineManager = this.plugin.engineManager;
+  private app: App;
+  private store: ReportStore;
+  private statusManager: StatusManager;
+  private engineManager: OcrEngineManager;
 
-  constructor(private plugin: OcrExtractorPlugin) {}
+  constructor(plugin: OcrExtractorPlugin) {
+    this.app = plugin.app;
+    this.store = plugin.reportStore;
+    this.statusManager = plugin.statusManager;
+    this.engineManager = plugin.engineManager;
+  }
 
   canProcessActiveNote() {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);

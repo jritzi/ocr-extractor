@@ -54,17 +54,17 @@ export class OpenAiCompatibleEngine extends OcrEngine {
       }
 
       return pages;
-    } else {
-      let dataUrl: string;
-      try {
-        dataUrl = await resizeImage(data, mimeType, {
-          maxDimension: MAX_IMAGE_DIMENSION,
-        });
-      } catch (error) {
-        throw new AttachmentFailedError("imageUnreadable", String(error));
-      }
-      const text = await client.extractText(dataUrl, signal);
-      return text ? [text] : [];
     }
+
+    let dataUrl: string;
+    try {
+      dataUrl = await resizeImage(data, mimeType, {
+        maxDimension: MAX_IMAGE_DIMENSION,
+      });
+    } catch (error) {
+      throw new AttachmentFailedError("imageUnreadable", String(error));
+    }
+    const text = await client.extractText(dataUrl, signal);
+    return text ? [text] : [];
   }
 }

@@ -1,6 +1,9 @@
 import { App, getLinkpath, TFile, TFolder } from "obsidian";
 import type { AttachmentPath } from "./path";
 
+/** Embed text exactly as written in the note (`original`) */
+export type EmbedMarkup = string;
+
 // Obsidian-native file types that should not have text extracted if embedded
 const OBSIDIAN_EXTENSIONS = new Set(["md", "canvas", "base"]);
 
@@ -49,7 +52,7 @@ export function attachmentPath(
 export function findEmbedLine(
   app: App,
   notePath: string,
-  embed: { markup: string; path: AttachmentPath },
+  embed: { markup: EmbedMarkup; path: AttachmentPath },
 ) {
   const embeds = app.metadataCache.getCache(notePath)?.embeds ?? [];
 

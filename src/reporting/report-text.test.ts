@@ -192,7 +192,7 @@ describe("report-text.ts", () => {
 
     it("describes when nothing matches the filter", () => {
       expect(describeEmpty("complete", { filtering: true })).toBe(
-        "No attachments match the filter",
+        "No attachments match the filter.",
       );
     });
 
