@@ -1,5 +1,5 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
-import { createFolder, openNote, seedNote } from "../helpers/obsidian";
+import { openNote, seedFolder, seedNote } from "../helpers/obsidian";
 import {
   cancelExtraction,
   expectCallout,
@@ -10,7 +10,7 @@ import {
 } from "../helpers/plugin";
 
 test("successful extraction of all notes", async ({ page }) => {
-  await createFolder(page, "projects");
+  await seedFolder(page, "projects");
   await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
   await seedNote(page, "Note in folder", {
     folder: "projects",

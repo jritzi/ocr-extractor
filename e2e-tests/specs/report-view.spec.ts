@@ -4,8 +4,8 @@ import { MISTRAL_URL } from "../helpers/mistral";
 import {
   activeNoteTitle,
   closeActiveTab,
-  createFolder,
   openNote,
+  seedFolder,
   seedNote,
 } from "../helpers/obsidian";
 import {
@@ -50,7 +50,7 @@ test("run with nothing to extract", async ({ page }) => {
 });
 
 test("full run with note and attachment results", async ({ page }) => {
-  await createFolder(page, "Receipts");
+  await seedFolder(page, "Receipts");
   await seedNote(page, "First note", {
     folder: "Receipts",
     content:

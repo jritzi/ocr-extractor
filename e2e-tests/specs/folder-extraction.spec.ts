@@ -1,5 +1,5 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
-import { createFolder, openNote, seedNote } from "../helpers/obsidian";
+import { openNote, seedFolder, seedNote } from "../helpers/obsidian";
 import {
   cancelExtraction,
   expectCallout,
@@ -10,7 +10,7 @@ import {
 } from "../helpers/plugin";
 
 test("successful extraction of folder notes", async ({ page }) => {
-  await createFolder(page, "projects/sub");
+  await seedFolder(page, "projects/sub");
   await seedNote(page, "Note in folder 1", {
     folder: "projects",
     content: "![[attachments/sample.pdf]]",
@@ -48,7 +48,7 @@ test("successful extraction of folder notes", async ({ page }) => {
 });
 
 test("skips and failures", async ({ page }) => {
-  await createFolder(page, "projects");
+  await seedFolder(page, "projects");
   await seedNote(page, "Note 1", {
     folder: "projects",
     content:
@@ -79,7 +79,7 @@ test.describe("loading and cancellation", () => {
   test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
   test("loading message and cancellation", async ({ page }) => {
-    await createFolder(page, "projects");
+    await seedFolder(page, "projects");
     await seedNote(page, "Note 1", {
       folder: "projects",
       content: "![[attachments/sample.pdf]]",

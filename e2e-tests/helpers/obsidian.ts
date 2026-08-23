@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-export async function createFolder(page: Page, folder: string) {
+export async function seedFolder(page: Page, folder: string) {
   await page.evaluate(
     async ({ folder }) => {
       await app.vault.createFolder(folder);

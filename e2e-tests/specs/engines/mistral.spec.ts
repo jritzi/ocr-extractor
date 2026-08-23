@@ -11,13 +11,7 @@ import {
 
 const MOCK_RESPONSE = "Mistral extracted text";
 
-test.use({ settings: { ocrEngine: "mistral", mistralSecret: "mistral-key" } });
-
-test.beforeEach(async ({ page }) => {
-  await page.evaluate(() => {
-    app.secretStorage.setSecret("mistral-key", "fake-api-key");
-  });
-});
+test.use({ settings: { ocrEngine: "mistral" } });
 
 test("PDF extraction (document_url)", async ({ page }) => {
   await mockHttp(

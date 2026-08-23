@@ -3,12 +3,12 @@ import {
   addFrontmatter,
   clearNoteText,
   closeActiveTab,
-  createFolder,
   deleteNote,
   getActiveNoteContent,
   openNewTab,
   openNote,
   replaceRangeInNote,
+  seedFolder,
   seedNote,
   switchToTab,
   typeAtEndOfNote,
@@ -86,7 +86,7 @@ test.describe("editing during extraction", () => {
   });
 
   test("typing in one of multiple notes", async ({ page, releaseGatedOcr }) => {
-    await createFolder(page, "Docs");
+    await seedFolder(page, "Docs");
     await seedNote(page, "Edited note", { folder: "Docs", content: EMBED });
     await seedNote(page, "Untouched note", { folder: "Docs", content: EMBED });
     await openNote(page, "Edited note");
@@ -233,7 +233,7 @@ test.describe("note deletion", () => {
     page,
     releaseGatedOcr,
   }) => {
-    await createFolder(page, "docs");
+    await seedFolder(page, "docs");
     await seedNote(page, "Kept note", { folder: "docs", content: EMBED });
     await seedNote(page, "Deleted note", { folder: "docs", content: EMBED });
 

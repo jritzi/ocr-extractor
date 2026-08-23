@@ -1,5 +1,5 @@
 import { expect, Page } from "@playwright/test";
-import { clickModalButton, runCommand } from "./obsidian";
+import { callout, clickModalButton, runCommand } from "./obsidian";
 
 export async function extractActiveNote(page: Page) {
   await runCommand(page, "OCR Extractor: Extract text in active note");
@@ -57,13 +57,12 @@ export async function toggleSetting(page: Page, label: string) {
   await settingItem(page, label).getByRole("checkbox").click();
 }
 
-export function callout(page: Page) {
-  return page.locator(".callout");
-}
-
 export async function expectCallout(page: Page, expectedText: string | RegExp) {
-  await callout(page).click();
-  await expect(page.locator(".callout-content")).toHaveText(expectedText);
+  const pluginCallout = callout(page, "ocr-extractor");
+  await pluginCallout.click();
+  await expect(pluginCallout.locator(".callout-content")).toHaveText(
+    expectedText,
+  );
 }
 
 /**
@@ -72,7 +71,7 @@ export async function expectCallout(page: Page, expectedText: string | RegExp) {
  * pass before it has actually finished running).
  */
 export async function expectNoCallout(page: Page) {
-  await expect(callout(page)).not.toBeVisible();
+  await expect(callout(page, "ocr-extractor")).not.toBeVisible();
 }
 
 function noticeLines(page: Page) {

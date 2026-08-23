@@ -1,12 +1,12 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
-  createFolder,
+  callout,
   getActiveNoteContent,
   openNote,
+  seedFolder,
   seedNote,
 } from "../helpers/obsidian";
 import {
-  callout,
   expectCallout,
   expectNoCallout,
   expectNotice,
@@ -39,7 +39,7 @@ test("multiple embeds in one note", async ({ page }) => {
     "Text extraction complete",
     "2 attachments extracted",
   ]);
-  await expect(callout(page)).toHaveCount(2);
+  await expect(callout(page, "ocr-extractor")).toHaveCount(2);
 
   const content = await getActiveNoteContent(page);
   expect(content).toContain(
@@ -63,7 +63,7 @@ test("already extracted embed", async ({ page }) => {
 });
 
 test("empty folder", async ({ page }) => {
-  await createFolder(page, "Empty folder");
+  await seedFolder(page, "Empty folder");
   await extractFolder(page, "Empty folder");
   await expectNotice(page, "Nothing to extract");
 });
