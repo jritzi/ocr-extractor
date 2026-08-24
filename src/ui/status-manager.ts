@@ -28,6 +28,7 @@ export class StatusManager {
   private status: Status = "idle";
   private abortController = new AbortController();
   private loadingNotice: Notice | null = null;
+  private unloading = false;
 
   constructor(private plugin: OcrExtractorPlugin) {
     this.store = plugin.reportStore;
@@ -55,7 +56,7 @@ export class StatusManager {
   }
 
   isUnloading() {
-    return this.getSignal().aborted && !this.isCanceling();
+    return this.unloading;
   }
 
   setProcessing(scope: RunScope, totalNotes: number) {
@@ -114,6 +115,7 @@ export class StatusManager {
   }
 
   setFatal(message: string) {
+    this.abortController.abort();
     this.store.fatalRun(message);
     this.setIdle();
 
@@ -133,6 +135,7 @@ export class StatusManager {
   }
 
   cleanup() {
+    this.unloading = true;
     this.abortController.abort();
     this.hideLoadingNotice();
   }

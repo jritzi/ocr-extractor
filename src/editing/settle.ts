@@ -109,6 +109,12 @@ class SettleController {
   }
 
   private handleAbort() {
+    if (!this.attemptInFlight) {
+      this.finishCanceled();
+    }
+  }
+
+  private finishCanceled() {
     this.finish({
       status: "canceled",
       insertedResults: [...this.inserted],
@@ -153,10 +159,7 @@ class SettleController {
       }
 
       if (this.signal.aborted) {
-        this.finish({
-          status: "canceled",
-          insertedResults: [...this.inserted],
-        });
+        this.finishCanceled();
       } else if (attemptResult.done) {
         this.finish({
           status: "done",
@@ -191,6 +194,12 @@ class SettleController {
 
   private fail(error: unknown) {
     if (this.finished) return;
+
+    if (this.signal.aborted) {
+      this.finishCanceled();
+      return;
+    }
+
     this.finished = true;
     this.cleanup();
     this.reject(error);

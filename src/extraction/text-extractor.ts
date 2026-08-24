@@ -140,9 +140,11 @@ export class TextExtractor {
         this.store.noteProcessed();
       }
 
+      if (this.statusManager.isUnloading()) return;
+
       if (this.statusManager.isCanceling()) {
         this.statusManager.setCanceled();
-      } else if (!this.statusManager.isUnloading()) {
+      } else {
         this.statusManager.setComplete();
       }
     } catch (error) {
