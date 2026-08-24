@@ -1,4 +1,4 @@
-import OcrExtractorPlugin from "../main";
+import OcrExtractorPlugin from "../../main";
 import {
   App,
   EmbedCache,
@@ -7,32 +7,32 @@ import {
   TFile,
   TFolder,
 } from "obsidian";
-import { FatalError } from "./engines/ocr-engine";
-import { OcrEngineManager } from "./engines/ocr-engine-manager";
-import { StatusManager } from "./status-manager";
-import { ReportStore } from "./reporting/report-store";
-import { EmbedsToMarkdown, selectEmbedsToProcess } from "./editing/plan";
-import { InsertResult, insertWhenSettled } from "./editing/settle";
+import { FatalError } from "../engines/ocr-engine";
+import { OcrEngineManager } from "../engines/ocr-engine-manager";
+import { StatusManager } from "../ui/status-manager";
+import { ReportStore } from "../reporting/report-store";
+import { EmbedsToMarkdown, selectEmbedsToProcess } from "../editing/plan";
+import { InsertResult, insertWhenSettled } from "../editing/settle";
 import pLimit from "p-limit";
-import { assert } from "./utils/assert";
-import { debugLog, logError, logWarning } from "./utils/logging";
-import { showNotice } from "./utils/notice";
+import { assert } from "../utils/assert";
+import { debugLog, logError, logWarning } from "../utils/logging";
+import { showNotice } from "../utils/notice";
 import {
   attachmentPath,
   getEmbeds,
   isObsidianNative,
   markdownFilesInFolder,
   resolveEmbedFile,
-} from "./utils/file";
-import { RunScope } from "./reporting/run-report";
+} from "../utils/file";
+import { RunScope } from "../reporting/run-report";
 import {
   EmbedResult,
   recordResultsAfterInsert,
   recordResultsBeforeInsert,
 } from "./record-results";
-import { ConfirmExtractAllModal } from "./ui/confirm-extract-all-modal";
-import { SelectFolderModal } from "./ui/select-folder-modal";
-import { t } from "./i18n";
+import { ConfirmExtractAllModal } from "../ui/confirm-extract-all-modal";
+import { SelectFolderModal } from "../ui/select-folder-modal";
+import { t } from "../i18n";
 
 export class TextExtractor {
   private app: App;

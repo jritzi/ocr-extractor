@@ -1,8 +1,8 @@
 import { Menu, Platform, TFile, TFolder } from "obsidian";
-import { isMarkdown } from "./utils/file";
-import OcrExtractorPlugin from "../main";
-import { t } from "./i18n";
-import { showReportView } from "./ui/report-view";
+import { isMarkdown } from "../utils/file";
+import OcrExtractorPlugin from "../../main";
+import { t } from "../i18n";
+import { showReportView } from "./report/report-view";
 
 export const PLUGIN_ICON = "scan-text";
 

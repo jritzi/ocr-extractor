@@ -1,23 +1,23 @@
-import OcrExtractorPlugin from "../main";
+import OcrExtractorPlugin from "../../main";
 import { Notice } from "obsidian";
-import { debugLog } from "./utils/logging";
-import { StatusBarItem } from "./ui/status-bar-item";
-import { showReportView } from "./ui/report-view";
-import { showLoadingNotice, showNotice } from "./utils/notice";
-import { ReportStore } from "./reporting/report-store";
+import { debugLog } from "../utils/logging";
+import { StatusBarItem } from "./status-bar-item";
+import { showReportView } from "./report/report-view";
+import { showLoadingNotice, showNotice } from "../utils/notice";
+import { ReportStore } from "../reporting/report-store";
 import {
   countResults,
   isMultiNote,
   RunScope,
   totalResults,
-} from "./reporting/run-report";
-import { assert } from "./utils/assert";
+} from "../reporting/run-report";
+import { assert } from "../utils/assert";
 import {
   describeCompletion,
   describeCount,
   describeEarlyStop,
-} from "./reporting/report-text";
-import { t } from "./i18n";
+} from "../reporting/report-text";
+import { t } from "../i18n";
 
 export type Status = "idle" | "processing" | "canceling";
 

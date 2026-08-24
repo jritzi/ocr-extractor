@@ -1,11 +1,11 @@
 import { App, ItemView, WorkspaceLeaf } from "obsidian";
 import { StrictMode } from "react";
 import { createRoot, Root } from "react-dom/client";
-import OcrExtractorPlugin from "../../main";
+import OcrExtractorPlugin from "../../../main";
 import { PLUGIN_ICON } from "../actions";
-import { ReportStore } from "../reporting/report-store";
-import { t } from "../i18n";
-import { ReportApp } from "./report/report-app";
+import { ReportStore } from "../../reporting/report-store";
+import { t } from "../../i18n";
+import { ReportApp } from "./report-app";
 import "./report-view.css";
 
 export const REPORT_VIEW_TYPE = "ocr-extractor-report";

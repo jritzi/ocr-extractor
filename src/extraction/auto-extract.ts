@@ -1,13 +1,13 @@
 import { TFile } from "obsidian";
-import OcrExtractorPlugin from "../main";
-import { showNotice } from "./utils/notice";
+import OcrExtractorPlugin from "../../main";
+import { showNotice } from "../utils/notice";
 import {
   getEmbeds,
   isMarkdown,
   isObsidianNative,
   resolveEmbedFile,
-} from "./utils/file";
-import { t } from "./i18n";
+} from "../utils/file";
+import { t } from "../i18n";
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
   /**
