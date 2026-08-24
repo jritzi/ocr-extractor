@@ -6,9 +6,10 @@ import {
   type OcrResult,
 } from "ocr-extractor-api";
 import type OcrExtractorPlugin from "../main";
-import { EngineResult } from "./engines/ocr-engine";
+import { EngineResult, FatalError } from "./engines/ocr-engine";
 import { describeReason } from "./result-reason";
 import { assert } from "./utils/assert";
+import { t } from "./i18n";
 
 export function createApi(plugin: OcrExtractorPlugin): OcrExtractorApi {
   async function extract(
@@ -25,7 +26,11 @@ export function createApi(plugin: OcrExtractorPlugin): OcrExtractorApi {
       // Avoid mislabeling an abort as `extraction-failed`
       signal.throwIfAborted();
 
-      throw ocrError("extraction-failed", String(error), { cause: error });
+      const message =
+        error instanceof FatalError
+          ? error.message
+          : t("errors.extractionFailed");
+      throw ocrError("extraction-failed", message, { cause: error });
     }
 
     signal.throwIfAborted();
