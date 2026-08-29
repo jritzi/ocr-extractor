@@ -128,7 +128,7 @@
     "unexpected": "unexpected error"
   },
   "report": {
-    "title": "{{pluginName}} report",
+    "title": "Extraction report",
     "copyReport": "Copy report",
     "collapseAll": "Collapse all",
     "expandAll": "Expand all",

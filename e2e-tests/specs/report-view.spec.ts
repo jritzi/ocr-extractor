@@ -142,7 +142,7 @@ test("copied report text", async ({ page }) => {
   await expectNotice(page, "Report copied to clipboard");
 
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied).toContain("OCR Extractor report");
+  expect(copied).toContain("Extraction report");
   expect(copied).toContain("Attachments: 1 extracted · 0 skipped · 1 failed");
   expect(copied).toContain("Copy note.md");
   expect(copied).toContain(

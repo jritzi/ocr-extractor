@@ -345,7 +345,7 @@ describe("report-text.ts", () => {
 
       expect(text).toBe(
         [
-          "OCR Extractor report",
+          "Extraction report",
           "All notes",
           "Started: Mar 4, 2026, 3:30 PM · 2 notes",
           "Finished: Mar 4, 2026, 3:32 PM · 2m 3s",
@@ -374,7 +374,7 @@ describe("report-text.ts", () => {
 
       expect(text).toBe(
         [
-          "OCR Extractor report",
+          "Extraction report",
           "Folder: Scans",
           "Started: Mar 4, 2026, 3:30 PM · 2 notes",
           "Error",
