@@ -17,7 +17,7 @@ export class StatusBarItem {
       const menu = new Menu();
 
       menu.addItem((item) =>
-        item.setTitle(t("status.cancel")).onClick(onCancel),
+        item.setTitle(t("common.cancel")).onClick(onCancel),
       );
 
       menu.showAtMouseEvent(event);

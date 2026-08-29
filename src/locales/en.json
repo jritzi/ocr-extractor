@@ -1,5 +1,9 @@
 {
   "pluginName": "OCR Extractor",
+  "common": {
+    "cancel": "Cancel",
+    "dismiss": "Dismiss"
+  },
   "callouts": {
     "title": "Extracted text"
   },
@@ -45,8 +49,6 @@
     "customCommand": "Custom command"
   },
   "modals": {
-    "cancel": "Cancel",
-    "dismiss": "Dismiss",
     "installerUpdate": {
       "title": "Installer update required",
       "body": "OCR Extractor requires a newer Obsidian installer version to work correctly. Please download and install the latest version of Obsidian (you do not need to uninstall first).",
@@ -65,17 +67,14 @@
   "status": {
     "extracting": "Extracting text",
     "extractingNote": "Extracting text in note {{current, number}}/{{total, number}}",
-    "canceling": "Canceling",
-    "cancel": "Cancel"
+    "canceling": "Canceling"
   },
   "notices": {
     "extracting": "Extracting text…",
+    "canceling": "Canceling…",
     "canceled": "Canceled text extraction",
     "complete": "Text extraction complete",
     "failedSingle": "Failed: {{name}} ({{reason}})",
-    "nothingToExtract": "Nothing to extract",
-    "stoppedAfterNotes_one": "Stopped after {{processed, number}} of {{count, number}} note",
-    "stoppedAfterNotes_other": "Stopped after {{processed, number}} of {{count, number}} notes",
     "showDetails": "Show details",
     "reportCopied": "Report copied to clipboard",
     "noteNotFound": "Couldn't find {{name}}",
@@ -90,6 +89,11 @@
     "testFailedUnexpected": "Test failed: Unexpected error",
     "testNoOutput": "Command succeeded but produced no output file",
     "testMismatch": "Expected \"{{expected}}\" but got \"{{actual}}\""
+  },
+  "run": {
+    "nothingToExtract": "Nothing to extract",
+    "stoppedAfterNotes_one": "Stopped after {{processed, number}} of {{count, number}} note",
+    "stoppedAfterNotes_other": "Stopped after {{processed, number}} of {{count, number}} notes"
   },
   "counts": {
     "label": "Attachments:",

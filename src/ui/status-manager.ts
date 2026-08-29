@@ -83,7 +83,7 @@ export class StatusManager {
     this.abortController.abort();
     this.store.startCanceling();
     this.statusBarItem.show(t("status.canceling"));
-    this.loadingNotice?.setMessage(t("status.canceling"));
+    this.loadingNotice?.setMessage(t("notices.canceling"));
     debugLog("Status set to canceling");
   }
 

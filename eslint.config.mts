@@ -20,12 +20,7 @@ if (!existsSync(path.resolve(configDir, WRITE_FILE))) {
 
 export default defineConfig([
   includeIgnoreFile(path.resolve(configDir, ".gitignore")),
-  globalIgnores([
-    "**/*.json",
-    "esbuild.config.mjs",
-    "version-bump.mjs",
-    "e2e-tests/mock-ocr/*.js",
-  ]),
+  globalIgnores(["**/*.json"]),
 
   // Base rules
   {
@@ -43,6 +38,15 @@ export default defineConfig([
         "error",
         { argsIgnorePattern: "^_", ignoreRestSiblings: true },
       ],
+    },
+  },
+
+  // Plain JavaScript (no type-aware rules)
+  {
+    files: ["**/*.{js,cjs,mjs}"],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 

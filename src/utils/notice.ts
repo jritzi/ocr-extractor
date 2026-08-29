@@ -43,7 +43,7 @@ export function showNotice(
   const notice = new Notice(fragment, persistent ? 0 : undefined);
   if (variant) {
     notice.containerEl.addClass(
-      variant === "success" ? "mod-success" : "mod-warning",
+      variant === "success" ? "mod-success" : "mod-error",
     );
   }
   return notice;
@@ -63,7 +63,7 @@ export function showLoadingNotice(
 
     if (onCancel) {
       const cancel = row.createEl("a", {
-        text: t("status.cancel"),
+        text: t("common.cancel"),
         cls: "ocr-extractor-notice-link",
       });
       cancel.addEventListener("click", (event) => {

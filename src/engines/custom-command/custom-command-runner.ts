@@ -1,7 +1,7 @@
 import { Platform } from "obsidian";
 import { AttachmentFailedError } from "../ocr-engine";
 import { assert } from "../../utils/assert";
-import { debugLog, logWarning } from "../../utils/logging";
+import { debugLog } from "../../utils/logging";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
@@ -102,18 +102,23 @@ export class CustomCommandRunner {
     } catch (error) {
       if (signal.aborted) throw error;
 
-      const { killed, code, message, stderr } = error as {
+      const { killed, code, stderr } = error as {
         killed?: boolean;
         code?: number;
-        message: string;
         stderr?: string;
       };
-      logWarning(`Custom command failed: ${stderr?.trim() || message}`);
 
       if (killed) {
         throw new AttachmentFailedError("commandTimeout");
       }
-      throw new AttachmentFailedError("commandFailed", `exit code ${code}`);
+
+      const trimmedStderr = stderr?.trim();
+      throw new AttachmentFailedError(
+        "commandFailed",
+        trimmedStderr
+          ? `exit code ${code}: ${trimmedStderr}`
+          : `exit code ${code}`,
+      );
     }
   }
 

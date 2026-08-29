@@ -59,7 +59,7 @@ export function describeEarlyStop(report: RunReport) {
     return null;
   }
 
-  return t("notices.stoppedAfterNotes", {
+  return t("run.stoppedAfterNotes", {
     processed: report.notesProcessed,
     count: report.totalNotes,
   });
@@ -110,7 +110,7 @@ export function describeEmpty(
     return t("report.noMatches");
   }
   if (status === "complete") {
-    return t("notices.nothingToExtract");
+    return t("run.nothingToExtract");
   }
   return null;
 }
@@ -118,7 +118,7 @@ export function describeEmpty(
 export function describeCompletion(report: RunReport) {
   const counts = countResults(report);
   if (totalResults(counts) === 0) {
-    return [t("notices.nothingToExtract")];
+    return [t("run.nothingToExtract")];
   }
 
   // For a single note run with one failure, show the failure in the message

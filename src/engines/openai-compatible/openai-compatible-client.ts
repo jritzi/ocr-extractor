@@ -113,7 +113,9 @@ export class OpenAiCompatibleClient {
       }
 
       if (error instanceof APIConnectionError) {
-        throw new FatalError(t("errors.openAiCompatibleConnectionFailed"));
+        throw new FatalError(t("errors.openAiCompatibleConnectionFailed"), {
+          cause: error,
+        });
       }
 
       if (error instanceof APIError) {
@@ -123,7 +125,9 @@ export class OpenAiCompatibleClient {
         throwIfFatalHttpStatus(status, error);
 
         if (status === 404) {
-          throw new FatalError(t("errors.openAiCompatibleNotFound"));
+          throw new FatalError(t("errors.openAiCompatibleNotFound"), {
+            cause: error,
+          });
         }
 
         throw new AttachmentFailedError(

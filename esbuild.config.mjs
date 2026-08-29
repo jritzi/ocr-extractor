@@ -96,6 +96,7 @@ const context = await esbuild.context({
   banner: {
     js: banner,
   },
+  absWorkingDir: projectRoot,
   entryPoints: ["main.ts"],
   bundle: true,
   plugins: [

@@ -152,7 +152,7 @@ test("copied report text", async ({ page }) => {
 
 test.describe("fatal errors", () => {
   test.use({
-    settings: { ocrEngine: "mistral", mistralSecret: "mistral-key" },
+    settings: { ocrEngine: "mistral" },
   });
 
   test("run stopped by a fatal error", async ({ page }) => {

@@ -56,7 +56,6 @@ export class ReportStore {
 
     const existingNote = report.notes.find((note) => note.path === notePath);
 
-    // Consumers compare notes by reference, so don't rebuild the other notes
     const notes = existingNote
       ? report.notes.map((note) =>
           note === existingNote ? withAttachment(note, entry) : note,

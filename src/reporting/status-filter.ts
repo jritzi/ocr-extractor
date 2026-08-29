@@ -2,6 +2,12 @@ import { NoteEntry, ResultStatus } from "./run-report";
 
 export type StatusFilter = Record<ResultStatus, boolean>;
 
+export const NO_FILTER: StatusFilter = {
+  extracted: true,
+  skipped: true,
+  failed: true,
+};
+
 export function isFiltering(statusFilter: StatusFilter) {
   return Object.values(statusFilter).includes(false);
 }
