@@ -1,16 +1,12 @@
 import { App, debounce, EventRef, TFile } from "obsidian";
 import { attemptInsert } from "./write";
+import type { InsertResult } from "./insert-result";
 import { EmbedsToMarkdown } from "./plan";
 import type { EmbedMarkup } from "../utils/file";
 import { debugLog } from "../utils/logging";
 
 const SETTLE_TIMEOUT_MS = 60_000;
 const EDITOR_CHANGE_DEBOUNCE_MS = 2_000;
-
-export type InsertResult =
-  | { status: "done"; orphanedResults: EmbedMarkup[] }
-  | { status: "timeout"; insertedResults: EmbedMarkup[] }
-  | { status: "canceled"; insertedResults: EmbedMarkup[] };
 
 /**
  * Insert the extracted text into the note. If the note is being actively

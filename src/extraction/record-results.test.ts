@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ReportStore } from "../reporting/report-store";
-import {
-  EmbedResult,
-  recordResultsAfterInsert,
-  recordResultsBeforeInsert,
-} from "./record-results";
+import { EmbedResult, recordResults } from "./record-results";
 
 const NOTE = "notes/receipts.md";
 
@@ -20,7 +16,7 @@ function recordedAttachments(store: ReportStore) {
 }
 
 describe("record-results.ts", () => {
-  describe("recordResultsBeforeInsert", () => {
+  describe("recordResults", () => {
     it("records skipped and failed results", () => {
       const store = startedStore();
       const results: EmbedResult[] = [
@@ -38,7 +34,10 @@ describe("record-results.ts", () => {
         },
       ];
 
-      recordResultsBeforeInsert(store, NOTE, results);
+      recordResults(store, NOTE, results, {
+        status: "done",
+        orphanedResults: [],
+      });
 
       expect(recordedAttachments(store)).toEqual([
         {
@@ -56,7 +55,7 @@ describe("record-results.ts", () => {
       ]);
     });
 
-    it("keeps the order each result arrived with", () => {
+    it("records a skipped result even when the insert was canceled", () => {
       const store = startedStore();
       const results: EmbedResult[] = [
         {
@@ -65,169 +64,175 @@ describe("record-results.ts", () => {
           order: 0,
           engineResult: { status: "skipped", reason: "noTextFound" },
         },
-        {
-          path: "attachments/receipt.pdf",
-          markup: "![[receipt.pdf]]",
-          order: 1,
-          engineResult: { status: "extracted", markdown: "Total: $12" },
-        },
-        {
-          path: "attachments/corrupt.pdf",
-          markup: "![[corrupt.pdf]]",
-          order: 2,
-          engineResult: { status: "failed", reason: "pdfUnreadable" },
-        },
       ];
 
-      const pendingEntries = recordResultsBeforeInsert(store, NOTE, results);
-
-      expect(recordedAttachments(store)?.map((entry) => entry.order)).toEqual([
-        0, 2,
-      ]);
-      expect(pendingEntries.map((entry) => entry.order)).toEqual([1]);
-    });
-
-    it("returns extracted results without recording them", () => {
-      const store = startedStore();
-      const results: EmbedResult[] = [
-        {
-          path: "attachments/receipt.pdf",
-          markup: "![[receipt.pdf]]",
-          order: 0,
-          engineResult: { status: "extracted", markdown: "Total: $12" },
-        },
-      ];
-
-      const pendingEntries = recordResultsBeforeInsert(store, NOTE, results);
-
-      expect(pendingEntries).toEqual([
-        {
-          path: "attachments/receipt.pdf",
-          markup: "![[receipt.pdf]]",
-          order: 0,
-        },
-      ]);
-      expect(recordedAttachments(store)).toBeUndefined();
-    });
-  });
-
-  describe("recordResultsAfterInsert", () => {
-    const twoPendingEntries = () => [
-      { path: "attachments/one.png", markup: "![[one.png]]", order: 0 },
-      { path: "attachments/two.png", markup: "![[two.png]]", order: 1 },
-    ];
-
-    it("records an orphaned result as failed", () => {
-      const store = startedStore();
-
-      recordResultsAfterInsert(store, NOTE, twoPendingEntries(), {
-        status: "done",
-        orphanedResults: ["![[two.png]]"],
+      recordResults(store, NOTE, results, {
+        status: "canceled",
+        insertedResults: [],
       });
 
       expect(recordedAttachments(store)).toEqual([
         {
-          path: "attachments/one.png",
-          markup: "![[one.png]]",
-          result: { status: "extracted" },
+          path: "attachments/blank.png",
+          markup: "![[blank.png]]",
+          result: { status: "skipped", reason: "noTextFound" },
           order: 0,
-        },
-        {
-          path: "attachments/two.png",
-          markup: "![[two.png]]",
-          result: { status: "failed", reason: "noteChanged" },
-          order: 1,
         },
       ]);
     });
 
-    it("records every result as extracted when none were orphaned", () => {
+    it("records a result as extracted when none were orphaned", () => {
       const store = startedStore();
+      const results: EmbedResult[] = [
+        {
+          path: "attachments/menu.png",
+          markup: "![[menu.png]]",
+          order: 0,
+          engineResult: { status: "extracted", markdown: "Menu" },
+        },
+      ];
 
-      recordResultsAfterInsert(store, NOTE, twoPendingEntries(), {
+      recordResults(store, NOTE, results, {
         status: "done",
         orphanedResults: [],
       });
 
       expect(recordedAttachments(store)).toEqual([
         {
-          path: "attachments/one.png",
-          markup: "![[one.png]]",
+          path: "attachments/menu.png",
+          markup: "![[menu.png]]",
           result: { status: "extracted" },
           order: 0,
-        },
-        {
-          path: "attachments/two.png",
-          markup: "![[two.png]]",
-          result: { status: "extracted" },
-          order: 1,
-        },
-      ]);
-    });
-
-    it("records results a timed-out insert never wrote as failed", () => {
-      const store = startedStore();
-
-      recordResultsAfterInsert(store, NOTE, twoPendingEntries(), {
-        status: "timeout",
-        insertedResults: ["![[one.png]]"],
-      });
-
-      expect(recordedAttachments(store)).toEqual([
-        {
-          path: "attachments/one.png",
-          markup: "![[one.png]]",
-          result: { status: "extracted" },
-          order: 0,
-        },
-        {
-          path: "attachments/two.png",
-          markup: "![[two.png]]",
-          result: { status: "failed", reason: "noteChanged" },
-          order: 1,
         },
       ]);
     });
 
     it("discards results a canceled insert never wrote", () => {
       const store = startedStore();
+      const results: EmbedResult[] = [
+        {
+          path: "attachments/photo.png",
+          markup: "![[photo.png]]",
+          order: 0,
+          engineResult: { status: "extracted", markdown: "Photo" },
+        },
+        {
+          path: "attachments/scan.png",
+          markup: "![[scan.png]]",
+          order: 1,
+          engineResult: { status: "extracted", markdown: "Scan" },
+        },
+      ];
 
-      recordResultsAfterInsert(store, NOTE, twoPendingEntries(), {
+      recordResults(store, NOTE, results, {
         status: "canceled",
-        insertedResults: ["![[one.png]]"],
+        insertedResults: ["![[photo.png]]"],
       });
 
       expect(recordedAttachments(store)).toEqual([
         {
-          path: "attachments/one.png",
-          markup: "![[one.png]]",
+          path: "attachments/photo.png",
+          markup: "![[photo.png]]",
           result: { status: "extracted" },
           order: 0,
         },
       ]);
     });
-  });
 
-  describe("using both functions together", () => {
-    it("puts an earlier embed first even when the insert recorded it last", () => {
+    it("records an orphaned result as failed", () => {
       const store = startedStore();
       const results: EmbedResult[] = [
         {
-          path: "attachments/receipt.pdf",
-          markup: "![[receipt.pdf]]",
+          path: "attachments/receipt.png",
+          markup: "![[receipt.png]]",
           order: 0,
           engineResult: { status: "extracted", markdown: "Total: $12" },
         },
+        {
+          path: "attachments/invoice.png",
+          markup: "![[invoice.png]]",
+          order: 1,
+          engineResult: { status: "extracted", markdown: "Invoice 41" },
+        },
+      ];
+
+      recordResults(store, NOTE, results, {
+        status: "done",
+        orphanedResults: ["![[invoice.png]]"],
+      });
+
+      expect(recordedAttachments(store)).toEqual([
+        {
+          path: "attachments/receipt.png",
+          markup: "![[receipt.png]]",
+          result: { status: "extracted" },
+          order: 0,
+        },
+        {
+          path: "attachments/invoice.png",
+          markup: "![[invoice.png]]",
+          result: { status: "failed", reason: "noteChanged" },
+          order: 1,
+        },
+      ]);
+    });
+
+    it("records as failed results a timed-out insert never wrote", () => {
+      const store = startedStore();
+      const results: EmbedResult[] = [
+        {
+          path: "attachments/page-one.png",
+          markup: "![[page-one.png]]",
+          order: 0,
+          engineResult: { status: "extracted", markdown: "Page one" },
+        },
+        {
+          path: "attachments/page-two.png",
+          markup: "![[page-two.png]]",
+          order: 1,
+          engineResult: { status: "extracted", markdown: "Page two" },
+        },
+      ];
+
+      recordResults(store, NOTE, results, {
+        status: "timeout",
+        insertedResults: ["![[page-one.png]]"],
+      });
+
+      expect(recordedAttachments(store)).toEqual([
+        {
+          path: "attachments/page-one.png",
+          markup: "![[page-one.png]]",
+          result: { status: "extracted" },
+          order: 0,
+        },
+        {
+          path: "attachments/page-two.png",
+          markup: "![[page-two.png]]",
+          result: { status: "failed", reason: "noteChanged" },
+          order: 1,
+        },
+      ]);
+    });
+
+    it("records embeds in note order even when results arrive out of order", () => {
+      const store = startedStore();
+      const results: EmbedResult[] = [
         {
           path: "attachments/blank.png",
           markup: "![[blank.png]]",
           order: 1,
           engineResult: { status: "skipped", reason: "noTextFound" },
         },
+        {
+          path: "attachments/receipt.pdf",
+          markup: "![[receipt.pdf]]",
+          order: 0,
+          engineResult: { status: "extracted", markdown: "Total: $12" },
+        },
       ];
 
-      const pendingEntries = recordResultsBeforeInsert(store, NOTE, results);
-      recordResultsAfterInsert(store, NOTE, pendingEntries, {
+      recordResults(store, NOTE, results, {
         status: "done",
         orphanedResults: [],
       });

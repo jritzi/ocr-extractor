@@ -12,7 +12,8 @@ import { OcrEngineManager } from "../engines/ocr-engine-manager";
 import { StatusManager } from "../ui/status-manager";
 import { ReportStore } from "../reporting/report-store";
 import { EmbedsToMarkdown, selectEmbedsToProcess } from "../editing/plan";
-import { InsertResult, insertWhenSettled } from "../editing/settle";
+import { insertWhenSettled } from "../editing/settle";
+import type { InsertResult } from "../editing/insert-result";
 import pLimit from "p-limit";
 import { assert } from "../utils/assert";
 import { debugLog, logError, logWarning } from "../utils/logging";
@@ -25,11 +26,7 @@ import {
   resolveEmbedFile,
 } from "../utils/file";
 import { RunScope } from "../reporting/run-report";
-import {
-  EmbedResult,
-  recordResultsAfterInsert,
-  recordResultsBeforeInsert,
-} from "./record-results";
+import { EmbedResult, recordResults } from "./record-results";
 import { ConfirmExtractAllModal } from "../ui/confirm-extract-all-modal";
 import { SelectFolderModal } from "../ui/select-folder-modal";
 import { t } from "../i18n";
@@ -150,7 +147,9 @@ export class TextExtractor {
     } catch (error) {
       if (this.statusManager.isUnloading()) return;
 
-      if (error instanceof FatalError) {
+      if (this.statusManager.isCanceling()) {
+        this.statusManager.setCanceled();
+      } else if (error instanceof FatalError) {
         logWarning(`Extraction stopped: ${error.message}`, error.cause);
         this.statusManager.setFatal(error.message);
       } else {
@@ -161,23 +160,21 @@ export class TextExtractor {
   }
 
   private async processNote(noteFile: TFile) {
-    if (this.isNoteMissing(noteFile)) {
-      // Note deleted mid-run, so ignore it
-      return;
+    if (this.isNoteDeleted(noteFile)) return;
+
+    let content: string;
+    try {
+      content = await this.app.vault.cachedRead(noteFile);
+    } catch (error) {
+      if (this.isNoteDeleted(noteFile)) return;
+      throw error;
     }
 
-    const content = await this.app.vault.cachedRead(noteFile);
     const embeds = getEmbeds(this.app, noteFile);
-    const { results, embedsToMarkdown } = await this.extractTextFromEmbeds(
+    const { embedResults, embedsToMarkdown } = await this.extractTextFromEmbeds(
       noteFile,
       content,
       embeds,
-    );
-
-    const pendingEntries = recordResultsBeforeInsert(
-      this.store,
-      noteFile.path,
-      results,
     );
 
     let insertResult: InsertResult;
@@ -189,19 +186,11 @@ export class TextExtractor {
         this.statusManager.getSignal(),
       );
     } catch (error) {
-      if (this.isNoteMissing(noteFile)) {
-        // Note deleted mid-run, so ignore it
-        return;
-      }
+      if (this.isNoteDeleted(noteFile)) return;
       throw error;
     }
 
-    recordResultsAfterInsert(
-      this.store,
-      noteFile.path,
-      pendingEntries,
-      insertResult,
-    );
+    recordResults(this.store, noteFile.path, embedResults, insertResult);
   }
 
   private async extractTextFromEmbeds(
@@ -222,21 +211,21 @@ export class TextExtractor {
 
     // Embeds finish in arbitrary order, so get order from the note, not the
     // results
-    const results: EmbedResult[] = [];
+    const embedResults: EmbedResult[] = [];
     processed.forEach((result, index) => {
       if (result) {
-        results.push({ ...result, order: index });
+        embedResults.push({ ...result, order: index });
       }
     });
 
     const embedsToMarkdown: EmbedsToMarkdown = new Map();
-    for (const { markup, engineResult } of results) {
+    for (const { markup, engineResult } of embedResults) {
       if (engineResult.status === "extracted") {
         embedsToMarkdown.set(markup, engineResult.markdown);
       }
     }
 
-    return { results, embedsToMarkdown };
+    return { embedResults, embedsToMarkdown };
   }
 
   private async processEmbed(
@@ -280,7 +269,8 @@ export class TextExtractor {
     }
   }
 
-  private isNoteMissing(noteFile: TFile) {
+  private isNoteDeleted(noteFile: TFile) {
+    // Renaming/moving updates the path in place, so this only implies deleted
     return !this.app.vault.getFileByPath(noteFile.path);
   }
 }

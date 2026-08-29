@@ -1,7 +1,6 @@
 import type { EngineResult } from "../engines/ocr-engine";
-import type { InsertResult } from "../editing/settle";
+import { type InsertResult, wasInserted } from "../editing/insert-result";
 import type { ReportStore } from "../reporting/report-store";
-import type { AttachmentEntry } from "../reporting/run-report";
 import type { EmbedMarkup } from "../utils/file";
 import type { AttachmentPath } from "../utils/path";
 
@@ -12,66 +11,27 @@ export type EmbedResult = {
   engineResult: Exclude<EngineResult, { status: "canceled" }>;
 };
 
-type PendingEntries = Omit<AttachmentEntry, "result">[];
-
-/**
- * Records skipped/failed results and returns entries for extracted results
- * (to record later after their callouts are written)
- */
-export function recordResultsBeforeInsert(
+export function recordResults(
   store: ReportStore,
   notePath: string,
-  results: readonly EmbedResult[],
-) {
-  const pendingEntries: PendingEntries = [];
-
-  for (const { engineResult, ...entry } of results) {
-    if (engineResult.status === "extracted") {
-      pendingEntries.push(entry);
-    } else {
-      store.recordResult(notePath, { ...entry, result: engineResult });
-    }
-  }
-
-  return pendingEntries;
-}
-
-export function recordResultsAfterInsert(
-  store: ReportStore,
-  notePath: string,
-  pendingEntries: PendingEntries,
+  embedResults: readonly EmbedResult[],
   insertResult: InsertResult,
 ) {
-  if (insertResult.status === "done") {
-    const orphaned = new Set(insertResult.orphanedResults);
-
-    for (const entry of pendingEntries) {
-      store.recordResult(notePath, {
-        ...entry,
-        result: orphaned.has(entry.markup)
-          ? { status: "failed", reason: "noteChanged" }
-          : { status: "extracted" },
-      });
-    }
-
-    return;
-  }
-
-  const inserted = new Set(insertResult.insertedResults);
-
-  for (const entry of pendingEntries) {
-    if (inserted.has(entry.markup)) {
+  for (const { engineResult, ...entry } of embedResults) {
+    if (engineResult.status !== "extracted") {
+      store.recordResult(notePath, { ...entry, result: engineResult });
+    } else if (wasInserted(entry.markup, insertResult)) {
       store.recordResult(notePath, {
         ...entry,
         result: { status: "extracted" },
       });
-    } else if (insertResult.status === "timeout") {
+    } else if (insertResult.status === "canceled") {
+      // Canceled results are not recorded
+    } else {
       store.recordResult(notePath, {
         ...entry,
         result: { status: "failed", reason: "noteChanged" },
       });
-    } else {
-      // Canceled results are not recorded
     }
   }
 }

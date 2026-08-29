@@ -57,6 +57,7 @@ export class MistralEngine extends OcrEngine {
     const controller = new AbortController();
     const abortRequest = () => controller.abort(signal.reason);
     signal.addEventListener("abort", abortRequest, { once: true });
+    if (signal.aborted) abortRequest();
     const timeout = window.setTimeout(() => {
       controller.abort(new DOMException("Timed out", "TimeoutError"));
     }, REQUEST_TIMEOUT);

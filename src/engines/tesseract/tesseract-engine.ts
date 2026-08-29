@@ -84,8 +84,12 @@ export class TesseractEngine extends OcrEngine {
   private recognize(dataUrl: string) {
     return this.limit(async () => {
       const worker = await this.getWorker();
-      const result = await worker.recognize(dataUrl);
-      return result.data.text;
+      try {
+        const result = await worker.recognize(dataUrl);
+        return result.data.text;
+      } catch (error) {
+        throw new AttachmentFailedError("imageUnreadable", String(error));
+      }
     });
   }
 
