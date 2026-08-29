@@ -140,6 +140,28 @@ describe("ReportStore", () => {
     expect(currentReport(store).finishedAt).toBeTypeOf("number");
   });
 
+  it("keeps the results recorded before a run was canceled", () => {
+    const store = new ReportStore();
+    store.startRun({ type: "vault" }, 2);
+    store.noteStarted();
+    store.recordResult("a.md", {
+      path: "img.png",
+      markup: "![[img.png]]",
+      order: 0,
+      result: { status: "extracted" },
+    });
+    store.noteProcessed();
+
+    store.startCanceling();
+    store.cancelRun();
+
+    const report = currentReport(store);
+    expect(report.notes).toHaveLength(1);
+    expect(report.notes[0].attachments).toHaveLength(1);
+    expect(report.notesProcessed).toBe(1);
+    expect(report.totalNotes).toBe(2);
+  });
+
   it("records the correct details for each way a run ends", () => {
     const endRun = (end: (store: ReportStore) => void) => {
       const store = new ReportStore();
