@@ -10,6 +10,7 @@ export class OcrEngineManager {
   private engine!: OcrEngine;
 
   private settingsChanged = false;
+  private extractionsInFlight = 0;
 
   constructor(private plugin: OcrExtractorPlugin) {
     this.buildEngine();
@@ -20,7 +21,7 @@ export class OcrEngineManager {
   }
 
   async rebuildIfNeeded() {
-    if (!this.settingsChanged) return;
+    if (!this.settingsChanged || this.extractionsInFlight > 0) return;
 
     const previousEngine = this.engine;
     this.buildEngine();
@@ -29,8 +30,17 @@ export class OcrEngineManager {
   }
 
   async extract(attachment: TFile, signal: AbortSignal) {
-    const binary = await this.plugin.app.vault.readBinary(attachment);
-    return this.engine.extract(new Uint8Array(binary), attachment.name, signal);
+    this.extractionsInFlight++;
+    try {
+      const binary = await this.plugin.app.vault.readBinary(attachment);
+      return await this.engine.extract(
+        new Uint8Array(binary),
+        attachment.name,
+        signal,
+      );
+    } finally {
+      this.extractionsInFlight--;
+    }
   }
 
   terminate() {

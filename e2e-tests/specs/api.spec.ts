@@ -1,5 +1,8 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import type { Page } from "@playwright/test";
+import { mockHttp } from "../helpers/http";
+import { MISTRAL_URL, mistralSuccessResponse } from "../helpers/mistral";
+import { openPluginSettings, settingDropdown } from "../helpers/plugin";
 import type {
   OcrError,
   OcrExtractionResult,
@@ -111,6 +114,31 @@ test.describe("unsupported file type", () => {
       success: false,
       error: { name: "OcrError", code: "unsupported-file" },
     });
+  });
+});
+
+test("engine change between calls", async ({ page }) => {
+  await mockHttp(
+    page,
+    "POST",
+    MISTRAL_URL,
+    200,
+    mistralSuccessResponse("Extracted by Mistral"),
+  );
+
+  expect(await extract(page, "attachments/sample.png")).toEqual({
+    success: true,
+    result: { status: "extracted", text: MOCK_OCR_OUTPUT },
+  });
+
+  await openPluginSettings(page);
+  await settingDropdown(page, "OCR engine").selectOption({
+    label: "Mistral OCR",
+  });
+
+  expect(await extract(page, "attachments/sample.png")).toEqual({
+    success: true,
+    result: { status: "extracted", text: "Extracted by Mistral" },
   });
 });
 

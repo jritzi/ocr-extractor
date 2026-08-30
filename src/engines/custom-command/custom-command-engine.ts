@@ -43,13 +43,20 @@ export class CustomCommandEngine extends OcrEngine {
     const command = this.getCommand();
 
     if (isPdf(mimeType) && this.settings.customCommandConvertPdfs) {
-      const images = await convertPdfToImages(data, PDF_MAX_DIMENSION);
+      const images = await convertPdfToImages(data, PDF_MAX_DIMENSION, signal);
       const pages: string[] = [];
 
       for (const imageData of images) {
         if (signal.aborted) break;
 
         const text = await this.runner.run(imageData, command, "png", signal);
+        if (text === null) {
+          throw new AttachmentSkippedError(
+            "unsupportedByEngine",
+            "command produced no output file",
+          );
+        }
+
         if (text) pages.push(text);
       }
 

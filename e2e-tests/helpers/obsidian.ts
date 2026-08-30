@@ -31,6 +31,13 @@ export async function deleteNote(page: Page, path: string) {
   }, path);
 }
 
+export async function renameActiveNote(page: Page, newTitle: string) {
+  await activeNoteTitle(page).click();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.type(newTitle);
+  await page.keyboard.press("Enter");
+}
+
 export async function createNote(page: Page, name: string) {
   await page.getByLabel("New note").click();
   await page.locator(".inline-title").fill(name);

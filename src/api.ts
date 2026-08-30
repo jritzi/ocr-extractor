@@ -21,6 +21,7 @@ export function createApi(plugin: OcrExtractorPlugin): OcrExtractorApi {
 
     let result: EngineResult;
     try {
+      await plugin.engineManager.rebuildIfNeeded();
       result = await plugin.engineManager.extract(file, signal);
     } catch (error) {
       // Avoid mislabeling an abort as `extraction-failed`

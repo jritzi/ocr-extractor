@@ -233,6 +233,8 @@ export class TextExtractor {
     embed: EmbedCache,
   ): Promise<Omit<EmbedResult, "order"> | null> {
     const signal = this.statusManager.getSignal();
+    if (signal.aborted) return null;
+
     let embedFile: TFile | null = null;
 
     try {

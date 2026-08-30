@@ -40,7 +40,11 @@ export class OpenAiCompatibleEngine extends OcrEngine {
     });
 
     if (isPdf(mimeType)) {
-      const images = await convertPdfToImages(data, MAX_IMAGE_DIMENSION);
+      const images = await convertPdfToImages(
+        data,
+        MAX_IMAGE_DIMENSION,
+        signal,
+      );
       const pages: string[] = [];
 
       for (const imageData of images) {

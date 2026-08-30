@@ -7,6 +7,7 @@ import {
   getActiveNoteContent,
   openNewTab,
   openNote,
+  renameActiveNote,
   replaceRangeInNote,
   seedFolder,
   seedNote,
@@ -262,6 +263,43 @@ test.describe("note deletion", () => {
     await deleteNote(page, "Retry delete test.md");
 
     await expectNotice(page, "Nothing to extract");
+  });
+});
+
+test.describe("note renaming", () => {
+  test("renaming the note mid-extraction", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await seedNote(page, "Scanned receipt", { content: EMBED });
+    await openNote(page, "Scanned receipt");
+    await extractActiveNote(page);
+
+    await renameActiveNote(page, "Scanned receipt 2026-08-04");
+    releaseGatedOcr();
+
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+    const content = await getActiveNoteContent(page);
+    expect(content).toContain(`${EMBED}\n\n${CALLOUT}`);
+  });
+
+  test("renaming the note while an insert is waiting to retry", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await seedNote(page, "Retry rename test", { content: EMBED });
+    await openNote(page, "Retry rename test");
+    await extractActiveNote(page);
+
+    await typeAtStartOfNote(page, "Text above\n");
+    releaseGatedOcr();
+    await page.waitForTimeout(500);
+
+    await renameActiveNote(page, "Renamed retry test");
+
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+    const content = await getActiveNoteContent(page);
+    expect(content).toContain(`Text above\n${EMBED}\n\n${CALLOUT}`);
   });
 });
 

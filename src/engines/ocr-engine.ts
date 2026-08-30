@@ -88,7 +88,7 @@ export abstract class OcrEngine {
 
     try {
       if (isPdf(mimeType) && this.settings.preferEmbeddedText) {
-        const pages = await raceAbort(getPdfTextContent(data), signal);
+        const pages = await raceAbort(getPdfTextContent(data, signal), signal);
         if (pages === null) return { status: "canceled" };
         const markdown = this.joinPages(pages);
         if (markdown) return { status: "extracted", markdown };

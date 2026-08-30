@@ -94,7 +94,11 @@ export class TesseractEngine extends OcrEngine {
   }
 
   private async extractPdfPages(data: Uint8Array, signal: AbortSignal) {
-    const images = await convertPdfToImages(data, TESSERACT_MAX_DIMENSION);
+    const images = await convertPdfToImages(
+      data,
+      TESSERACT_MAX_DIMENSION,
+      signal,
+    );
     const pages: string[] = [];
 
     for (const image of images) {
