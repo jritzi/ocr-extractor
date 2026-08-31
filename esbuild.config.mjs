@@ -119,6 +119,8 @@ const context = await esbuild.context({
     "@lezer/common",
     "@lezer/highlight",
     "@lezer/lr",
+    // Optional peer of the Mistral SDK, never installed
+    "@opentelemetry/api",
     ...builtinModules,
   ],
   jsx: "automatic",

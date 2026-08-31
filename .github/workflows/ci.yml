@@ -13,13 +13,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: "pnpm"
@@ -50,13 +50,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: "pnpm"
@@ -74,13 +74,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: "pnpm"
@@ -97,7 +97,7 @@ jobs:
           sudo apt-get install -y xvfb libgtk-3-0 libasound2t64 libnss3 libxss1
 
       - name: Cache E2E artifacts
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: e2e-tests/cache
           key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
@@ -112,13 +112,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: "pnpm"
@@ -135,7 +135,7 @@ jobs:
           sudo apt-get install -y xvfb libgtk-3-0 libasound2t64 libnss3 libxss1
 
       - name: Cache E2E artifacts
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: e2e-tests/cache
           key: e2e-cache-${{ runner.os }}-all-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
@@ -150,13 +150,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: "pnpm"
@@ -168,7 +168,7 @@ jobs:
         run: pnpm build
 
       - name: Cache E2E artifacts
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: e2e-tests/cache
           key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
@@ -183,13 +183,13 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: "pnpm"
@@ -201,7 +201,7 @@ jobs:
         run: pnpm build
 
       - name: Cache E2E artifacts
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: e2e-tests/cache
           key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}

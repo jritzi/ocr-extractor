@@ -21,6 +21,7 @@ if (!existsSync(path.resolve(configDir, WRITE_FILE))) {
 export default defineConfig([
   includeIgnoreFile(path.resolve(configDir, ".gitignore")),
   globalIgnores(["**/*.json"]),
+  { linterOptions: { reportUnusedDisableDirectives: "error" } },
 
   // Base rules
   {
