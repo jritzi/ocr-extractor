@@ -1,5 +1,9 @@
 {
   "pluginName": "OCR Extractor",
+  "common": {
+    "cancel": "إلغاء",
+    "dismiss": "تجاهل"
+  },
   "callouts": {
     "title": "النص المستخرج"
   },
@@ -9,23 +13,24 @@
     "extractFolder": "استخراج النص في المجلد",
     "extractAllNotes": "استخراج النص في جميع الملاحظات",
     "extractSelection": "استخراج النص في الملاحظات المحددة",
-    "cancelExtraction": "إلغاء الاستخراج"
+    "cancelExtraction": "إلغاء الاستخراج",
+    "showReport": "عرض التقرير"
   },
   "settings": {
     "ocrEngine": "محرك OCR",
     "ocrEngineDesc": "راجع الوثائق لمزيد من التفاصيل:",
     "ocrEngineDocLink": "محركات OCR",
-    "apiKey": "مفتاح API",
     "command": "الأمر",
     "commandDesc": "أمر الصدفة الذي سيتم تنفيذه (لأجهزة سطح المكتب فقط، سيتم استخدام Tesseract بدلاً منه على الجوال)، باستخدام {input} و {output} لمسارات الملفات",
     "commandPlaceholder": "command.sh -i {input} -o {output}",
     "openAiCompatibleBaseUrl": "عنوان URL الأساسي",
     "openAiCompatibleBaseUrlDesc": "(مثلاً: http://localhost:11434/v1)",
+    "apiKey": "مفتاح API",
+    "openAiCompatibleApiKeyDesc": "عادة ما يُطلب فقط للخدمات السحابية",
     "openAiCompatibleModel": "النموذج",
     "refreshModels": "تحديث قائمة النماذج",
     "modelNotFound": "{{model}} (غير موجود)",
     "modelNone": "لا شيء",
-    "openAiCompatibleApiKeyDesc": "عادة ما يُطلب فقط للخدمات السحابية",
     "openAiCompatiblePrompt": "موجّه",
     "openAiCompatiblePromptDesc": "تجاوز التعليمات الافتراضية المرسلة إلى النموذج",
     "test": "اختبار",
@@ -44,16 +49,14 @@
     "customCommand": "أمر مخصص"
   },
   "modals": {
-    "cancel": "إلغاء",
-    "dismiss": "تجاهل",
     "installerUpdate": {
       "title": "مطلوب تحديث للمثبِّت",
-      "body": "يتطلب OCR Extractor إصدارًا أحدث من مثبِّت Obsidian ليعمل بشكل صحيح. يرجى تنزيل وتثبيت أحدث إصدار من Obsidian (لا تحتاج إلى إزالة التثبيت أولاً).",
+      "body": "يتطلب OCR Extractor إصداراً أحدث من مثبت Obsidian ليعمل بشكل صحيح. يرجى تنزيل وتثبيت أحدث إصدار من Obsidian (لا تحتاج لإلغاء التثبيت أولاً).",
       "download": "تحميل Obsidian",
       "learnMore": "المزيد من المعلومات"
     },
     "selectFolder": {
-      "placeholder": "اختر مجلدًا..."
+      "placeholder": "اختر مجلداً…"
     },
     "extractAll": {
       "title": "هل تريد استخراج النص من جميع الملاحظات؟",
@@ -63,41 +66,149 @@
   },
   "status": {
     "extracting": "جارٍ استخراج النص",
-    "extractingNote": "جارٍ استخراج النص في الملاحظة {{current}}/{{total}}",
-    "canceling": "جارٍ الإلغاء",
-    "cancel": "إلغاء"
+    "extractingNote": "جارٍ استخراج النص في الملاحظة {{current, number}}/{{total, number}}",
+    "canceling": "جارٍ الإلغاء"
   },
   "notices": {
     "extracting": "جارٍ استخراج النص…",
+    "canceling": "جارٍ الإلغاء…",
     "canceled": "تم إلغاء استخراج النص",
-    "completeExtracted": "اكتمل استخراج النص. تم الاستخراج: {{count}}",
-    "completeExtractedSkipped": "اكتمل استخراج النص.\nتم الاستخراج: {{extracted}}، تم التخطي: {{skipped}}",
+    "complete": "اكتمل استخراج النص",
+    "failedSingle": "فشل: {{name}} ({{reason}})",
+    "showDetails": "عرض التفاصيل",
+    "reportCopied": "تم نسخ التقرير إلى الحافظة",
+    "noteNotFound": "تعذر العثور على {{name}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: عملية الاستخراج جارية بالفعل، تم تخطي المرفق الجديد",
-    "fileChanged": "تم تغيير الملف أثناء المعالجة، سيتم التخطي ({{path}})",
     "mobileEngineFallback": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيتم استخدام Tesseract",
     "mobileEngineFallbackSetting": "{{pluginName}}: الأوامر المخصصة غير متوفرة على الجوال، سيُستخدم Tesseract بدلًا منها",
-    "testSucceeded": "نجح الاختبار",
-    "testFailed": "فشل الاختبار: {{message}}",
-    "testFailedUnexpected": "فشل الاختبار: خطأ غير متوقع",
     "modelsLoadFailed": "تعذر تحميل النماذج. تحقق من عنوان URL الأساسي وحالة الخادم.",
     "testingConnection": "جارٍ اختبار الاتصال…",
     "testingCommand": "جارٍ اختبار الأمر المخصص…",
-    "testNoOutput": "نجح الأمر ولكن لم يتم إنشاء ملف المخرجات",
-    "testMismatch": "الناتج (\"{{actual}}\") لا يطابق المتوقع (\"{{expected}}\")."
+    "testSucceeded": "نجح الاختبار",
+    "testFailed": "فشل الاختبار: {{message}}",
+    "testFailedUnexpected": "فشل الاختبار: خطأ غير متوقع",
+    "testNoOutput": "نجح الأمر ولكن لم ينتج ملف إخراج",
+    "testMismatch": "المتوقع \"{{expected}}\" ولكن تم الحصول على \"{{actual}}\""
+  },
+  "run": {
+    "nothingToExtract": "لا يوجد شيء لاستخراجه",
+    "stoppedAfterNotes_zero": "تم التوقف بعد {{processed, number}} من أصل {{count, number}} ملاحظة",
+    "stoppedAfterNotes_one": "تم التوقف بعد {{processed, number}} من أصل {{count, number}} ملاحظة",
+    "stoppedAfterNotes_two": "تم التوقف بعد {{processed, number}} من أصل {{count, number}} ملاحظتين",
+    "stoppedAfterNotes_few": "تم التوقف بعد {{processed, number}} من أصل {{count, number}} ملاحظات",
+    "stoppedAfterNotes_many": "تم التوقف بعد {{processed, number}} من أصل {{count, number}} ملاحظة",
+    "stoppedAfterNotes_other": "تم التوقف بعد {{processed, number}} من أصل {{count, number}} ملاحظة"
+  },
+  "counts": {
+    "label": "المرفقات:",
+    "attachments": {
+      "extracted_zero": "{{count, number}} مرفق تم استخراجه",
+      "extracted_one": "{{count, number}} مرفق تم استخراجه",
+      "extracted_two": "{{count, number}} مرفقان تم استخراجهما",
+      "extracted_few": "{{count, number}} مرفقات تم استخراجها",
+      "extracted_many": "{{count, number}} مرفقًا تم استخراجه",
+      "extracted_other": "{{count, number}} مرفق تم استخراجه",
+      "skipped_zero": "{{count, number}} مرفق تم تخطيه",
+      "skipped_one": "{{count, number}} مرفق تم تخطيه",
+      "skipped_two": "{{count, number}} مرفقان تم تخطيهما",
+      "skipped_few": "{{count, number}} مرفقات تم تخطيها",
+      "skipped_many": "{{count, number}} مرفقًا تم تخطيه",
+      "skipped_other": "{{count, number}} مرفق تم تخطيه",
+      "failed_zero": "{{count, number}} مرفق فشل",
+      "failed_one": "{{count, number}} مرفق فشل",
+      "failed_two": "{{count, number}} مرفقان فشلا",
+      "failed_few": "{{count, number}} مرفقات فشلت",
+      "failed_many": "{{count, number}} مرفقًا فشل",
+      "failed_other": "{{count, number}} مرفق فشل"
+    },
+    "extracted_zero": "{{count, number}} تم استخراجها",
+    "extracted_one": "{{count, number}} تم استخراجها",
+    "extracted_two": "{{count, number}} تم استخراجها",
+    "extracted_few": "{{count, number}} تم استخراجها",
+    "extracted_many": "{{count, number}} تم استخراجها",
+    "extracted_other": "{{count, number}} تم استخراجها",
+    "skipped_zero": "{{count, number}} تم تخطيها",
+    "skipped_one": "{{count, number}} تم تخطيها",
+    "skipped_two": "{{count, number}} تم تخطيها",
+    "skipped_few": "{{count, number}} تم تخطيها",
+    "skipped_many": "{{count, number}} تم تخطيها",
+    "skipped_other": "{{count, number}} تم تخطيها",
+    "failed_zero": "{{count, number}} فشلت",
+    "failed_one": "{{count, number}} فشلت",
+    "failed_two": "{{count, number}} فشلت",
+    "failed_few": "{{count, number}} فشلت",
+    "failed_many": "{{count, number}} فشلت",
+    "failed_other": "{{count, number}} فشلت"
+  },
+  "duration": {
+    "underSecond": "أقل من ثانية"
+  },
+  "reasons": {
+    "unsupportedFileType": "نوع الملف غير مدعوم",
+    "noTextFound": "لم يتم العثور على نص",
+    "unsupportedByEngine": "غير مدعوم من محرك OCR",
+    "fileNotFound": "الملف غير موجود",
+    "passwordProtectedPdf": "PDF محميّ بكلمة مرور",
+    "pdfUnreadable": "تعذر قراءة PDF",
+    "imageUnreadable": "تعذر قراءة الصورة",
+    "rejectedByEngine": "تم رفضه من قبل محرك OCR",
+    "commandFailed": "فشل الأمر المخصص",
+    "commandTimeout": "انتهت مهلة الأمر المخصص",
+    "requestTimeout": "انتهت مهلة الطلب",
+    "responseTruncated": "تم اقتطاع استجابة النموذج",
+    "noteChanged": "تغيّرت الملاحظة أثناء الاستخراج",
+    "unexpected": "خطأ غير متوقع"
+  },
+  "report": {
+    "title": "تقرير الاستخراج",
+    "copyReport": "نسخ التقرير",
+    "collapseAll": "طي الكل",
+    "expandAll": "توسيع الكل",
+    "filter": "تصفية",
+    "noRun": "لم يتم تشغيل أي عملية استخراج بعد.",
+    "noMatches": "لا توجد مرفقات تطابق عامل التصفية.",
+    "startedAt": "البداية: {{time}}",
+    "finishedAt": "الانتهاء: {{time}}",
+    "scope": {
+      "note": "ملاحظة: {{path}}",
+      "folder": "مجلد: {{path}}",
+      "vault": "كل الملاحظات",
+      "selection": "الملاحظات المحددة"
+    },
+    "runStatus": {
+      "running": "قيد التنفيذ",
+      "canceling": "جارٍ الإلغاء",
+      "complete": "اكتمل",
+      "fatal": "خطأ",
+      "canceled": "تم الإلغاء"
+    },
+    "resultStatus": {
+      "extracted": "تم الاستخراج",
+      "skipped": "تم التخطي",
+      "failed": "فشل"
+    },
+    "resultLine": {
+      "withReason": "{{status}} ({{reason}})",
+      "withDetail": "{{status}} ({{reason}}؛ {{detail}})"
+    },
+    "noteCount_zero": "{{count, number}} ملاحظة",
+    "noteCount_one": "{{count, number}} ملاحظة",
+    "noteCount_two": "{{count, number}} ملاحظتان",
+    "noteCount_few": "{{count, number}} ملاحظات",
+    "noteCount_many": "{{count, number}} ملاحظة",
+    "noteCount_other": "{{count, number}} ملاحظة"
   },
   "errors": {
     "unauthorized": "غير مخول. تحقق من مفتاح API الخاص بك.",
     "rateLimited": "تم تجاوز حد المعدل",
-    "serverError": "أرجع الخادم خطأ (HTTP {{status}}). حاول مرة أخرى لاحقاً.",
+    "serverError": "أرجع محرك OCR خطأً (HTTP {{status}}). حاول مرة أخرى لاحقاً.",
     "extractionFailed": "فشل استخراج النص. تحقق من وحدة تحكم المطوّر لمزيد من التفاصيل.",
     "noBaseUrl": "لم يتم تكوين عنوان URL الأساسي",
     "noModel": "لم يتم تكوين النموذج",
     "openAiCompatibleNotFound": "النموذج أو نقطة النهاية غير موجودة. تحقق من عنوان URL الأساسي واسم النموذج.",
     "openAiCompatibleConnectionFailed": "تعذر الاتصال بالخادم. تحقق من عنوان URL الأساسي وحالة الخادم.",
-    "openAiCompatibleResponseTruncated": "استجابة النموذج قُطعت. جرب نموذجًا آخر.",
-    "openAiCompatibleRequestFailed": "فشل الطلب (HTTP {{status}}). راجع وحدة تحكم المطوّر لمزيد من التفاصيل.",
-    "noCustomCommand": "لم يتم تكوين أمر مخصص",
-    "commandTimeout": "انتهت مهلة الأمر المخصص",
-    "commandFailed": "فشل الأمر المخصص (رمز الخروج {{code}}). تحقق من وحدة تحكم المطوّر لمزيد من التفاصيل."
+    "connectionFailed": "فشل الاتصال. تحقق من اتصالك بالإنترنت.",
+    "tesseractLoadFailed": "تعذر تحميل Tesseract. تحقق من اتصالك بالإنترنت.",
+    "noCustomCommand": "لم يتم تكوين أمر مخصص"
   }
 }
