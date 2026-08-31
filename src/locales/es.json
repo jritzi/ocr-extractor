@@ -1,5 +1,9 @@
 {
   "pluginName": "OCR Extractor",
+  "common": {
+    "cancel": "Cancelar",
+    "dismiss": "Descartar"
+  },
   "callouts": {
     "title": "Texto extraído"
   },
@@ -9,23 +13,24 @@
     "extractFolder": "Extraer texto en la carpeta",
     "extractAllNotes": "Extraer texto en todas las notas",
     "extractSelection": "Extraer texto en las notas seleccionadas",
-    "cancelExtraction": "Cancelar extracción"
+    "cancelExtraction": "Cancelar extracción",
+    "showReport": "Mostrar informe"
   },
   "settings": {
     "ocrEngine": "Motor OCR",
     "ocrEngineDesc": "Consulta la documentación para más detalles:",
     "ocrEngineDocLink": "Motores OCR",
-    "apiKey": "Clave API",
     "command": "Comando",
     "commandDesc": "Comando de shell a ejecutar (solo en escritorio, en dispositivos móviles se usará Tesseract), utilizando {input} y {output} para las rutas de los archivos",
     "commandPlaceholder": "command.sh -i {input} -o {output}",
     "openAiCompatibleBaseUrl": "URL base",
     "openAiCompatibleBaseUrlDesc": "(p. ej. http://localhost:11434/v1)",
+    "apiKey": "Clave API",
+    "openAiCompatibleApiKeyDesc": "Normalmente solo requerido para servicios en la nube",
     "openAiCompatibleModel": "Modelo",
     "refreshModels": "Actualizar lista de modelos",
     "modelNotFound": "{{model}} (no encontrado)",
     "modelNone": "Ninguno",
-    "openAiCompatibleApiKeyDesc": "Normalmente solo requerido para servicios en la nube",
     "openAiCompatiblePrompt": "Indicaciones",
     "openAiCompatiblePromptDesc": "Reemplaza las instrucciones predeterminadas enviadas al modelo",
     "test": "Probar",
@@ -44,8 +49,6 @@
     "customCommand": "Comando personalizado"
   },
   "modals": {
-    "cancel": "Cancelar",
-    "dismiss": "Descartar",
     "installerUpdate": {
       "title": "Se requiere actualización del instalador",
       "body": "OCR Extractor requiere una versión más reciente del instalador de Obsidian para funcionar correctamente. Por favor, descarga e instala la última versión de Obsidian (no necesitas desinstalar primero).",
@@ -53,7 +56,7 @@
       "learnMore": "Más información"
     },
     "selectFolder": {
-      "placeholder": "Selecciona una carpeta..."
+      "placeholder": "Selecciona una carpeta…"
     },
     "extractAll": {
       "title": "¿Extraer texto de todas las notas?",
@@ -63,41 +66,117 @@
   },
   "status": {
     "extracting": "Extrayendo texto",
-    "extractingNote": "Extrayendo el texto en la nota {{current}}/{{total}}",
-    "canceling": "Cancelando",
-    "cancel": "Cancelar"
+    "extractingNote": "Extrayendo el texto en la nota {{current, number}}/{{total, number}}",
+    "canceling": "Cancelando"
   },
   "notices": {
     "extracting": "Extrayendo texto…",
+    "canceling": "Cancelando…",
     "canceled": "Extracción de texto cancelada",
-    "completeExtracted": "Extracción de texto completada. Extraído: {{count}}",
-    "completeExtractedSkipped": "Extracción de texto completada.\nExtraído: {{extracted}}, omitido: {{skipped}}",
+    "complete": "Extracción de texto completada",
+    "failedSingle": "Error: {{name}} ({{reason}})",
+    "showDetails": "Mostrar detalles",
+    "reportCopied": "Informe copiado al portapapeles",
+    "noteNotFound": "No se pudo encontrar {{name}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Ya hay una extracción en curso, se omite el nuevo archivo adjunto",
-    "fileChanged": "El archivo cambió durante el procesamiento, se omitirá ({{path}})",
     "mobileEngineFallback": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract",
     "mobileEngineFallbackSetting": "{{pluginName}}: Los comandos personalizados no están disponibles en dispositivos móviles, se usará Tesseract en su lugar",
-    "testSucceeded": "Prueba exitosa",
-    "testFailed": "Prueba fallida: {{message}}",
-    "testFailedUnexpected": "Prueba fallida: error inesperado",
     "modelsLoadFailed": "No se pudieron cargar los modelos. Verifica la URL base y el estado del servidor.",
     "testingConnection": "Probando conexión…",
     "testingCommand": "Probando comando personalizado…",
+    "testSucceeded": "Prueba exitosa",
+    "testFailed": "Prueba fallida: {{message}}",
+    "testFailedUnexpected": "Prueba fallida: error inesperado",
     "testNoOutput": "El comando se ejecutó correctamente, pero no se generó ningún archivo de salida",
-    "testMismatch": "La salida («{{actual}}») no coincide con lo esperado («{{expected}}»)."
+    "testMismatch": "Se esperaba \"{{expected}}\" pero se obtuvo \"{{actual}}\""
+  },
+  "run": {
+    "nothingToExtract": "Nada para extraer",
+    "stoppedAfterNotes_one": "Detenido después de {{processed, number}} de {{count, number}} nota",
+    "stoppedAfterNotes_other": "Detenido después de {{processed, number}} de {{count, number}} notas"
+  },
+  "counts": {
+    "label": "Archivos adjuntos:",
+    "attachments": {
+      "extracted_one": "{{count, number}} archivo adjunto extraído",
+      "extracted_other": "{{count, number}} archivos adjuntos extraídos",
+      "skipped_one": "{{count, number}} archivo adjunto omitido",
+      "skipped_other": "{{count, number}} archivos adjuntos omitidos",
+      "failed_one": "{{count, number}} archivo adjunto fallido",
+      "failed_other": "{{count, number}} archivos adjuntos fallidos"
+    },
+    "extracted_one": "{{count, number}} extraído",
+    "extracted_other": "{{count, number}} extraídos",
+    "skipped_one": "{{count, number}} omitido",
+    "skipped_other": "{{count, number}} omitidos",
+    "failed_one": "{{count, number}} fallido",
+    "failed_other": "{{count, number}} fallidos"
+  },
+  "duration": {
+    "underSecond": "<1s"
+  },
+  "reasons": {
+    "unsupportedFileType": "tipo de archivo no compatible",
+    "noTextFound": "no se encontró texto",
+    "unsupportedByEngine": "no es compatible con el motor de OCR",
+    "fileNotFound": "archivo no encontrado",
+    "passwordProtectedPdf": "PDF protegido por contraseña",
+    "pdfUnreadable": "no se pudo leer el PDF",
+    "imageUnreadable": "no se pudo leer la imagen",
+    "rejectedByEngine": "rechazado por el motor de OCR",
+    "commandFailed": "el comando personalizado falló",
+    "commandTimeout": "el comando personalizado expiró",
+    "requestTimeout": "la solicitud expiró",
+    "responseTruncated": "respuesta del modelo truncada",
+    "noteChanged": "la nota cambió durante la extracción",
+    "unexpected": "error inesperado"
+  },
+  "report": {
+    "title": "Informe de extracción",
+    "copyReport": "Copiar informe",
+    "collapseAll": "Colapsar todo",
+    "expandAll": "Expandir todo",
+    "filter": "Filtrar",
+    "noRun": "Todavía no se ha realizado ninguna extracción.",
+    "noMatches": "Ningún archivo adjunto coincide con el filtro.",
+    "startedAt": "Iniciado: {{time}}",
+    "finishedAt": "Finalizado: {{time}}",
+    "scope": {
+      "note": "Nota: {{path}}",
+      "folder": "Carpeta: {{path}}",
+      "vault": "Todas las notas",
+      "selection": "Notas seleccionadas"
+    },
+    "runStatus": {
+      "running": "En progreso",
+      "canceling": "Cancelando",
+      "complete": "Completado",
+      "fatal": "Error",
+      "canceled": "Cancelado"
+    },
+    "resultStatus": {
+      "extracted": "Extraído",
+      "skipped": "Omitido",
+      "failed": "Fallido"
+    },
+    "resultLine": {
+      "withReason": "{{status}} ({{reason}})",
+      "withDetail": "{{status}} ({{reason}}; {{detail}})"
+    },
+    "noteCount_one": "{{count, number}} nota",
+    "noteCount_other": "{{count, number}} notas"
   },
   "errors": {
     "unauthorized": "No autorizado, verifica tu clave API.",
     "rateLimited": "Límite de velocidad excedido",
-    "serverError": "El servidor devolvió un error (HTTP {{status}}). Inténtalo de nuevo más tarde.",
+    "serverError": "El motor de OCR devolvió un error (HTTP {{status}}). Inténtalo de nuevo más tarde.",
     "extractionFailed": "No se pudo extraer texto. Consulta la consola de desarrollador para obtener detalles.",
     "noBaseUrl": "No se configuró una URL base",
     "noModel": "No se configuró un modelo",
     "openAiCompatibleNotFound": "Modelo o endpoint no encontrado. Verifica la URL base y el nombre del modelo.",
     "openAiCompatibleConnectionFailed": "No se pudo conectar con el servidor. Verifica la URL base y el estado del servidor.",
-    "openAiCompatibleResponseTruncated": "La respuesta del modelo fue interrumpida. Prueba con un modelo diferente.",
-    "openAiCompatibleRequestFailed": "La solicitud falló (HTTP {{status}}). Consulta la consola de desarrollador para obtener detalles.",
-    "noCustomCommand": "No se ha configurado ningún comando personalizado",
-    "commandTimeout": "El comando personalizado expiró",
-    "commandFailed": "El comando personalizado falló (código de salida {{code}}). Verifica la consola de desarrollador para obtener detalles."
+    "connectionFailed": "Fallo en la conexión. Verifica tu conexión a Internet.",
+    "tesseractLoadFailed": "No se pudo cargar Tesseract. Verifica tu conexión a Internet.",
+    "noCustomCommand": "No se ha configurado ningún comando personalizado"
   }
 }
