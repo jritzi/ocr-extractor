@@ -51,7 +51,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-obsidianmd": "^0.4.2",
     "eslint-plugin-react-hooks": "^5.0.0",
-    "generate-license-file": "^4.2.4",
+    "generate-license-file": "^4.2.5",
     "globals": "^17.11.0",
     "husky": "^9.1.7",
     "jiti": "^2.7.0",
