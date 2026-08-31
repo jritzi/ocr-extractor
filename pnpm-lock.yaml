@@ -30,8 +30,8 @@ importers:
         specifier: ^7.3.1
         version: 7.3.1
       pdfjs-dist:
-        specifier: 6.1.200
-        version: 6.1.200
+        specifier: 6.3.289
+        version: 6.3.289
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -2252,8 +2252,8 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  pdfjs-dist@6.1.200:
-    resolution: {integrity: sha512-o8MolyzirkkLrcdsae/HEOiIcXWI7DS5zGpvqW8xTC2YUsW30rltFw2bDGvw/fskUdEMrQm2br68jzDS5BH2vw==}
+  pdfjs-dist@6.3.289:
+    resolution: {integrity: sha512-ZHjSVpDa3D6izMq8/04lvkhkATUmL9px6ChPaXc1k6nU2Mrhlg1/7F0bdUqCwUjw3NsPTfPZsMDUU6ZIcRaeQw==}
     engines: {node: '>=22.13.0 || >=24'}
 
   picocolors@1.1.1:
@@ -5231,7 +5231,7 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  pdfjs-dist@6.1.200:
+  pdfjs-dist@6.3.289:
     optionalDependencies:
       '@napi-rs/canvas': 1.0.2
 
