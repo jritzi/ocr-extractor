@@ -13,37 +13,49 @@ import { TesseractEngine } from "./src/engines/tesseract/tesseract-engine";
 import { MistralEngine } from "./src/engines/mistral/mistral-engine";
 import { OpenAiCompatibleEngine } from "./src/engines/openai-compatible/openai-compatible-engine";
 import { CustomCommandEngine } from "./src/engines/custom-command/custom-command-engine";
-import { TextExtractor } from "./src/text-extractor";
+import type { OcrEngineClass } from "./src/engines/ocr-engine";
+import { TextExtractor } from "./src/extraction/text-extractor";
 import { createApi } from "./src/api";
-import { registerActions } from "./src/actions";
-import { registerAutoExtractEvents } from "./src/auto-extract";
-import { StatusManager } from "./src/status-manager";
+import { registerActions } from "./src/ui/actions";
+import { registerAutoExtractEvents } from "./src/extraction/auto-extract";
+import { StatusManager } from "./src/ui/status-manager";
+import { OcrEngineManager } from "./src/engines/ocr-engine-manager";
+import { ReportStore } from "./src/reporting/report-store";
+import { registerReportView } from "./src/ui/report/report-view";
 import { assert } from "./src/utils/assert";
 import type { OcrExtractorApi } from "ocr-extractor-api";
+
+import "./src/styles/index.css";
 
 export const OCR_ENGINES = {
   tesseract: TesseractEngine,
   mistral: MistralEngine,
   openAiCompatible: OpenAiCompatibleEngine,
   customCommand: CustomCommandEngine,
-} as const;
+} satisfies Record<string, OcrEngineClass>;
 
 export default class OcrExtractorPlugin extends Plugin {
   settings: PluginSettings = DEFAULT_SETTINGS;
+  reportStore = new ReportStore();
 
   // Initialized in onload()
   statusManager!: StatusManager;
+  engineManager!: OcrEngineManager;
   extractor!: TextExtractor;
   api!: OcrExtractorApi;
 
   async onload() {
     await setLanguage(getLanguage());
     await this.loadSettings();
+
     this.statusManager = new StatusManager(this);
+    this.engineManager = new OcrEngineManager(this);
     this.extractor = new TextExtractor(this);
     this.api = createApi(this);
-    this.addSettingTab(new SettingTab(this.app, this));
+
     registerActions(this);
+    registerReportView(this);
+    this.addSettingTab(new SettingTab(this.app, this));
 
     this.app.workspace.onLayoutReady(() => {
       this.checkInstallerVersion();
@@ -55,7 +67,7 @@ export default class OcrExtractorPlugin extends Plugin {
     // Abort the run before terminating the engine so in-flight OCR resolves
     // as canceled instead of rejecting
     this.statusManager?.cleanup();
-    void this.extractor?.cleanup();
+    void this.engineManager?.terminate();
   }
 
   async saveSetting<K extends keyof PluginSettings>(
@@ -63,8 +75,8 @@ export default class OcrExtractorPlugin extends Plugin {
     value: PluginSettings[K],
   ) {
     this.settings[name] = value;
+    this.engineManager.markSettingsChanged();
     await this.saveData(this.settings);
-    this.extractor.markSettingsChanged();
   }
 
   private async loadSettings() {

@@ -1,10 +1,14 @@
 import { createWorker, Worker } from "tesseract.js";
 import pLimit from "p-limit";
-import { OcrEngine } from "../ocr-engine";
+import {
+  AttachmentFailedError,
+  type ExtractPagesOptions,
+  FatalError,
+  OcrEngine,
+} from "../ocr-engine";
 import { toDataUrl } from "../../utils/encoding";
 import { resizeImage } from "../../utils/image";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
-import { warnSkipped } from "../../utils/logging";
 import { t } from "../../i18n";
 import { raceAbort } from "../../utils/async";
 
@@ -45,9 +49,7 @@ export class TesseractEngine extends OcrEngine {
 
   protected async extractPages(
     data: Uint8Array,
-    mimeType: string,
-    filename: string,
-    signal: AbortSignal,
+    { mimeType, signal }: ExtractPagesOptions,
   ) {
     if (isPdf(mimeType)) {
       return this.extractPdfPages(data, signal);
@@ -59,9 +61,8 @@ export class TesseractEngine extends OcrEngine {
         minDimension: TESSERACT_MIN_DIMENSION,
         maxDimension: TESSERACT_MAX_DIMENSION,
       });
-    } catch {
-      warnSkipped(filename, "could not resize image");
-      return null;
+    } catch (error) {
+      throw new AttachmentFailedError("imageUnreadable", String(error));
     }
     const text = await this.recognize(dataUrl);
     return [text];
@@ -76,20 +77,28 @@ export class TesseractEngine extends OcrEngine {
     } catch (error) {
       // Don't cache a failed attempt, so the next call can retry
       this.workerPromise = null;
-      throw error;
+      throw new FatalError(t("errors.tesseractLoadFailed"), { cause: error });
     }
   }
 
   private recognize(dataUrl: string) {
     return this.limit(async () => {
       const worker = await this.getWorker();
-      const result = await worker.recognize(dataUrl);
-      return result.data.text;
+      try {
+        const result = await worker.recognize(dataUrl);
+        return result.data.text;
+      } catch (error) {
+        throw new AttachmentFailedError("imageUnreadable", String(error));
+      }
     });
   }
 
   private async extractPdfPages(data: Uint8Array, signal: AbortSignal) {
-    const images = await convertPdfToImages(data, TESSERACT_MAX_DIMENSION);
+    const images = await convertPdfToImages(
+      data,
+      TESSERACT_MAX_DIMENSION,
+      signal,
+    );
     const pages: string[] = [];
 
     for (const image of images) {

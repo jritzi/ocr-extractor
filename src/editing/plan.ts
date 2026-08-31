@@ -8,10 +8,11 @@ import {
   LEGACY_CALLOUT_HEADER_REGEX,
 } from "../utils/callout";
 import { assert } from "../utils/assert";
+import type { EmbedMarkup } from "../utils/file";
 import { t } from "../i18n";
 
-/** Extracted Markdown per embed, keyed by embed markup (`original`) */
-export type EmbedsToMarkdown = Map<string, string | null>;
+/** Extracted Markdown per embed */
+export type EmbedsToMarkdown = Map<EmbedMarkup, string>;
 
 export interface PlannedEdit {
   from: number;
@@ -30,6 +31,9 @@ interface EmbedEdit {
 export interface EditPlan {
   edits: PlannedEdit[];
 
+  /** Embeds with a callout insertion in `edits` */
+  resultsToInsert: EmbedMarkup[];
+
   /**
    * Embeds where the cache hasn't caught up yet with the current content, so we
    * should retry once the note settles.
@@ -37,10 +41,10 @@ export interface EditPlan {
   staleEmbeds: EmbedCache[];
 
   /**
-   * Markup (`original`) of embeds with no match found in the note content
-   * (edited or removed by the user). Empty while any embed is still stale.
+   * Embeds with no match found in the note content (edited or removed by the
+   * user). Empty while any embed is still stale.
    */
-  orphanedResults: string[];
+  orphanedResults: EmbedMarkup[];
 }
 
 export function selectEmbedsToProcess(content: string, embeds: EmbedCache[]) {
@@ -93,11 +97,12 @@ export function buildEditPlan(
     });
   }
 
-  const { edits, collidingEmbeds } = splitCollidingEdits(candidates);
+  const { edits, resultsToInsert, collidingEmbeds } =
+    splitCollidingEdits(candidates);
   staleEmbeds.push(...collidingEmbeds);
 
   const cachedEmbedTexts = new Set(embeds.map((embed) => embed.original));
-  const orphanedResults: string[] = [];
+  const orphanedResults: EmbedMarkup[] = [];
 
   // A missing embed is only trustworthy once nothing is stale, since cache lag
   // can briefly hide an embed that is not actually gone
@@ -113,32 +118,7 @@ export function buildEditPlan(
   edits.sort((a, b) => a.from - b.from);
   assertEditsSortedAndDisjoint(edits);
 
-  return { edits, staleEmbeds, orphanedResults };
-}
-
-/**
- * Split candidate edits into disjoint edits to plan and colliding embeds to
- * report as stale. Validated edits can only collide when stale cache positions
- * collapse onto the same occurrence of a duplicated embed, so a collision is
- * treated like any other stale embed and retried once the note settles.
- */
-function splitCollidingEdits(candidates: EmbedEdit[]) {
-  const sorted = [...candidates].sort((a, b) => a.edit.from - b.edit.from);
-  const colliding = new Set<EmbedEdit>();
-
-  for (let index = 1; index < sorted.length; index++) {
-    if (sorted[index - 1].edit.to > sorted[index].edit.from) {
-      colliding.add(sorted[index - 1]);
-      colliding.add(sorted[index]);
-    }
-  }
-
-  return {
-    edits: sorted
-      .filter((candidate) => !colliding.has(candidate))
-      .map((candidate) => candidate.edit),
-    collidingEmbeds: [...colliding].map((candidate) => candidate.embed),
-  };
+  return { edits, resultsToInsert, staleEmbeds, orphanedResults };
 }
 
 /**
@@ -245,4 +225,30 @@ export function assertEditsSortedAndDisjoint(edits: PlannedEdit[]) {
       "Plan edits must be sorted and not overlap",
     );
   }
+}
+
+/**
+ * Split candidate edits into disjoint edits to plan and colliding embeds to
+ * report as stale. Validated edits can only collide when stale cache positions
+ * collapse onto the same occurrence of a duplicated embed, so a collision is
+ * treated like any other stale embed and retried once the note settles.
+ */
+function splitCollidingEdits(candidates: EmbedEdit[]) {
+  const sorted = [...candidates].sort((a, b) => a.edit.from - b.edit.from);
+  const colliding = new Set<EmbedEdit>();
+
+  for (let index = 1; index < sorted.length; index++) {
+    if (sorted[index - 1].edit.to > sorted[index].edit.from) {
+      colliding.add(sorted[index - 1]);
+      colliding.add(sorted[index]);
+    }
+  }
+
+  const planned = sorted.filter((candidate) => !colliding.has(candidate));
+
+  return {
+    edits: planned.map((candidate) => candidate.edit),
+    resultsToInsert: planned.map((candidate) => candidate.embed.original),
+    collidingEmbeds: [...colliding].map((candidate) => candidate.embed),
+  };
 }

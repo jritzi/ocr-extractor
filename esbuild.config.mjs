@@ -18,7 +18,9 @@ const prod = process.argv[2] === "production";
 const appendLicenses = {
   name: "append-licenses",
   setup(build) {
-    build.onEnd(async () => {
+    build.onEnd(async (result) => {
+      if (result.errors.length > 0) return;
+
       const licenses = await fs.promises.readFile(
         path.join(projectRoot, "THIRD_PARTY_LICENSES.txt"),
         "utf8",
@@ -76,16 +78,32 @@ const inlinePdfjsWorker = {
   },
 };
 
+// Rename esbuild's output (main.css) to styles.css (loaded by Obsidian)
+const renameStylesheet = {
+  name: "rename-stylesheet",
+  setup(build) {
+    build.onEnd((result) => {
+      if (result.errors.length > 0) return;
+
+      const mainCss = path.join(projectRoot, "main.css");
+      if (!fs.existsSync(mainCss)) throw new Error("No main.css to rename");
+      fs.renameSync(mainCss, path.join(projectRoot, "styles.css"));
+    });
+  },
+};
+
 const context = await esbuild.context({
   banner: {
     js: banner,
   },
+  absWorkingDir: projectRoot,
   entryPoints: ["main.ts"],
   bundle: true,
   plugins: [
     patchPdfjsGlobals,
     inlinePdfjsWorker,
     ...(prod ? [appendLicenses] : []),
+    renameStylesheet,
   ],
   external: [
     "obsidian",
@@ -103,8 +121,12 @@ const context = await esbuild.context({
     "@lezer/lr",
     ...builtinModules,
   ],
+  jsx: "automatic",
+  define: {
+    "process.env.NODE_ENV": prod ? '"production"' : '"development"',
+  },
   format: "cjs",
-  target: "es2018",
+  target: "es2021",
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,

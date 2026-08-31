@@ -14,6 +14,7 @@ GlobalWorkerOptions.workerSrc = URL.createObjectURL(
 );
 
 export class PdfReadError extends Error {}
+export class PasswordProtectedPdfError extends PdfReadError {}
 
 export function isPdf(mimeType: string) {
   return mimeType === "application/pdf";
@@ -22,8 +23,8 @@ export function isPdf(mimeType: string) {
 /**
  * Returns text from a PDF's text layer as an array of one string per page.
  */
-export async function getPdfTextContent(data: Uint8Array) {
-  return mapPdfPages(data, async (page) => {
+export async function getPdfTextContent(data: Uint8Array, signal: AbortSignal) {
+  return mapPdfPages(data, signal, async (page) => {
     const textContent = await page.getTextContent();
     return textContent.items
       .filter((item): item is TextItem => "str" in item)
@@ -39,8 +40,9 @@ export async function getPdfTextContent(data: Uint8Array) {
 export async function convertPdfToImages(
   data: Uint8Array,
   maxDimension: number,
+  signal: AbortSignal,
 ) {
-  return mapPdfPages(data, async (pdfPage) => {
+  return mapPdfPages(data, signal, async (pdfPage) => {
     const baseViewport = pdfPage.getViewport({ scale: 1 });
     const longestBaseSide = Math.max(baseViewport.width, baseViewport.height);
     const scale = maxDimension / longestBaseSide;
@@ -60,11 +62,12 @@ export async function convertPdfToImages(
 }
 
 /**
- * Runs `callback` on each page and returns the collected results. Any error
- * thrown here skips the PDF with a PdfReadError.
+ * Runs `callback` on each page and returns the collected results (stopping
+ * early if `signal` is aborted). Any failure is wrapped in a `PdfReadError`.
  */
 async function mapPdfPages<T>(
   data: Uint8Array,
+  signal: AbortSignal,
   callback: (page: PDFPageProxy) => Promise<T>,
 ) {
   try {
@@ -81,6 +84,8 @@ async function mapPdfPages<T>(
       const results: T[] = [];
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        if (signal.aborted) break;
+
         const pdfPage = await pdf.getPage(pageNum);
 
         try {
@@ -95,11 +100,10 @@ async function mapPdfPages<T>(
       await loadingTask.destroy();
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    const reason =
-      error instanceof PasswordException
-        ? "password-protected PDF"
-        : `could not process PDF (${message})`;
-    throw new PdfReadError(reason, { cause: error });
+    const message = String(error);
+    if (error instanceof PasswordException) {
+      throw new PasswordProtectedPdfError(message, { cause: error });
+    }
+    throw new PdfReadError(message, { cause: error });
   }
 }

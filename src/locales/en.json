@@ -1,5 +1,9 @@
 {
   "pluginName": "OCR Extractor",
+  "common": {
+    "cancel": "Cancel",
+    "dismiss": "Dismiss"
+  },
   "callouts": {
     "title": "Extracted text"
   },
@@ -9,23 +13,24 @@
     "extractFolder": "Extract text in folder",
     "extractAllNotes": "Extract text in all notes",
     "extractSelection": "Extract text in selected notes",
-    "cancelExtraction": "Cancel extraction"
+    "cancelExtraction": "Cancel extraction",
+    "showReport": "Show report"
   },
   "settings": {
     "ocrEngine": "OCR engine",
     "ocrEngineDesc": "See the documentation for more details:",
     "ocrEngineDocLink": "OCR engines",
-    "apiKey": "API key",
     "command": "Command",
     "commandDesc": "Shell command to execute (desktop-only, Tesseract will be used instead on mobile), using {input} and {output} for the file paths",
     "commandPlaceholder": "command.sh -i {input} -o {output}",
     "openAiCompatibleBaseUrl": "Base URL",
     "openAiCompatibleBaseUrlDesc": "(e.g. http://localhost:11434/v1)",
+    "apiKey": "API key",
+    "openAiCompatibleApiKeyDesc": "Usually only required for cloud services",
     "openAiCompatibleModel": "Model",
     "refreshModels": "Refresh model list",
     "modelNotFound": "{{model}} (not found)",
     "modelNone": "None",
-    "openAiCompatibleApiKeyDesc": "Usually only required for cloud services",
     "openAiCompatiblePrompt": "Prompt",
     "openAiCompatiblePromptDesc": "Override the default instructions sent to the model",
     "test": "Test",
@@ -44,16 +49,14 @@
     "customCommand": "Custom command"
   },
   "modals": {
-    "cancel": "Cancel",
-    "dismiss": "Dismiss",
     "installerUpdate": {
       "title": "Installer update required",
-      "body": "OCR Extractor requires a newer Obsidian installer version to work correctly. Please download and install the latest Obsidian (you do not need to uninstall first).",
+      "body": "OCR Extractor requires a newer Obsidian installer version to work correctly. Please download and install the latest version of Obsidian (you do not need to uninstall first).",
       "download": "Download Obsidian",
       "learnMore": "Learn more"
     },
     "selectFolder": {
-      "placeholder": "Select a folder..."
+      "placeholder": "Select a folder…"
     },
     "extractAll": {
       "title": "Extract text from all notes?",
@@ -63,41 +66,117 @@
   },
   "status": {
     "extracting": "Extracting text",
-    "extractingNote": "Extracting text in note {{current}}/{{total}}",
-    "canceling": "Canceling",
-    "cancel": "Cancel"
+    "extractingNote": "Extracting text in note {{current, number}}/{{total, number}}",
+    "canceling": "Canceling"
   },
   "notices": {
     "extracting": "Extracting text…",
+    "canceling": "Canceling…",
     "canceled": "Canceled text extraction",
-    "completeExtracted": "Text extraction complete. Extracted: {{count}}",
-    "completeExtractedSkipped": "Text extraction complete.\nExtracted: {{extracted}}, skipped: {{skipped}}",
+    "complete": "Text extraction complete",
+    "failedSingle": "Failed: {{name}} ({{reason}})",
+    "showDetails": "Show details",
+    "reportCopied": "Report copied to clipboard",
+    "noteNotFound": "Couldn't find {{name}}",
     "autoExtractSkippedWhileBusy": "{{pluginName}}: Extraction already in progress, new attachment skipped",
-    "fileChanged": "File changed during processing, skipping ({{path}})",
     "mobileEngineFallback": "{{pluginName}}: Custom commands are not available on mobile, using Tesseract",
     "mobileEngineFallbackSetting": "{{pluginName}}: Custom commands are not available on mobile, Tesseract will be used instead",
-    "testSucceeded": "Test succeeded",
-    "testFailed": "Test failed: {{message}}",
-    "testFailedUnexpected": "Test failed: Unexpected error",
     "modelsLoadFailed": "Couldn't load models. Check the base URL and server status.",
     "testingConnection": "Testing connection…",
     "testingCommand": "Testing custom command…",
-    "testNoOutput": "Command succeeded but no output file produced",
-    "testMismatch": "Output (\"{{actual}}\") does not match expected (\"{{expected}}\")."
+    "testSucceeded": "Test succeeded",
+    "testFailed": "Test failed: {{message}}",
+    "testFailedUnexpected": "Test failed: Unexpected error",
+    "testNoOutput": "Command succeeded but produced no output file",
+    "testMismatch": "Expected \"{{expected}}\" but got \"{{actual}}\""
+  },
+  "run": {
+    "nothingToExtract": "Nothing to extract",
+    "stoppedAfterNotes_one": "Stopped after {{processed, number}} of {{count, number}} note",
+    "stoppedAfterNotes_other": "Stopped after {{processed, number}} of {{count, number}} notes"
+  },
+  "counts": {
+    "label": "Attachments:",
+    "extracted_one": "{{count, number}} extracted",
+    "extracted_other": "{{count, number}} extracted",
+    "skipped_one": "{{count, number}} skipped",
+    "skipped_other": "{{count, number}} skipped",
+    "failed_one": "{{count, number}} failed",
+    "failed_other": "{{count, number}} failed",
+    "attachments": {
+      "extracted_one": "{{count, number}} attachment extracted",
+      "extracted_other": "{{count, number}} attachments extracted",
+      "skipped_one": "{{count, number}} attachment skipped",
+      "skipped_other": "{{count, number}} attachments skipped",
+      "failed_one": "{{count, number}} attachment failed",
+      "failed_other": "{{count, number}} attachments failed"
+    }
+  },
+  "duration": {
+    "underSecond": "<1s"
+  },
+  "reasons": {
+    "unsupportedFileType": "unsupported file type",
+    "noTextFound": "no text found",
+    "unsupportedByEngine": "not supported by the OCR engine",
+    "fileNotFound": "file not found",
+    "passwordProtectedPdf": "password-protected PDF",
+    "pdfUnreadable": "could not read PDF",
+    "imageUnreadable": "could not read image",
+    "rejectedByEngine": "rejected by the OCR engine",
+    "commandFailed": "custom command failed",
+    "commandTimeout": "custom command timed out",
+    "requestTimeout": "request timed out",
+    "responseTruncated": "model response cut short",
+    "noteChanged": "note changed during extraction",
+    "unexpected": "unexpected error"
+  },
+  "report": {
+    "title": "Extraction report",
+    "copyReport": "Copy report",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "filter": "Filter",
+    "noRun": "No extraction has run yet.",
+    "noMatches": "No attachments match the filter.",
+    "startedAt": "Started: {{time}}",
+    "finishedAt": "Finished: {{time}}",
+    "noteCount_one": "{{count, number}} note",
+    "noteCount_other": "{{count, number}} notes",
+    "scope": {
+      "note": "Note: {{path}}",
+      "folder": "Folder: {{path}}",
+      "vault": "All notes",
+      "selection": "Selected notes"
+    },
+    "runStatus": {
+      "running": "In progress",
+      "canceling": "Canceling",
+      "complete": "Completed",
+      "fatal": "Error",
+      "canceled": "Canceled"
+    },
+    "resultStatus": {
+      "extracted": "Extracted",
+      "skipped": "Skipped",
+      "failed": "Failed"
+    },
+    "resultLine": {
+      "withReason": "{{status}} ({{reason}})",
+      "withDetail": "{{status}} ({{reason}}; {{detail}})"
+    }
   },
   "errors": {
     "unauthorized": "Unauthorized. Check your API key.",
     "rateLimited": "Rate limit exceeded",
-    "serverError": "The server returned an error (HTTP {{status}}). Try again later.",
+    "serverError": "The OCR engine returned an error (HTTP {{status}}). Try again later.",
     "extractionFailed": "Failed to extract text. Check the developer console for details.",
     "noBaseUrl": "No base URL configured",
     "noModel": "No model configured",
     "openAiCompatibleNotFound": "Model or endpoint not found. Check the base URL and model name.",
     "openAiCompatibleConnectionFailed": "Could not connect to the server. Check the base URL and server status.",
-    "openAiCompatibleResponseTruncated": "The model's response was cut short. Try a different model.",
-    "openAiCompatibleRequestFailed": "Request failed (HTTP {{status}}). See the developer console for details.",
-    "noCustomCommand": "No custom command configured",
-    "commandTimeout": "Custom command timed out",
-    "commandFailed": "Custom command failed (exit code {{code}}). Check the developer console for details."
+    "connectionFailed": "Connection failed. Check your internet connection.",
+    "tesseractLoadFailed": "Could not load Tesseract. Check your internet connection.",
+    "noCustomCommand": "No custom command configured"
   }
 }

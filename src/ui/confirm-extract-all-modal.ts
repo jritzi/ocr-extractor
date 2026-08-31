@@ -10,7 +10,7 @@ export class ConfirmExtractAllModal extends Modal {
 
     new Setting(this.contentEl)
       .addButton((btn) =>
-        btn.setButtonText(t("modals.cancel")).onClick(() => this.close()),
+        btn.setButtonText(t("common.cancel")).onClick(() => this.close()),
       )
       .addButton((btn) =>
         btn

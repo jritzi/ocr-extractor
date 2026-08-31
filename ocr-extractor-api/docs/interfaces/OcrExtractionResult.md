@@ -6,9 +6,9 @@
 
 # Interface: OcrExtractionResult
 
-Defined in: [index.ts:30](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/index.ts#L30)
+Defined in: [index.ts:37](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L37)
 
-The result of a successful extraction
+The result of an [OcrExtractorApi.extractText](OcrExtractorApi.md#extracttext) call
 
 ## Since
 
@@ -20,6 +20,6 @@ The result of a successful extraction
 
 > **text**: `string`
 
-Defined in: [index.ts:32](https://github.com/jritzi/ocr-extractor/blob/8604f22e809f7fce4769737b2242142974d85d95/ocr-extractor-api/src/index.ts#L32)
+Defined in: [index.ts:39](https://github.com/jritzi/ocr-extractor/blob/95b33e4dd20df817f503ff15b68d63310ed288e4/ocr-extractor-api/src/index.ts#L39)
 
 Extracted text (or `""` if the file was processed but contained no text)

@@ -4,7 +4,8 @@ import {
   APIError,
   OpenAI,
 } from "openai";
-import { UserFacingError } from "../ocr-engine";
+import { AttachmentFailedError, FatalError } from "../ocr-engine";
+import { throwIfFatalHttpStatus } from "../http-error";
 import { stripCodeFence } from "../../utils/markdown";
 import { t } from "../../i18n";
 
@@ -37,7 +38,7 @@ export class OpenAiCompatibleClient {
     prompt,
   }: OpenAiCompatibleClientConfig) {
     const trimmedBaseUrl = baseUrl.trim().replace(/\/+$/, "");
-    if (!trimmedBaseUrl) throw new UserFacingError(t("errors.noBaseUrl"));
+    if (!trimmedBaseUrl) throw new FatalError(t("errors.noBaseUrl"));
 
     this.model = model.trim();
 
@@ -67,15 +68,22 @@ export class OpenAiCompatibleClient {
       .sort((first, second) => first.localeCompare(second));
   }
 
-  /**
-   * Extracts text from an image data URL. Returns null if the model rejects
-   * the request.
-   */
   async extractText(dataUrl: string, signal: AbortSignal) {
-    if (!this.model) throw new UserFacingError(t("errors.noModel"));
+    if (!this.model) throw new FatalError(t("errors.noModel"));
 
+    const completion = await this.requestCompletion(dataUrl, signal);
+
+    const choice = completion.choices[0];
+    if (choice?.finish_reason === "length") {
+      throw new AttachmentFailedError("responseTruncated");
+    }
+
+    return stripCodeFence(choice?.message?.content ?? "");
+  }
+
+  private async requestCompletion(dataUrl: string, signal: AbortSignal) {
     try {
-      const completion = await this.client.chat.completions.create(
+      return await this.client.chat.completions.create(
         {
           model: this.model,
           messages: [
@@ -97,55 +105,35 @@ export class OpenAiCompatibleClient {
         },
         { signal },
       );
-
-      const choice = completion.choices[0];
-      if (choice?.finish_reason === "length") {
-        throw new UserFacingError(
-          t("errors.openAiCompatibleResponseTruncated"),
-        );
-      }
-
-      return stripCodeFence(choice?.message?.content ?? "");
     } catch (error) {
       if (signal.aborted) throw error;
 
-      if (
-        error instanceof APIConnectionTimeoutError ||
-        error instanceof APIConnectionError
-      ) {
-        throw new UserFacingError(t("errors.openAiCompatibleConnectionFailed"));
+      if (error instanceof APIConnectionTimeoutError) {
+        throw new AttachmentFailedError("requestTimeout");
+      }
+
+      if (error instanceof APIConnectionError) {
+        throw new FatalError(t("errors.openAiCompatibleConnectionFailed"), {
+          cause: error,
+        });
       }
 
       if (error instanceof APIError) {
-        if (error.status === 400 || error.status === 422) {
-          console.warn(
-            `Request rejected by model (HTTP ${error.status}):`,
-            error.message,
-          );
-          return null;
-        } else if (error.status === 401 || error.status === 403) {
-          throw new UserFacingError(t("errors.unauthorized"));
-        } else if (error.status === 404) {
-          throw new UserFacingError(t("errors.openAiCompatibleNotFound"));
-        } else if (error.status === 429) {
-          throw new UserFacingError(t("errors.rateLimited"));
-        } else if (error.status >= 500) {
-          console.error(
-            `OpenAI-compatible server error (HTTP ${error.status}):`,
-            error.message,
-          );
-          throw new UserFacingError(
-            t("errors.serverError", { status: error.status }),
-          );
-        } else {
-          console.error(
-            `OpenAI-compatible request failed (HTTP ${error.status}):`,
-            error.message,
-          );
-          throw new UserFacingError(
-            t("errors.openAiCompatibleRequestFailed", { status: error.status }),
-          );
+        const status =
+          typeof error.status === "number" ? error.status : undefined;
+
+        throwIfFatalHttpStatus(status, error);
+
+        if (status === 404) {
+          throw new FatalError(t("errors.openAiCompatibleNotFound"), {
+            cause: error,
+          });
         }
+
+        throw new AttachmentFailedError(
+          "rejectedByEngine",
+          `HTTP ${status}: ${error.message}`,
+        );
       }
 
       throw error;

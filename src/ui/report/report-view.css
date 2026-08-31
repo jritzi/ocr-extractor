@@ -1,0 +1,7 @@
+/* Override view-content defaults */
+.workspace-leaf-content .view-content.ocr-extractor-report-view {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

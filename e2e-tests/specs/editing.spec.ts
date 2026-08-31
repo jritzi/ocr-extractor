@@ -3,12 +3,13 @@ import {
   addFrontmatter,
   clearNoteText,
   closeActiveTab,
-  createFolder,
   deleteNote,
   getActiveNoteContent,
   openNewTab,
   openNote,
+  renameActiveNote,
   replaceRangeInNote,
+  seedFolder,
   seedNote,
   switchToTab,
   typeAtEndOfNote,
@@ -63,10 +64,10 @@ test.describe("editing during extraction", () => {
     await typeAtEndOfNote(page, "![[attachments/different.pdf]]");
     releaseGatedOcr();
 
-    await expectNotice(
-      page,
-      "Text extraction complete. Extracted: 0, skipped: 1",
-    );
+    await expectNotice(page, [
+      "Text extraction complete",
+      "Failed: sample.pdf (note changed during extraction)",
+    ]);
     await expectNoCallout(page);
   });
 
@@ -86,7 +87,7 @@ test.describe("editing during extraction", () => {
   });
 
   test("typing in one of multiple notes", async ({ page, releaseGatedOcr }) => {
-    await createFolder(page, "Docs");
+    await seedFolder(page, "Docs");
     await seedNote(page, "Edited note", { folder: "Docs", content: EMBED });
     await seedNote(page, "Untouched note", { folder: "Docs", content: EMBED });
     await openNote(page, "Edited note");
@@ -95,7 +96,10 @@ test.describe("editing during extraction", () => {
     await typeAtEndOfNote(page, "\nMeeting notes");
     releaseGatedOcr();
 
-    await expectNotice(page, "Text extraction complete. Extracted: 2");
+    await expectNotice(page, [
+      "Text extraction complete",
+      "2 attachments extracted",
+    ]);
 
     await expectCallout(page, MOCK_OCR_OUTPUT);
     const content = await getActiveNoteContent(page);
@@ -140,7 +144,10 @@ test.describe("editing during extraction", () => {
     );
     releaseGatedOcr();
 
-    await expectNotice(page, "Text extraction complete. Extracted: 1");
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment extracted",
+    ]);
     const content = await getActiveNoteContent(page);
     expect(content).toBe(
       `${EMBED}\n\n${CALLOUT}\n\n${EMBED}\n\n${CALLOUT}\n\n`,
@@ -157,7 +164,10 @@ test.describe("tab changes", () => {
     await closeActiveTab(page);
     releaseGatedOcr();
 
-    await expectNotice(page, "Text extraction complete. Extracted: 1");
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment extracted",
+    ]);
 
     await openNote(page, "Closed tab test");
     await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -176,7 +186,10 @@ test.describe("tab changes", () => {
     await openNote(page, "Other note");
     releaseGatedOcr();
 
-    await expectNotice(page, "Text extraction complete. Extracted: 1");
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment extracted",
+    ]);
 
     await switchToTab(page, "Background test");
     await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -194,7 +207,10 @@ test.describe("tab changes", () => {
     await closeActiveTab(page);
     releaseGatedOcr();
 
-    await expectNotice(page, "Text extraction complete. Extracted: 1");
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment extracted",
+    ]);
 
     await openNote(page, "Dirty close test");
     const content = await getActiveNoteContent(page);
@@ -211,17 +227,14 @@ test.describe("note deletion", () => {
     await deleteNote(page, "Deleted note.md");
     releaseGatedOcr();
 
-    await expectNotice(
-      page,
-      "Text extraction complete. Extracted: 0, skipped: 1",
-    );
+    await expectNotice(page, "Nothing to extract");
   });
 
   test("deleting a note before reached in multi-note extraction", async ({
     page,
     releaseGatedOcr,
   }) => {
-    await createFolder(page, "docs");
+    await seedFolder(page, "docs");
     await seedNote(page, "Kept note", { folder: "docs", content: EMBED });
     await seedNote(page, "Deleted note", { folder: "docs", content: EMBED });
 
@@ -229,7 +242,10 @@ test.describe("note deletion", () => {
     await deleteNote(page, "docs/Deleted note.md");
     releaseGatedOcr();
 
-    await expectNotice(page, "Text extraction complete. Extracted: 1");
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment extracted",
+    ]);
   });
 
   test("deleting the note while an insert is waiting to retry", async ({
@@ -246,10 +262,44 @@ test.describe("note deletion", () => {
 
     await deleteNote(page, "Retry delete test.md");
 
-    await expectNotice(
-      page,
-      "Text extraction complete. Extracted: 0, skipped: 1",
-    );
+    await expectNotice(page, "Nothing to extract");
+  });
+});
+
+test.describe("note renaming", () => {
+  test("renaming the note mid-extraction", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await seedNote(page, "Scanned receipt", { content: EMBED });
+    await openNote(page, "Scanned receipt");
+    await extractActiveNote(page);
+
+    await renameActiveNote(page, "Scanned receipt 2026-08-04");
+    releaseGatedOcr();
+
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+    const content = await getActiveNoteContent(page);
+    expect(content).toContain(`${EMBED}\n\n${CALLOUT}`);
+  });
+
+  test("renaming the note while an insert is waiting to retry", async ({
+    page,
+    releaseGatedOcr,
+  }) => {
+    await seedNote(page, "Retry rename test", { content: EMBED });
+    await openNote(page, "Retry rename test");
+    await extractActiveNote(page);
+
+    await typeAtStartOfNote(page, "Text above\n");
+    releaseGatedOcr();
+    await page.waitForTimeout(500);
+
+    await renameActiveNote(page, "Renamed retry test");
+
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+    const content = await getActiveNoteContent(page);
+    expect(content).toContain(`Text above\n${EMBED}\n\n${CALLOUT}`);
   });
 });
 

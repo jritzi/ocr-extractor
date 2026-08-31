@@ -12,7 +12,7 @@ export class InstallerUpdateModal extends Modal {
 
     new Setting(this.contentEl)
       .addButton((btn) =>
-        btn.setButtonText(t("modals.dismiss")).onClick(() => this.close()),
+        btn.setButtonText(t("common.dismiss")).onClick(() => this.close()),
       )
       .addButton((btn) =>
         btn

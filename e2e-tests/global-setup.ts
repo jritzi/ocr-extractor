@@ -27,7 +27,7 @@ export default async function globalSetup() {
 }
 
 function ensurePluginBuilt() {
-  const missing = ["main.js", "manifest.json"].filter(
+  const missing = ["main.js", "manifest.json", "styles.css"].filter(
     (file) => !existsSync(join(ROOT, file)),
   );
 

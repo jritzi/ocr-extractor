@@ -17,6 +17,7 @@ Access it with [getOcrExtractorApi](functions/getOcrExtractorApi.md).
 ## Type Aliases
 
 - [OcrErrorCode](type-aliases/OcrErrorCode.md)
+- [OcrResult](type-aliases/OcrResult.md)
 
 ## Variables
 

@@ -1,10 +1,23 @@
 import { Mistral } from "@mistralai/mistralai";
+import {
+  ConnectionError,
+  RequestTimeoutError,
+  UnexpectedClientError,
+} from "@mistralai/mistralai/models/errors/httpclienterrors";
 import { MistralError } from "@mistralai/mistralai/models/errors/mistralerror";
-import { OcrEngine, UserFacingError } from "../ocr-engine";
+import {
+  AttachmentFailedError,
+  AttachmentSkippedError,
+  type ExtractPagesOptions,
+  FatalError,
+  OcrEngine,
+} from "../ocr-engine";
+import { throwIfFatalHttpStatus } from "../http-error";
 import { MistralSettingsSection } from "./mistral-settings";
 import { toDataUrl } from "../../utils/encoding";
-import { warnSkipped } from "../../utils/logging";
 import { t } from "../../i18n";
+
+const REQUEST_TIMEOUT = 60_000; // 1 minute
 
 const BACKOFF = {
   initialInterval: 500,
@@ -28,9 +41,7 @@ export class MistralEngine extends OcrEngine {
 
   protected async extractPages(
     data: Uint8Array,
-    mimeType: string,
-    filename: string,
-    signal: AbortSignal,
+    { mimeType, signal }: ExtractPagesOptions,
   ) {
     const apiKey =
       this.secretStorage.getSecret(this.settings.mistralSecret) ?? "";
@@ -43,6 +54,15 @@ export class MistralEngine extends OcrEngine {
       ? ({ type: "image_url", imageUrl: url } as const)
       : ({ type: "document_url", documentUrl: url } as const);
 
+    const controller = new AbortController();
+    const abortRequest = () => controller.abort(signal.reason);
+    signal.addEventListener("abort", abortRequest, { once: true });
+    if (signal.aborted) abortRequest();
+    const timeout = window.setTimeout(() => {
+      // Matches the `AbortSignal.timeout()` exception
+      controller.abort(new DOMException("Timed out", "TimeoutError"));
+    }, REQUEST_TIMEOUT);
+
     try {
       const ocrResponse = await mistral.ocr.process(
         {
@@ -54,39 +74,48 @@ export class MistralEngine extends OcrEngine {
           includeImageBase64: false,
         },
         {
-          signal,
+          signal: controller.signal,
           retries: { strategy: "backoff", backoff: BACKOFF },
         },
       );
 
       return ocrResponse.pages.map((page) => page.markdown);
-    } catch (error: unknown) {
+    } catch (error) {
+      if (signal.aborted) throw error;
+
       if (error instanceof MistralError) {
-        if (error.statusCode === 401 || error.statusCode === 403) {
-          throw new UserFacingError(t("errors.unauthorized"));
-        }
-
         if (error.statusCode === 400 || error.statusCode === 422) {
-          warnSkipped(filename, "file type not supported by Mistral OCR");
-          return null;
-        }
-
-        if (error.statusCode === 429) {
-          throw new UserFacingError(t("errors.rateLimited"));
-        }
-
-        if (error.statusCode >= 500) {
-          console.error(
-            `Mistral server error (HTTP ${error.statusCode}):`,
-            error.message,
-          );
-          throw new UserFacingError(
-            t("errors.serverError", { status: error.statusCode }),
+          // These could be one of several skip or fail reasons, but since
+          // Mistral doesn't easily distinguish between them, choose skip
+          throw new AttachmentSkippedError(
+            "unsupportedByEngine",
+            `HTTP ${error.statusCode}: ${error.message}`,
           );
         }
+
+        throwIfFatalHttpStatus(error.statusCode, error);
+
+        throw new AttachmentFailedError(
+          "rejectedByEngine",
+          `HTTP ${error.statusCode}: ${error.message}`,
+        );
+      }
+
+      if (error instanceof RequestTimeoutError) {
+        throw new AttachmentFailedError("requestTimeout");
+      }
+
+      if (
+        error instanceof ConnectionError ||
+        error instanceof UnexpectedClientError
+      ) {
+        throw new FatalError(t("errors.connectionFailed"), { cause: error });
       }
 
       throw error;
+    } finally {
+      window.clearTimeout(timeout);
+      signal.removeEventListener("abort", abortRequest);
     }
   }
 }

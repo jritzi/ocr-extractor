@@ -1,14 +1,8 @@
 import { Platform } from "obsidian";
 import { OcrEngineSettings } from "../ocr-engine-settings";
-import { UserFacingError } from "../ocr-engine";
 import { CustomCommandRunner } from "./custom-command-runner";
 import { createTestImage, TEST_IMAGE_TEXT } from "../../utils/image";
-import {
-  showErrorNotice,
-  showLoadingNotice,
-  showNotice,
-  showSuccessNotice,
-} from "../../utils/notice";
+import { showLoadingNotice, showNotice } from "../../utils/notice";
 import { t } from "../../i18n";
 
 export class CustomCommandSettingsSection extends OcrEngineSettings {
@@ -52,8 +46,9 @@ export class CustomCommandSettingsSection extends OcrEngineSettings {
   private async testCommand() {
     const command = this.plugin.settings.customCommand.trim();
     if (!command) {
-      showErrorNotice(
+      showNotice(
         t("notices.testFailed", { message: t("errors.noCustomCommand") }),
+        { variant: "error" },
       );
       return;
     }
@@ -70,9 +65,9 @@ export class CustomCommandSettingsSection extends OcrEngineSettings {
         new AbortController().signal,
       );
       if (!result) {
-        showErrorNotice(t("notices.testNoOutput"));
+        showNotice(t("notices.testNoOutput"), { variant: "error" });
       } else if (result.trim() === TEST_IMAGE_TEXT) {
-        showSuccessNotice(t("notices.testSucceeded"));
+        showNotice(t("notices.testSucceeded"), { variant: "success" });
       } else {
         showNotice(
           t("notices.testMismatch", {
@@ -82,12 +77,7 @@ export class CustomCommandSettingsSection extends OcrEngineSettings {
         );
       }
     } catch (error) {
-      if (error instanceof UserFacingError) {
-        showErrorNotice(t("notices.testFailed", { message: error.message }));
-      } else {
-        console.error("Custom command test failed:", error);
-        showErrorNotice(t("notices.testFailedUnexpected"));
-      }
+      this.showTestError(error);
     } finally {
       loadingNotice.hide();
     }

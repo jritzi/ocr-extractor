@@ -1,13 +1,13 @@
 import { TFile } from "obsidian";
-import OcrExtractorPlugin from "../main";
-import { showNotice } from "./utils/notice";
+import OcrExtractorPlugin from "../../main";
+import { showNotice } from "../utils/notice";
 import {
   getEmbeds,
   isMarkdown,
   isObsidianNative,
   resolveEmbedFile,
-} from "./utils/file";
-import { t } from "./i18n";
+} from "../utils/file";
+import { t } from "../i18n";
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
   /**
@@ -68,7 +68,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       if (!plugin.settings.autoExtractAttachments) return;
 
       if (newCount > prevCount) {
-        if (!plugin.extractor.canProcessSingleFile()) {
+        if (!plugin.extractor.canProcessSingleNote()) {
           showNotice(
             t("notices.autoExtractSkippedWhileBusy", {
               pluginName: t("pluginName"),
@@ -76,7 +76,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
           );
           return;
         }
-        plugin.extractor.processSingleFile(file);
+        plugin.extractor.processSingleNote(file);
       }
     }),
   );

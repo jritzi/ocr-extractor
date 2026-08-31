@@ -1,5 +1,5 @@
 import { App, Editor, EmbedCache, TFile } from "obsidian";
-import { getEmbeds } from "../utils/file";
+import { EmbedMarkup, getEmbeds } from "../utils/file";
 import { getMarkdownViews } from "../utils/workspace";
 import {
   applyEditPlanToString,
@@ -10,16 +10,17 @@ import {
   toMinimalChange,
 } from "./plan";
 
-/** Every OCR result was either inserted or permanently skipped */
+/** Every OCR result was either inserted or orphaned */
 interface DoneResult {
   done: true;
-  /** Embed markup (`original`) for results that were permanently skipped */
-  skippedResults: string[];
+  insertedResults: EmbedMarkup[];
+  orphanedResults: EmbedMarkup[];
 }
 
-/** The attempt did not complete (the insert is still pending) */
+/** The attempt did not complete (some inserts are still pending) */
 interface PendingResult {
   done: false;
+  insertedResults: EmbedMarkup[];
 }
 
 export type AttemptResult = DoneResult | PendingResult;
@@ -36,7 +37,7 @@ export async function attemptInsert(
   embedsToMarkdown: EmbedsToMarkdown,
   signal: AbortSignal,
 ): Promise<AttemptResult> {
-  if (signal.aborted) return { done: false };
+  if (signal.aborted) return { done: false, insertedResults: [] };
 
   const editor = findSourceModeEditor(app, file);
   if (editor) {
@@ -97,7 +98,7 @@ async function applyViaDisk(
   embedsToMarkdown: EmbedsToMarkdown,
   signal: AbortSignal,
 ) {
-  let attemptResult: AttemptResult = { done: false };
+  let attemptResult: AttemptResult = { done: false, insertedResults: [] };
 
   await app.vault.process(file, (data) => {
     if (signal.aborted) return data;
@@ -136,6 +137,12 @@ function withEditorOffsets(embed: EmbedCache, editor: Editor): EmbedCache {
 }
 
 function resultFromPlan(plan: EditPlan): AttemptResult {
-  if (plan.staleEmbeds.length > 0) return { done: false };
-  return { done: true, skippedResults: plan.orphanedResults };
+  if (plan.staleEmbeds.length > 0) {
+    return { done: false, insertedResults: plan.resultsToInsert };
+  }
+  return {
+    done: true,
+    insertedResults: plan.resultsToInsert,
+    orphanedResults: plan.orphanedResults,
+  };
 }

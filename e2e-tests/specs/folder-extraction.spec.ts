@@ -1,15 +1,16 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
-import { createFolder, openNote, seedNote } from "../helpers/obsidian";
+import { openNote, seedFolder, seedNote } from "../helpers/obsidian";
 import {
   cancelExtraction,
   expectCallout,
   expectNoCallout,
+  expectNotice,
   extractFolder,
   extractionStatusBar,
 } from "../helpers/plugin";
 
-test("successful extraction", async ({ page }) => {
-  await createFolder(page, "projects/sub");
+test("successful extraction of folder notes", async ({ page }) => {
+  await seedFolder(page, "projects/sub");
   await seedNote(page, "Note in folder 1", {
     folder: "projects",
     content: "![[attachments/sample.pdf]]",
@@ -28,9 +29,10 @@ test("successful extraction", async ({ page }) => {
 
   await extractFolder(page, "projects");
 
-  await expect(
-    page.getByText("Text extraction complete. Extracted: 3"),
-  ).toBeVisible();
+  await expectNotice(page, [
+    "Text extraction complete",
+    "3 attachments extracted",
+  ]);
 
   await openNote(page, "Note in folder 1");
   await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -45,11 +47,12 @@ test("successful extraction", async ({ page }) => {
   await expectNoCallout(page);
 });
 
-test("warning about skipped attachments", async ({ page }) => {
-  await createFolder(page, "projects");
+test("skips and failures", async ({ page }) => {
+  await seedFolder(page, "projects");
   await seedNote(page, "Note 1", {
     folder: "projects",
-    content: "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
+    content:
+      "![[attachments/sample.pdf]]\n![[attachments/unsupported.xml]]\n![[attachments/missing.pdf]]",
   });
   await seedNote(page, "Note 2", {
     folder: "projects",
@@ -58,9 +61,12 @@ test("warning about skipped attachments", async ({ page }) => {
 
   await extractFolder(page, "projects");
 
-  await expect(
-    page.getByText("Text extraction complete. Extracted: 2, skipped: 1"),
-  ).toBeVisible();
+  await expectNotice(page, [
+    "Text extraction complete",
+    "2 attachments extracted",
+    "1 skipped",
+    "1 failed",
+  ]);
 
   await openNote(page, "Note 1");
   await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -73,7 +79,7 @@ test.describe("loading and cancellation", () => {
   test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
   test("loading message and cancellation", async ({ page }) => {
-    await createFolder(page, "projects");
+    await seedFolder(page, "projects");
     await seedNote(page, "Note 1", {
       folder: "projects",
       content: "![[attachments/sample.pdf]]",
@@ -91,40 +97,7 @@ test.describe("loading and cancellation", () => {
 
     await cancelExtraction(page);
 
-    await expect(page.getByText("Canceled text extraction")).toBeVisible();
-
-    await openNote(page, "Note 1");
-    await expectNoCallout(page);
-
-    await openNote(page, "Note 2");
-    await expectNoCallout(page);
-  });
-});
-
-test.describe("error handling", () => {
-  test.use({
-    settings: { customCommand: MOCK_OCR_COMMANDS.error },
-    allowErrors: true,
-  });
-
-  test("error message", async ({ page }) => {
-    await createFolder(page, "projects");
-    await seedNote(page, "Note 1", {
-      folder: "projects",
-      content: "![[attachments/sample.pdf]]",
-    });
-    await seedNote(page, "Note 2", {
-      folder: "projects",
-      content: "![[attachments/sample.pdf]]",
-    });
-
-    await extractFolder(page, "projects");
-
-    await expect(
-      page.getByText(
-        "Custom command failed (exit code 1). Check the developer console for details.",
-      ),
-    ).toBeVisible();
+    await expectNotice(page, "Canceled text extraction");
 
     await openNote(page, "Note 1");
     await expectNoCallout(page);

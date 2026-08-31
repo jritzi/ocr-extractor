@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 
-export async function createFolder(page: Page, folder: string) {
+export async function seedFolder(page: Page, folder: string) {
   await page.evaluate(
     async ({ folder }) => {
       await app.vault.createFolder(folder);
@@ -31,6 +31,13 @@ export async function deleteNote(page: Page, path: string) {
   }, path);
 }
 
+export async function renameActiveNote(page: Page, newTitle: string) {
+  await activeNoteTitle(page).click();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.type(newTitle);
+  await page.keyboard.press("Enter");
+}
+
 export async function createNote(page: Page, name: string) {
   await page.getByLabel("New note").click();
   await page.locator(".inline-title").fill(name);
@@ -41,6 +48,10 @@ export async function openNote(page: Page, name: string) {
   await page.getByPlaceholder("Find or create a note").fill(name);
   await page.keyboard.press("Enter");
   await expect(page.locator(".inline-title").getByText(name)).toBeVisible();
+}
+
+export function activeNoteTitle(page: Page) {
+  return page.locator(".workspace-leaf.mod-active .inline-title");
 }
 
 export async function typeAtStartOfNote(
@@ -135,6 +146,14 @@ export async function clickModalButton(page: Page, buttonName: string) {
   const modal = getModal(page);
   await modal.getByRole("button", { name: buttonName }).click();
   await expect(modal).not.toBeVisible();
+}
+
+export function callout(page: Page, type: string) {
+  return page.locator(`.callout[data-callout="${type}"]`);
+}
+
+export function calloutIcon(page: Page, type: string) {
+  return callout(page, type).locator(".callout-icon svg");
 }
 
 function editorTextbox(page: Page) {

@@ -21,6 +21,20 @@
   "keywords": [],
   "author": "Johnathan Ritzi",
   "license": "MIT",
+  "dependencies": {
+    "@mistralai/mistralai": "^2.2.5",
+    "clsx": "^2.1.1",
+    "file-type": "^22.0.1",
+    "i18next": "^26.0.6",
+    "motion": "^13.1.0",
+    "openai": "^6.42.0",
+    "p-limit": "^7.3.0",
+    "pdfjs-dist": "6.1.200",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "semver": "^7.8.0",
+    "tesseract.js": "^7.0.0"
+  },
   "devDependencies": {
     "@electron/asar": "^4.1.2",
     "@eslint/config-helpers": "^0.6.0",
@@ -29,11 +43,14 @@
     "@playwright/test": "^1.60.0",
     "@tesseract.js-data/eng": "^1.0.0",
     "@types/node": "^24.10.13",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/semver": "^7.7.1",
     "esbuild": "0.28.1",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-obsidianmd": "^0.4.1",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "generate-license-file": "^4.2.1",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
@@ -46,16 +63,6 @@
     "typescript-eslint": "^8.60.1",
     "vite": "^8.0.16",
     "vitest": "^4.1.8"
-  },
-  "dependencies": {
-    "@mistralai/mistralai": "^2.2.5",
-    "file-type": "^22.0.1",
-    "i18next": "^26.0.6",
-    "openai": "^6.42.0",
-    "p-limit": "^7.3.0",
-    "pdfjs-dist": "6.1.200",
-    "semver": "^7.8.0",
-    "tesseract.js": "^7.0.0"
   },
   "engines": {
     "node": ">=24"

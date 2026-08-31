@@ -35,4 +35,8 @@ export function setLanguage(lng: string) {
   return i18n.changeLanguage(lng);
 }
 
+export function getLocale() {
+  return i18n.language;
+}
+
 export const t = i18n.t.bind(i18n);

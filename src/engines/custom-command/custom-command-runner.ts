@@ -1,7 +1,7 @@
 import { Platform } from "obsidian";
-import { UserFacingError } from "../ocr-engine";
+import { AttachmentFailedError } from "../ocr-engine";
+import { assert } from "../../utils/assert";
 import { debugLog } from "../../utils/logging";
-import { t } from "../../i18n";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
 const SHELL_PATH_TIMEOUT = 3_000; // 3 seconds
@@ -25,9 +25,7 @@ export class CustomCommandRunner {
   ) => Promise<{ stdout: string; stderr: string }>;
 
   constructor() {
-    if (!Platform.isDesktop) {
-      throw new Error("CustomCommandRunner is only available on desktop");
-    }
+    assert(Platform.isDesktop, "The engine falls back to Tesseract on mobile");
 
     this.fs = require("fs/promises") as typeof this.fs;
     this.os = require("os") as typeof this.os;
@@ -104,22 +102,22 @@ export class CustomCommandRunner {
     } catch (error) {
       if (signal.aborted) throw error;
 
-      const { killed, code, message, stderr } = error as {
+      const { killed, code, stderr } = error as {
         killed?: boolean;
         code?: number;
-        message: string;
         stderr?: string;
       };
-      console.error(
-        `Custom command failed (exit code ${code}):`,
-        stderr?.trim() || message,
-      );
 
       if (killed) {
-        throw new UserFacingError(t("errors.commandTimeout"));
+        throw new AttachmentFailedError("commandTimeout");
       }
-      throw new UserFacingError(
-        t("errors.commandFailed", { code: String(code) }),
+
+      const trimmedStderr = stderr?.trim();
+      throw new AttachmentFailedError(
+        "commandFailed",
+        trimmedStderr
+          ? `exit code ${code}: ${trimmedStderr}`
+          : `exit code ${code}`,
       );
     }
   }

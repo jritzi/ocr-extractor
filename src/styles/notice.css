@@ -1,0 +1,20 @@
+.ocr-extractor-notice-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-4);
+}
+
+.ocr-extractor-notice-row .ocr-extractor-notice-link {
+  margin-inline-start: auto;
+}
+
+.ocr-extractor-notice-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-1);
+}
+
+.ocr-extractor-notice-lines .ocr-extractor-notice-link {
+  align-self: flex-start;
+  margin-top: var(--size-2-3);
+}

@@ -1,19 +1,13 @@
 import type { ButtonComponent, DropdownComponent } from "obsidian";
 import { debounce, SecretComponent } from "obsidian";
 import { OcrEngineSettings } from "../ocr-engine-settings";
-import { UserFacingError } from "../ocr-engine";
 import {
   DEFAULT_PROMPT,
   OpenAiCompatibleClient,
 } from "./openai-compatible-client";
 import { createTestImage, TEST_IMAGE_TEXT } from "../../utils/image";
 import { toDataUrl } from "../../utils/encoding";
-import {
-  showErrorNotice,
-  showLoadingNotice,
-  showNotice,
-  showSuccessNotice,
-} from "../../utils/notice";
+import { showLoadingNotice, showNotice } from "../../utils/notice";
 import { assert } from "../../utils/assert";
 import { t } from "../../i18n";
 
@@ -120,7 +114,9 @@ export class OpenAiCompatibleSettingsSection extends OcrEngineSettings {
 
       if (!models) {
         if (savedModel) this.modelDropdown.addOption(savedModel, savedModel);
-        if (notifyOnError) showErrorNotice(t("notices.modelsLoadFailed"));
+        if (notifyOnError) {
+          showNotice(t("notices.modelsLoadFailed"), { variant: "error" });
+        }
       } else {
         if (savedModel && !models.includes(savedModel)) {
           this.modelDropdown.addOption(
@@ -163,26 +159,18 @@ export class OpenAiCompatibleSettingsSection extends OcrEngineSettings {
         new AbortController().signal,
       );
 
-      if (
-        result === null ||
-        !result.toLowerCase().includes(TEST_IMAGE_TEXT.toLowerCase())
-      ) {
+      if (!result.toLowerCase().includes(TEST_IMAGE_TEXT.toLowerCase())) {
         showNotice(
           t("notices.testMismatch", {
             expected: TEST_IMAGE_TEXT,
-            actual: result ?? "",
+            actual: result,
           }),
         );
       } else {
-        showSuccessNotice(t("notices.testSucceeded"));
+        showNotice(t("notices.testSucceeded"), { variant: "success" });
       }
     } catch (error) {
-      if (error instanceof UserFacingError) {
-        showErrorNotice(t("notices.testFailed", { message: error.message }));
-      } else {
-        console.error("OpenAI-compatible connection test failed:", error);
-        showErrorNotice(t("notices.testFailedUnexpected"));
-      }
+      this.showTestError(error);
     } finally {
       this.setLoading(false);
       loadingNotice.hide();

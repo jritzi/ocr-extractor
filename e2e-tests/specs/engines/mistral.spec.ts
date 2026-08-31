@@ -11,13 +11,7 @@ import {
 
 const MOCK_RESPONSE = "Mistral extracted text";
 
-test.use({ settings: { ocrEngine: "mistral", mistralSecret: "mistral-key" } });
-
-test.beforeEach(async ({ page }) => {
-  await page.evaluate(() => {
-    app.secretStorage.setSecret("mistral-key", "fake-api-key");
-  });
-});
+test.use({ settings: { ocrEngine: "mistral" } });
 
 test("PDF extraction (document_url)", async ({ page }) => {
   await mockHttp(
@@ -79,23 +73,23 @@ for (const status of [400, 422]) {
     await openNote(page, "Note");
     await extractActiveNote(page);
 
-    await expectNotice(
-      page,
-      "Text extraction complete. Extracted: 0, skipped: 1",
-    );
+    await expectNotice(page, [
+      "Text extraction complete",
+      "1 attachment skipped",
+    ]);
     await expectNoCallout(page);
   });
 }
 
 test("skipped attachment on unsupported file type", async ({ page }) => {
-  await seedNote(page, "Note", { content: "![[attachments/sample.xml]]" });
+  await seedNote(page, "Note", { content: "![[attachments/unsupported.xml]]" });
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  await expectNotice(
-    page,
-    "Text extraction complete. Extracted: 0, skipped: 1",
-  );
+  await expectNotice(page, [
+    "Text extraction complete",
+    "1 attachment skipped",
+  ]);
   await expectNoCallout(page);
 });
 

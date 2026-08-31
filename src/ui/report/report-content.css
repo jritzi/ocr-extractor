@@ -1,0 +1,8 @@
+.ocr-extractor-report-notes {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-anchor: none;
+  padding: var(--size-4-1) var(--size-4-3)
+    max(env(safe-area-inset-bottom, 0px), var(--size-4-6));
+}

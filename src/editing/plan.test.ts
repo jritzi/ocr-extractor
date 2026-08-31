@@ -92,6 +92,7 @@ describe("plan.ts", () => {
       );
 
       expect(plan.edits).toHaveLength(1);
+      expect(plan.resultsToInsert).toEqual([EMBED]);
       expect(plan.staleEmbeds).toEqual([]);
       expect(plan.orphanedResults).toEqual([]);
 
@@ -148,9 +149,9 @@ describe("plan.ts", () => {
       expect(plan.orphanedResults).toEqual([]);
     });
 
-    it("does not report a skipped (null) result as orphaned", () => {
+    it("reports nothing as orphaned when there are no results", () => {
       const content = "no embeds";
-      const plan = buildEditPlan(content, [], new Map([[EMBED, null]]));
+      const plan = buildEditPlan(content, [], new Map());
 
       expect(plan.orphanedResults).toEqual([]);
     });
@@ -164,6 +165,8 @@ describe("plan.ts", () => {
       const plan = buildEditPlan(content, embeds, buildEmbedsToMarkdown());
 
       expect(plan.edits).toHaveLength(2);
+      expect(plan.resultsToInsert).toEqual([EMBED, EMBED]);
+
       const newContent = applyEditPlanToString(content, plan.edits);
       expect(newContent).toBe(
         `${EMBED}\n\n${CALLOUT}\n\nmiddle\n\n${EMBED}\n\n${CALLOUT}\n\n`,
@@ -198,17 +201,14 @@ describe("plan.ts", () => {
       expect(newContent).toBe(`${EMBED}\n\n${CALLOUT}\n\n![[added-later.png]]`);
     });
 
-    it("ignores null and empty OCR results", () => {
+    it("ignores embeds with no/empty OCR results", () => {
       const unsupportedFile = "![[archive.exe]]";
       const blankImage = "![[blank.png]]";
       const content = `${unsupportedFile}\n\n${blankImage}`;
       const plan = buildEditPlan(
         content,
         [buildEmbed(content, unsupportedFile), buildEmbed(content, blankImage)],
-        new Map([
-          [unsupportedFile, null],
-          [blankImage, ""],
-        ]),
+        new Map([[blankImage, ""]]),
       );
 
       expect(plan.edits).toEqual([]);
@@ -266,6 +266,15 @@ describe("plan.ts", () => {
 
       expect(plan.staleEmbeds).toEqual(collidingEmbeds);
       expect(plan.edits.map((edit) => edit.expectedText)).toEqual([other]);
+      expect(plan.resultsToInsert).toEqual([other]);
+    });
+
+    it("excludes migration edits from the results to insert", () => {
+      const content = "> [!summary]- Extracted text\n> old";
+      const plan = buildEditPlan(content, [], new Map());
+
+      expect(plan.edits).toHaveLength(1);
+      expect(plan.resultsToInsert).toEqual([]);
     });
 
     it("uses the note's line endings for inserted callouts", () => {

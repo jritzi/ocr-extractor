@@ -1,5 +1,5 @@
 import { expect, Page } from "@playwright/test";
-import { clickModalButton, runCommand } from "./obsidian";
+import { callout, clickModalButton, runCommand } from "./obsidian";
 
 export async function extractActiveNote(page: Page) {
   await runCommand(page, "OCR Extractor: Extract text in active note");
@@ -7,7 +7,7 @@ export async function extractActiveNote(page: Page) {
 
 export async function extractFolder(page: Page, folderName: string) {
   await runCommand(page, "OCR Extractor: Extract text in folder");
-  await page.getByPlaceholder("Select a folder...").fill(folderName);
+  await page.getByPlaceholder("Select a folder…").fill(folderName);
   await page.keyboard.press("Enter");
 }
 
@@ -20,12 +20,17 @@ export async function cancelExtraction(page: Page) {
   await runCommand(page, "OCR Extractor: Cancel extraction");
 }
 
-export function extractionNotice(page: Page) {
-  return notice(page).filter({ hasText: "Extracting text" });
+export function notice(page: Page) {
+  return page.locator(".notice");
 }
 
-export async function expectNotice(page: Page, text: string) {
-  await expect(notice(page).getByText(text)).toBeVisible();
+export async function expectNotice(page: Page, text: string | string[]) {
+  if (!Array.isArray(text)) {
+    await expect(notice(page).getByText(text)).toBeVisible();
+    return;
+  }
+
+  await expect(noticeLines(page)).toHaveText(text);
 }
 
 export function extractionStatusBar(page: Page) {
@@ -53,8 +58,11 @@ export async function toggleSetting(page: Page, label: string) {
 }
 
 export async function expectCallout(page: Page, expectedText: string | RegExp) {
-  await callout(page).click();
-  await expect(page.locator(".callout-content")).toHaveText(expectedText);
+  const pluginCallout = callout(page, "ocr-extractor");
+  await pluginCallout.click();
+  await expect(pluginCallout.locator(".callout-content")).toHaveText(
+    expectedText,
+  );
 }
 
 /**
@@ -63,13 +71,12 @@ export async function expectCallout(page: Page, expectedText: string | RegExp) {
  * pass before it has actually finished running).
  */
 export async function expectNoCallout(page: Page) {
-  await expect(callout(page)).not.toBeVisible();
+  await expect(callout(page, "ocr-extractor")).not.toBeVisible();
 }
 
-function notice(page: Page) {
-  return page.locator(".notice");
-}
-
-function callout(page: Page) {
-  return page.locator(".callout");
+function noticeLines(page: Page) {
+  return notice(page)
+    .locator(".ocr-extractor-notice-lines")
+    .last()
+    .locator(":scope > div");
 }

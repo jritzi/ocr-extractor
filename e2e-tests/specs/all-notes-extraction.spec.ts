@@ -1,5 +1,5 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
-import { openNote, seedNote } from "../helpers/obsidian";
+import { openNote, seedFolder, seedNote } from "../helpers/obsidian";
 import {
   cancelExtraction,
   expectCallout,
@@ -9,31 +9,41 @@ import {
   extractionStatusBar,
 } from "../helpers/plugin";
 
-test("successful extraction", async ({ page }) => {
+test("successful extraction of all notes", async ({ page }) => {
+  await seedFolder(page, "projects");
   await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
-  await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
+  await seedNote(page, "Note in folder", {
+    folder: "projects",
+    content: "![[attachments/sample.pdf]]",
+  });
   await extractAllNotes(page);
 
-  await expectNotice(page, "Text extraction complete. Extracted: 2");
+  await expectNotice(page, [
+    "Text extraction complete",
+    "2 attachments extracted",
+  ]);
 
   await openNote(page, "Note 1");
   await expectCallout(page, MOCK_OCR_OUTPUT);
 
-  await openNote(page, "Note 2");
+  await openNote(page, "Note in folder");
   await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
-test("warning about skipped attachments", async ({ page }) => {
+test("skips and failures", async ({ page }) => {
   await seedNote(page, "Note 1", {
-    content: "![[attachments/sample.pdf]]\n![[attachments/missing.pdf]]",
+    content:
+      "![[attachments/sample.pdf]]\n![[attachments/unsupported.xml]]\n![[attachments/missing.pdf]]",
   });
   await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
   await extractAllNotes(page);
 
-  await expectNotice(
-    page,
-    "Text extraction complete. Extracted: 2, skipped: 1",
-  );
+  await expectNotice(page, [
+    "Text extraction complete",
+    "2 attachments extracted",
+    "1 skipped",
+    "1 failed",
+  ]);
 
   await openNote(page, "Note 1");
   await expectCallout(page, MOCK_OCR_OUTPUT);
@@ -56,31 +66,7 @@ test.describe("loading and cancellation", () => {
 
     await cancelExtraction(page);
 
-    await expect(page.getByText("Canceled text extraction")).toBeVisible();
-
-    await openNote(page, "Note 1");
-    await expectNoCallout(page);
-
-    await openNote(page, "Note 2");
-    await expectNoCallout(page);
-  });
-});
-
-test.describe("error handling", () => {
-  test.use({
-    settings: { customCommand: MOCK_OCR_COMMANDS.error },
-    allowErrors: true,
-  });
-
-  test("error message", async ({ page }) => {
-    await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
-    await seedNote(page, "Note 2", { content: "![[attachments/sample.pdf]]" });
-    await extractAllNotes(page);
-
-    await expectNotice(
-      page,
-      "Custom command failed (exit code 1). Check the developer console for details.",
-    );
+    await expectNotice(page, "Canceled text extraction");
 
     await openNote(page, "Note 1");
     await expectNoCallout(page);

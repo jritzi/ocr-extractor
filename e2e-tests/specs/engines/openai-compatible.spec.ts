@@ -92,17 +92,17 @@ test("WebP attachment re-encoded as PNG", async ({ page }) => {
   await expectCallout(page, "Extracted text");
 });
 
-test("skipped attachment on 400", async ({ page }) => {
+test("failed attachment on 400", async ({ page }) => {
   await mockHttp(page, "POST", OPENAI_COMPATIBLE_URL, 400, {});
 
   await seedNote(page, "Note", { content: "![[attachments/sample.png]]" });
   await openNote(page, "Note");
   await extractActiveNote(page);
 
-  await expectNotice(
-    page,
-    "Text extraction complete. Extracted: 0, skipped: 1",
-  );
+  await expectNotice(page, [
+    "Text extraction complete",
+    "Failed: sample.png (rejected by the OCR engine)",
+  ]);
   await expectNoCallout(page);
 });
 
