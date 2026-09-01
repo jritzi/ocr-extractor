@@ -18,7 +18,6 @@ export class HttpMock {
   constructor() {
     const interceptor = new FetchInterceptor();
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- typing is out of date
     interceptor.on("request", async ({ request, controller }) => {
       const bodyText = await request.text();
       const response = this.handleRequest(

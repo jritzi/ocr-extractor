@@ -41,11 +41,7 @@ export type RunScope =
   | { readonly type: "selection" };
 
 export type RunStatus =
-  | "running"
-  | "canceling"
-  | "complete"
-  | "fatal"
-  | "canceled";
+  "running" | "canceling" | "complete" | "fatal" | "canceled";
 
 export interface RunReportBase {
   readonly startedAt: number;

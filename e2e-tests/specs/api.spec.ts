@@ -12,8 +12,7 @@ import type {
 
 type ApiError = Pick<OcrError, "name" | "code">;
 type ExtractResult =
-  | { success: true; result: OcrResult }
-  | { success: false; error: ApiError };
+  { success: true; result: OcrResult } | { success: false; error: ApiError };
 type ExtractTextResult =
   | { success: true; result: OcrExtractionResult }
   | { success: false; error: ApiError };
