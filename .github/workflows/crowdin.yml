@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: crowdin/github-action@v2
+      - uses: crowdin/github-action@v3
         with:
           download_translations: true
           localization_branch_name: l10n-crowdin-translations
