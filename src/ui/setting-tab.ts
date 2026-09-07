@@ -100,7 +100,7 @@ export class SettingTab extends PluginSettingTab {
 
 function assertSettingKey(key: string): asserts key is keyof PluginSettings {
   assert(
-    key in DEFAULT_SETTINGS,
+    Object.hasOwn(DEFAULT_SETTINGS, key),
     "Only PluginSettings keys reach setControlValue()",
   );
 }

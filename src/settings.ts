@@ -3,8 +3,8 @@ import { Platform } from "obsidian";
 import type { OCR_ENGINES } from "../main";
 
 /**
- * Current plugin settings, deeply readonly to ensure immutability (callers
- * compare by identity)
+ * Current plugin settings, which must be deeply readonly to ensure immutability
+ * (callers compare by identity)
  */
 export interface PluginSettings {
   readonly ocrEngine: keyof typeof OCR_ENGINES;
