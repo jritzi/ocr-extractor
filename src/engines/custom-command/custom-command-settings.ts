@@ -1,46 +1,42 @@
 import { Platform } from "obsidian";
-import { OcrEngineSettings } from "../ocr-engine-settings";
+import { EngineSettingItem, OcrEngineSettings } from "../ocr-engine-settings";
 import { CustomCommandRunner } from "./custom-command-runner";
 import { createTestImage, TEST_IMAGE_TEXT } from "../../utils/image";
 import { showLoadingNotice, showNotice } from "../../utils/notice";
 import { t } from "../../i18n";
 
-export class CustomCommandSettingsSection extends OcrEngineSettings {
-  display() {
-    this.group.addSetting((setting) => {
-      setting
-        .setName(t("settings.command"))
-        .setDesc(t("settings.commandDesc"))
-        .addTextArea((text) =>
-          text
-            .setPlaceholder(t("settings.commandPlaceholder"))
-            .setValue(this.plugin.settings.customCommand)
-            .onChange(
-              (value) => void this.plugin.saveSetting("customCommand", value),
-            ),
-        )
-        .addButton((button) =>
-          button
-            .setButtonText(t("settings.test"))
-            .setTooltip(t("settings.testTooltip"))
-            .setDisabled(!Platform.isDesktop)
-            .onClick(() => void this.testCommand()),
-        );
-    });
-
-    this.group.addSetting((setting) => {
-      setting
-        .setName(t("settings.convertPdfs"))
-        .setDesc(t("settings.convertPdfsDesc"))
-        .addToggle((toggle) =>
-          toggle
-            .setValue(this.plugin.settings.customCommandConvertPdfs)
-            .onChange(
-              (value) =>
-                void this.plugin.saveSetting("customCommandConvertPdfs", value),
-            ),
-        );
-    });
+export class CustomCommandSettings extends OcrEngineSettings {
+  getSettingItems(): EngineSettingItem[] {
+    return [
+      {
+        name: t("settings.command"),
+        desc: t("settings.commandDesc"),
+        render: (setting) => {
+          setting
+            .addTextArea((text) =>
+              text
+                .setPlaceholder(t("settings.commandPlaceholder"))
+                .setValue(this.plugin.settings.customCommand)
+                .onChange(
+                  (value) =>
+                    void this.plugin.saveSetting("customCommand", value),
+                ),
+            )
+            .addButton((button) =>
+              button
+                .setButtonText(t("settings.test"))
+                .setTooltip(t("settings.testTooltip"))
+                .setDisabled(!Platform.isDesktop)
+                .onClick(() => void this.testCommand()),
+            );
+        },
+      },
+      {
+        name: t("settings.convertPdfs"),
+        desc: t("settings.convertPdfsDesc"),
+        control: { type: "toggle", key: "customCommandConvertPdfs" },
+      },
+    ];
   }
 
   private async testCommand() {

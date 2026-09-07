@@ -45,6 +45,12 @@ export async function openPluginSettings(page: Page) {
     .click();
 }
 
+export async function closeSettings(page: Page) {
+  const settings = page.locator(".modal.mod-settings");
+  await settings.locator(".modal-header-button").click();
+  await expect(settings).not.toBeVisible();
+}
+
 export function settingItem(page: Page, label: string) {
   return page.locator(".setting-item").filter({ hasText: label });
 }

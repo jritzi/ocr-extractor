@@ -1,6 +1,6 @@
 import type { ButtonComponent, DropdownComponent } from "obsidian";
 import { debounce, SecretComponent } from "obsidian";
-import { OcrEngineSettings } from "../ocr-engine-settings";
+import { EngineSettingItem, OcrEngineSettings } from "../ocr-engine-settings";
 import {
   DEFAULT_PROMPT,
   OpenAiCompatibleClient,
@@ -11,7 +11,7 @@ import { showLoadingNotice, showNotice } from "../../utils/notice";
 import { assert } from "../../utils/assert";
 import { t } from "../../i18n";
 
-export class OpenAiCompatibleSettingsSection extends OcrEngineSettings {
+export class OpenAiCompatibleSettings extends OcrEngineSettings {
   private modelDropdown?: DropdownComponent;
   private refreshButton?: ButtonComponent;
   private testButton?: ButtonComponent;
@@ -21,77 +21,76 @@ export class OpenAiCompatibleSettingsSection extends OcrEngineSettings {
     true,
   );
 
-  display() {
-    const { settings } = this.plugin;
-
-    this.group.addSetting((setting) => {
-      setting
-        .setName(t("settings.openAiCompatibleBaseUrl"))
-        .setDesc(t("settings.openAiCompatibleBaseUrlDesc"))
-        .addText((text) =>
-          text.setValue(settings.openAiCompatibleBaseUrl).onChange((value) => {
-            void this.plugin.saveSetting("openAiCompatibleBaseUrl", value);
-            this.refreshModelsDebounced();
-          }),
-        );
-    });
-
-    this.group.addSetting((setting) => {
-      setting
-        .setName(t("settings.openAiCompatibleModel"))
-        .addDropdown((dropdown) => {
-          this.modelDropdown = dropdown;
-          dropdown.onChange(
-            (value) =>
-              void this.plugin.saveSetting("openAiCompatibleModel", value),
+  getSettingItems(): EngineSettingItem[] {
+    return [
+      {
+        name: t("settings.openAiCompatibleBaseUrl"),
+        desc: t("settings.openAiCompatibleBaseUrlDesc"),
+        render: (setting) => {
+          setting.addText((text) =>
+            text
+              .setValue(this.plugin.settings.openAiCompatibleBaseUrl)
+              .onChange((value) => {
+                void this.plugin.saveSetting("openAiCompatibleBaseUrl", value);
+                this.refreshModelsDebounced();
+              }),
           );
-        })
-        .addButton((button) => {
-          this.refreshButton = button;
-          button
-            .setIcon("refresh-cw")
-            .setTooltip(t("settings.refreshModels"))
-            .onClick(() => void this.refreshModels(true));
-        })
-        .addButton((button) => {
-          this.testButton = button;
-          button
-            .setButtonText(t("settings.test"))
-            .setTooltip(t("settings.testTooltip"))
-            .onClick(() => void this.testConnection());
-        });
+          return () => this.refreshModelsDebounced.cancel();
+        },
+      },
+      {
+        name: t("settings.openAiCompatibleModel"),
+        render: (setting) => {
+          setting
+            .addDropdown((dropdown) => {
+              this.modelDropdown = dropdown;
+              dropdown.onChange(
+                (value) =>
+                  void this.plugin.saveSetting("openAiCompatibleModel", value),
+              );
+            })
+            .addButton((button) => {
+              this.refreshButton = button;
+              button
+                .setIcon("refresh-cw")
+                .setTooltip(t("settings.refreshModels"))
+                .onClick(() => void this.refreshModels(true));
+            })
+            .addButton((button) => {
+              this.testButton = button;
+              button
+                .setButtonText(t("settings.test"))
+                .setTooltip(t("settings.testTooltip"))
+                .onClick(() => void this.testConnection());
+            });
 
-      void this.refreshModels();
-    });
-
-    this.group.addSetting((setting) => {
-      setting
-        .setName(t("settings.apiKey"))
-        .setDesc(t("settings.openAiCompatibleApiKeyDesc"))
-        .addComponent((el) =>
-          new SecretComponent(this.plugin.app, el)
-            .setValue(settings.openAiCompatibleSecret)
-            .onChange(
-              (value) =>
-                void this.plugin.saveSetting("openAiCompatibleSecret", value),
-            ),
-        );
-    });
-
-    this.group.addSetting((setting) => {
-      setting
-        .setName(t("settings.openAiCompatiblePrompt"))
-        .setDesc(t("settings.openAiCompatiblePromptDesc"))
-        .addTextArea((text) =>
-          text
-            .setPlaceholder(DEFAULT_PROMPT)
-            .setValue(settings.openAiCompatiblePrompt)
-            .onChange(
-              (value) =>
-                void this.plugin.saveSetting("openAiCompatiblePrompt", value),
-            ),
-        );
-    });
+          void this.refreshModels();
+        },
+      },
+      {
+        name: t("settings.apiKey"),
+        desc: t("settings.openAiCompatibleApiKeyDesc"),
+        render: (setting) => {
+          setting.addComponent((el) =>
+            new SecretComponent(this.plugin.app, el)
+              .setValue(this.plugin.settings.openAiCompatibleSecret)
+              .onChange(
+                (value) =>
+                  void this.plugin.saveSetting("openAiCompatibleSecret", value),
+              ),
+          );
+        },
+      },
+      {
+        name: t("settings.openAiCompatiblePrompt"),
+        desc: t("settings.openAiCompatiblePromptDesc"),
+        control: {
+          type: "textarea",
+          key: "openAiCompatiblePrompt",
+          placeholder: DEFAULT_PROMPT,
+        },
+      },
+    ];
   }
 
   private setLoading(isLoading: boolean) {

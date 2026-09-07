@@ -30,7 +30,7 @@ export class TesseractEngine extends OcrEngine {
     return t("engines.tesseract");
   }
 
-  static getSettingsSection() {
+  static getSettings() {
     return null;
   }
 

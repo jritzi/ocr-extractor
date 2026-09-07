@@ -9,7 +9,8 @@ import {
 } from "../utils/pdf";
 import { raceAbort } from "../utils/async";
 import { normalizeNewlines } from "../utils/markdown";
-import { OcrEngineSettingsClass } from "./ocr-engine-settings";
+import type OcrExtractorPlugin from "../../main";
+import type { OcrEngineSettings } from "./ocr-engine-settings";
 import type { FailureReason, ResultReason, SkipReason } from "../result-reason";
 
 export type OcrEngineClass = (new (
@@ -17,7 +18,7 @@ export type OcrEngineClass = (new (
 ) => OcrEngine) & {
   /** The label shown on the setting tab */
   getLabel(): string;
-  getSettingsSection(): OcrEngineSettingsClass | null;
+  getSettings(plugin: OcrExtractorPlugin): OcrEngineSettings | null;
 };
 
 /**

@@ -68,7 +68,7 @@ test("empty folder", async ({ page }) => {
   await expectNotice(page, "Nothing to extract");
 });
 
-test.describe("password-protected PDFs", () => {
+test.describe(() => {
   // Open PDF so password protection is detected
   test.use({ settings: { preferEmbeddedText: true } });
 
@@ -95,7 +95,7 @@ test.describe("password-protected PDFs", () => {
   });
 });
 
-test.describe("corrupt PDFs", () => {
+test.describe(() => {
   // Open PDF so corrupt file is detected
   test.use({ settings: { preferEmbeddedText: true } });
 
@@ -143,7 +143,7 @@ test.describe("errors", () => {
   });
 });
 
-test.describe("loading notice", () => {
+test.describe(() => {
   test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
   test("dismissing the loading notice without canceling", async ({

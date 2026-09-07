@@ -1,31 +1,30 @@
 import OcrExtractorPlugin, { OCR_ENGINES } from "../../main";
 import { TFile } from "obsidian";
 import { OcrEngine } from "./ocr-engine";
-import { shouldUseMobileEngineFallback } from "../settings";
+import {
+  type PluginSettings,
+  shouldUseMobileEngineFallback,
+} from "../settings";
 
 export class OcrEngineManager {
   usingMobileFallback = false;
 
   // Initialized in buildEngine()
   private engine!: OcrEngine;
+  private engineSettings!: PluginSettings;
 
-  private settingsChanged = false;
   private extractionsInFlight = 0;
 
   constructor(private plugin: OcrExtractorPlugin) {
     this.buildEngine();
   }
 
-  markSettingsChanged() {
-    this.settingsChanged = true;
-  }
-
   async rebuildIfNeeded() {
-    if (!this.settingsChanged || this.extractionsInFlight > 0) return;
+    const settingsChanged = this.plugin.settings !== this.engineSettings;
+    if (!settingsChanged || this.extractionsInFlight > 0) return;
 
     const previousEngine = this.engine;
     this.buildEngine();
-    this.settingsChanged = false;
     await previousEngine.terminate();
   }
 
@@ -48,18 +47,14 @@ export class OcrEngineManager {
   }
 
   private buildEngine() {
-    this.usingMobileFallback = shouldUseMobileEngineFallback(
-      this.plugin.settings,
-    );
+    const settings = this.plugin.settings;
+    this.usingMobileFallback = shouldUseMobileEngineFallback(settings);
     const engineName = this.usingMobileFallback
       ? "tesseract"
-      : this.plugin.settings.ocrEngine;
+      : settings.ocrEngine;
 
     const EngineClass = OCR_ENGINES[engineName];
-    this.engine = new EngineClass(
-      // Clone to isolate engine from live settings changes
-      structuredClone(this.plugin.settings),
-      this.plugin.app.secretStorage,
-    );
+    this.engine = new EngineClass(settings, this.plugin.app.secretStorage);
+    this.engineSettings = settings;
   }
 }

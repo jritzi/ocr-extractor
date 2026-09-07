@@ -141,17 +141,8 @@ export async function runCommand(page: Page, command: string) {
   await page.keyboard.press("Enter");
 }
 
-export function getModal(page: Page) {
-  return page.locator(".modal");
-}
-
-export async function closeModal(page: Page, modal = getModal(page)) {
-  await modal.locator(".modal-header-button").click();
-  await expect(modal).not.toBeVisible();
-}
-
 export async function clickModalButton(page: Page, buttonName: string) {
-  const modal = getModal(page);
+  const modal = page.locator(".modal");
   await modal.getByRole("button", { name: buttonName }).click();
   await expect(modal).not.toBeVisible();
 }

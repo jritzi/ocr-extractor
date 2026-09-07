@@ -24,7 +24,7 @@ import {
   setupPlugin,
 } from "./setup/vault";
 import { expectNoUnexpectedRequests } from "./helpers/http";
-import { closeModal } from "./helpers/obsidian";
+import { closeSettings } from "./helpers/plugin";
 import { LATEST_VERSION } from "./versions";
 
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
@@ -184,7 +184,7 @@ export const test = base.extend<ObsidianFixtures>({
     await page
       .getByRole("button", { name: "Trust author and enable plugins" })
       .click();
-    await closeModal(page, page.locator(".modal.mod-settings"));
+    await closeSettings(page);
 
     await injectHttpInterceptor(page);
     await use(page);
