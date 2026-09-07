@@ -14,13 +14,16 @@ import { ReportStore } from "../reporting/report-store";
 import { EmbedsToMarkdown, selectEmbedsToProcess } from "../editing/plan";
 import { insertWhenSettled } from "../editing/settle";
 import type { InsertResult } from "../editing/insert-result";
+import { readNoteSnapshot } from "../reading/note-snapshot";
+import type { NoteSnapshot } from "../reading/note-snapshot";
+import { StaleCache } from "../reading/stale-cache";
 import pLimit from "p-limit";
 import { assert } from "../utils/assert";
 import { debugLog, logError, logWarning } from "../utils/logging";
 import { showNotice } from "../utils/notice";
 import {
   attachmentPath,
-  getEmbeds,
+  isDeleted,
   isObsidianNative,
   markdownFilesInFolder,
   resolveEmbedFile,
@@ -36,12 +39,14 @@ export class TextExtractor {
   private store: ReportStore;
   private statusManager: StatusManager;
   private engineManager: OcrEngineManager;
+  private staleCache: StaleCache;
 
   constructor(plugin: OcrExtractorPlugin) {
     this.app = plugin.app;
     this.store = plugin.reportStore;
     this.statusManager = plugin.statusManager;
     this.engineManager = plugin.engineManager;
+    this.staleCache = plugin.staleCache;
   }
 
   canProcessActiveNote() {
@@ -160,21 +165,26 @@ export class TextExtractor {
   }
 
   private async processNote(noteFile: TFile) {
-    if (this.isNoteDeleted(noteFile)) return;
+    if (isDeleted(this.app, noteFile)) return;
 
-    let content: string;
+    let snapshot: NoteSnapshot | null;
     try {
-      content = await this.app.vault.cachedRead(noteFile);
+      snapshot = await readNoteSnapshot(
+        this.app,
+        this.staleCache,
+        noteFile,
+        this.statusManager.getSignal(),
+      );
     } catch (error) {
-      if (this.isNoteDeleted(noteFile)) return;
+      if (isDeleted(this.app, noteFile)) return;
       throw error;
     }
+    if (!snapshot) return;
 
-    const embeds = getEmbeds(this.app, noteFile);
     const { embedResults, embedsToMarkdown } = await this.extractTextFromEmbeds(
       noteFile,
-      content,
-      embeds,
+      snapshot.content,
+      snapshot.embeds,
     );
 
     let insertResult: InsertResult;
@@ -186,7 +196,7 @@ export class TextExtractor {
         this.statusManager.getSignal(),
       );
     } catch (error) {
-      if (this.isNoteDeleted(noteFile)) return;
+      if (isDeleted(this.app, noteFile)) return;
       throw error;
     }
 
@@ -269,10 +279,5 @@ export class TextExtractor {
         engineResult: { status: "failed", reason: "unexpected" },
       };
     }
-  }
-
-  private isNoteDeleted(noteFile: TFile) {
-    // Renaming/moving updates the path in place, so this only implies deleted
-    return !this.app.vault.getFileByPath(noteFile.path);
   }
 }

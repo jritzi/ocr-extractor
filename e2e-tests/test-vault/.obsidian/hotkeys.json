@@ -1,0 +1,32 @@
+{
+  "ocr-extractor:extract-current-note": [
+    {
+      "modifiers": ["Mod", "Alt", "Shift"],
+      "key": "E"
+    }
+  ],
+  "ocr-extractor:extract-folder": [
+    {
+      "modifiers": ["Mod", "Alt", "Shift"],
+      "key": "F"
+    }
+  ],
+  "ocr-extractor:extract-all-notes": [
+    {
+      "modifiers": ["Mod", "Alt", "Shift"],
+      "key": "A"
+    }
+  ],
+  "ocr-extractor:cancel-extraction": [
+    {
+      "modifiers": ["Mod", "Alt", "Shift"],
+      "key": "C"
+    }
+  ],
+  "ocr-extractor:show-report": [
+    {
+      "modifiers": ["Mod", "Alt", "Shift"],
+      "key": "R"
+    }
+  ]
+}

@@ -15,6 +15,11 @@ export function isMarkdown(file: TFile) {
   return file.extension === "md";
 }
 
+export function isDeleted(app: App, file: TFile) {
+  // Renaming/moving updates the path in place, so this only implies deleted
+  return !app.vault.getFileByPath(file.path);
+}
+
 export function markdownFilesInFolder(folder: TFolder) {
   const files: TFile[] = [];
 

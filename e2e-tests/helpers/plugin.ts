@@ -1,23 +1,23 @@
 import { expect, Page } from "@playwright/test";
-import { callout, clickModalButton, runCommand } from "./obsidian";
+import { callout, clickModalButton } from "./obsidian";
 
 export async function extractActiveNote(page: Page) {
-  await runCommand(page, "OCR Extractor: Extract text in active note");
+  await page.keyboard.press("ControlOrMeta+Alt+Shift+E");
 }
 
 export async function extractFolder(page: Page, folderName: string) {
-  await runCommand(page, "OCR Extractor: Extract text in folder");
+  await page.keyboard.press("ControlOrMeta+Alt+Shift+F");
   await page.getByPlaceholder("Select a folder…").fill(folderName);
   await page.keyboard.press("Enter");
 }
 
 export async function extractAllNotes(page: Page) {
-  await runCommand(page, "OCR Extractor: Extract text in all notes");
+  await page.keyboard.press("ControlOrMeta+Alt+Shift+A");
   await clickModalButton(page, "Extract");
 }
 
 export async function cancelExtraction(page: Page) {
-  await runCommand(page, "OCR Extractor: Cancel extraction");
+  await page.keyboard.press("ControlOrMeta+Alt+Shift+C");
 }
 
 export function notice(page: Page) {

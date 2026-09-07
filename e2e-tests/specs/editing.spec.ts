@@ -39,7 +39,7 @@ test.describe("editing during extraction", () => {
 
     await expectCallout(page, MOCK_OCR_OUTPUT);
     const content = await getActiveNoteContent(page);
-    expect(content).toContain(`Text typed above\n${EMBED}\n\n${CALLOUT}`);
+    expect(content).toBe(`Text typed above\n${EMBED}\n\n${CALLOUT}\n\n`);
   });
 
   test("typing below the embed", async ({ page, releaseGatedOcr }) => {
