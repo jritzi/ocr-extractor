@@ -1,5 +1,4 @@
 import { expect, Page } from "@playwright/test";
-import { runCommand } from "./obsidian";
 
 const ERROR_STATUS_CLASS = /ocr-extractor-report-status-error/;
 const FATAL_MESSAGE_CLASS = /ocr-extractor-report-fatal/;
@@ -7,7 +6,7 @@ const FAILED_COUNT_CLASS = /ocr-extractor-report-count-failed/;
 const FAILED_ATTACHMENT_CLASS = /ocr-extractor-report-result-failed/;
 
 export async function showReportView(page: Page) {
-  await runCommand(page, "OCR Extractor: Show report");
+  await page.keyboard.press("ControlOrMeta+Alt+Shift+R");
 }
 
 export function reportView(page: Page) {

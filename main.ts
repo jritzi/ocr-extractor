@@ -21,6 +21,7 @@ import { registerAutoExtractEvents } from "./src/extraction/auto-extract";
 import { StatusManager } from "./src/ui/status-manager";
 import { OcrEngineManager } from "./src/engines/ocr-engine-manager";
 import { ReportStore } from "./src/reporting/report-store";
+import { StaleCache } from "./src/reading/stale-cache";
 import { registerReportView } from "./src/ui/report/report-view";
 import { assert } from "./src/utils/assert";
 import type { OcrExtractorApi } from "ocr-extractor-api";
@@ -41,6 +42,7 @@ export default class OcrExtractorPlugin extends Plugin {
   // Initialized in onload()
   statusManager!: StatusManager;
   engineManager!: OcrEngineManager;
+  staleCache!: StaleCache;
   extractor!: TextExtractor;
   api!: OcrExtractorApi;
 
@@ -50,6 +52,7 @@ export default class OcrExtractorPlugin extends Plugin {
 
     this.statusManager = new StatusManager(this);
     this.engineManager = new OcrEngineManager(this);
+    this.staleCache = new StaleCache(this);
     this.extractor = new TextExtractor(this);
     this.api = createApi(this);
 

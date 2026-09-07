@@ -59,17 +59,17 @@ export async function typeAtStartOfNote(
   text: string,
   delay?: number,
 ) {
-  await editorTextbox(page).press(withModifier("Home"));
+  await editorTextbox(page).press("ControlOrMeta+Home");
   await page.keyboard.type(text, { delay });
 }
 
 export async function typeAtEndOfNote(page: Page, text: string) {
-  await editorTextbox(page).press(withModifier("End"));
+  await editorTextbox(page).press("ControlOrMeta+End");
   await page.keyboard.type(text);
 }
 
 export async function clearNoteText(page: Page) {
-  await editorTextbox(page).press(withModifier("a"));
+  await editorTextbox(page).press("ControlOrMeta+a");
   await page.keyboard.press("Delete");
 }
 
@@ -90,11 +90,11 @@ export async function replaceRangeInNote(
 }
 
 export async function openNewTab(page: Page) {
-  await page.keyboard.press(withModifier("t"));
+  await page.keyboard.press("ControlOrMeta+t");
 }
 
 export async function closeActiveTab(page: Page) {
-  await page.keyboard.press(withModifier("w"));
+  await page.keyboard.press("ControlOrMeta+w");
 }
 
 export async function switchToTab(page: Page, name: string) {
@@ -112,6 +112,14 @@ export async function getActiveNoteContent(page: Page) {
     throw new Error("No active editor");
   }
   return content;
+}
+
+export async function getNoteContentOnDisk(page: Page, path: string) {
+  return page.evaluate((path) => {
+    const file = app.vault.getFileByPath(path);
+    if (!file) throw new Error(`Note not found: ${path}`);
+    return app.vault.read(file);
+  }, path);
 }
 
 export async function addFrontmatter(
@@ -158,9 +166,4 @@ export function calloutIcon(page: Page, type: string) {
 
 function editorTextbox(page: Page) {
   return page.locator(".cm-editor").getByRole("textbox");
-}
-
-function withModifier(key: string) {
-  const modifier = process.platform === "darwin" ? "Meta" : "Control";
-  return `${modifier}+${key}`;
 }

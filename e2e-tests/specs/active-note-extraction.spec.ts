@@ -1,5 +1,5 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
-import { openNote, seedNote } from "../helpers/obsidian";
+import { openNote, runCommand, seedNote } from "../helpers/obsidian";
 import {
   expectCallout,
   expectNoCallout,
@@ -42,6 +42,22 @@ test("skips and failures", async ({ page }) => {
     "1 attachment extracted",
     "1 skipped",
     "Failed: missing.pdf (file not found)",
+  ]);
+  await expectCallout(page, MOCK_OCR_OUTPUT);
+});
+
+test("extraction from the command palette", async ({ page }) => {
+  await seedNote(page, "Command test", {
+    content: "![[attachments/sample.pdf]]",
+  });
+  await openNote(page, "Command test");
+
+  // Run via command, not the hotkey used in other tests
+  await runCommand(page, "OCR Extractor: Extract text in active note");
+
+  await expectNotice(page, [
+    "Text extraction complete",
+    "1 attachment extracted",
   ]);
   await expectCallout(page, MOCK_OCR_OUTPUT);
 });
