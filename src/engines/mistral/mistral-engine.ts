@@ -13,7 +13,8 @@ import {
   OcrEngine,
 } from "../ocr-engine";
 import { throwIfFatalHttpStatus } from "../http-error";
-import { MistralSettingsSection } from "./mistral-settings";
+import type OcrExtractorPlugin from "../../../main";
+import { MistralSettings } from "./mistral-settings";
 import { toDataUrl } from "../../utils/encoding";
 import { t } from "../../i18n";
 
@@ -31,8 +32,8 @@ export class MistralEngine extends OcrEngine {
     return t("engines.mistralOcr");
   }
 
-  static getSettingsSection() {
-    return MistralSettingsSection;
+  static getSettings(plugin: OcrExtractorPlugin) {
+    return new MistralSettings(plugin);
   }
 
   protected isMimeTypeSupported(mimeType: string) {

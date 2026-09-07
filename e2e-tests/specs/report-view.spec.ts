@@ -150,7 +150,7 @@ test("copied report text", async ({ page }) => {
   );
 });
 
-test.describe("fatal errors", () => {
+test.describe(() => {
   test.use({
     settings: { ocrEngine: "mistral" },
   });

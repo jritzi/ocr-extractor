@@ -1,5 +1,6 @@
-import type { SettingGroup } from "obsidian";
+import type { SettingGroupItem } from "obsidian";
 import type OcrExtractorPlugin from "../../main";
+import type { PluginSettings } from "../settings";
 import {
   AttachmentFailedError,
   AttachmentSkippedError,
@@ -10,15 +11,10 @@ import { logError, logWarning } from "../utils/logging";
 import { showNotice } from "../utils/notice";
 import { t } from "../i18n";
 
-export type OcrEngineSettingsClass = new (
-  ...args: ConstructorParameters<typeof OcrEngineSettings>
-) => OcrEngineSettings;
+export type EngineSettingItem = SettingGroupItem<keyof PluginSettings>;
 
 export abstract class OcrEngineSettings {
-  constructor(
-    protected readonly group: SettingGroup,
-    protected readonly plugin: OcrExtractorPlugin,
-  ) {}
+  constructor(protected readonly plugin: OcrExtractorPlugin) {}
 
   protected showTestError(error: unknown) {
     if (error instanceof FatalError) {
@@ -42,5 +38,5 @@ export abstract class OcrEngineSettings {
     }
   }
 
-  abstract display(): void;
+  abstract getSettingItems(): EngineSettingItem[];
 }

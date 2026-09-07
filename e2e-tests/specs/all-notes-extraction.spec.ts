@@ -52,7 +52,7 @@ test("skips and failures", async ({ page }) => {
   await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
-test.describe("loading and cancellation", () => {
+test.describe(() => {
   test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
   test("loading message and cancellation", async ({ page }) => {

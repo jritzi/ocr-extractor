@@ -2,21 +2,25 @@ import type { SecretStorage } from "obsidian";
 import { Platform } from "obsidian";
 import type { OCR_ENGINES } from "../main";
 
+/**
+ * Current plugin settings, which must be deeply readonly to ensure immutability
+ * (callers compare by identity)
+ */
 export interface PluginSettings {
-  ocrEngine: keyof typeof OCR_ENGINES;
+  readonly ocrEngine: keyof typeof OCR_ENGINES;
 
-  mistralSecret: string;
+  readonly mistralSecret: string;
 
-  openAiCompatibleBaseUrl: string;
-  openAiCompatibleModel: string;
-  openAiCompatibleSecret: string;
-  openAiCompatiblePrompt: string;
+  readonly openAiCompatibleBaseUrl: string;
+  readonly openAiCompatibleModel: string;
+  readonly openAiCompatibleSecret: string;
+  readonly openAiCompatiblePrompt: string;
 
-  customCommand: string;
-  customCommandConvertPdfs: boolean;
+  readonly customCommand: string;
+  readonly customCommandConvertPdfs: boolean;
 
-  preferEmbeddedText: boolean;
-  autoExtractAttachments: boolean;
+  readonly preferEmbeddedText: boolean;
+  readonly autoExtractAttachments: boolean;
 }
 
 /** Old settings from previous versions */

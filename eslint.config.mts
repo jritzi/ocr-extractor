@@ -62,9 +62,6 @@ export default defineConfig([
       // restored upstream.
       "@typescript-eslint/no-require-imports": "off",
 
-      // Disable until settings migrated to declarative API
-      "obsidianmd/settings-tab/prefer-setting-definitions": "off",
-
       "obsidianmd/ui/sentence-case": [
         "error",
         {

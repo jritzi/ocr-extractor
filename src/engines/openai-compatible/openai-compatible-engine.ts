@@ -4,7 +4,8 @@ import {
   OcrEngine,
 } from "../ocr-engine";
 import { OpenAiCompatibleClient } from "./openai-compatible-client";
-import { OpenAiCompatibleSettingsSection } from "./openai-compatible-settings";
+import type OcrExtractorPlugin from "../../../main";
+import { OpenAiCompatibleSettings } from "./openai-compatible-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
 import { resizeImage } from "../../utils/image";
 import { toDataUrl } from "../../utils/encoding";
@@ -18,8 +19,8 @@ export class OpenAiCompatibleEngine extends OcrEngine {
     return t("engines.openAiCompatibleApi");
   }
 
-  static getSettingsSection() {
-    return OpenAiCompatibleSettingsSection;
+  static getSettings(plugin: OcrExtractorPlugin) {
+    return new OpenAiCompatibleSettings(plugin);
   }
 
   protected isMimeTypeSupported(mimeType: string) {

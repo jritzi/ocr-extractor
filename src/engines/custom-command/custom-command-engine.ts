@@ -6,7 +6,8 @@ import {
   OcrEngine,
 } from "../ocr-engine";
 import { CustomCommandRunner } from "./custom-command-runner";
-import { CustomCommandSettingsSection } from "./custom-command-settings";
+import type OcrExtractorPlugin from "../../../main";
+import { CustomCommandSettings } from "./custom-command-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
 import { PluginSettings } from "../../settings";
 import { t } from "../../i18n";
@@ -26,8 +27,8 @@ export class CustomCommandEngine extends OcrEngine {
     return t("engines.customCommand");
   }
 
-  static getSettingsSection() {
-    return CustomCommandSettingsSection;
+  static getSettings(plugin: OcrExtractorPlugin) {
+    return new CustomCommandSettings(plugin);
   }
 
   protected isMimeTypeSupported(_mimeType: string) {

@@ -77,8 +77,9 @@ export default class OcrExtractorPlugin extends Plugin {
     name: K,
     value: PluginSettings[K],
   ) {
-    this.settings[name] = value;
-    this.engineManager.markSettingsChanged();
+    const settings = { ...this.settings };
+    settings[name] = value;
+    this.settings = settings;
     await this.saveData(this.settings);
   }
 

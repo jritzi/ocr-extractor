@@ -1,37 +1,39 @@
-import { App, PluginSettingTab, SettingGroup } from "obsidian";
+import type { SettingDefinitionItem } from "obsidian";
+import { App, PluginSettingTab } from "obsidian";
 import OcrExtractorPlugin, { OCR_ENGINES } from "../../main";
-import { PluginSettings, shouldUseMobileEngineFallback } from "../settings";
+import {
+  DEFAULT_SETTINGS,
+  PluginSettings,
+  shouldUseMobileEngineFallback,
+} from "../settings";
+import type { OcrEngineSettings } from "../engines/ocr-engine-settings";
 import { showNotice } from "../utils/notice";
+import { assert } from "../utils/assert";
 import { t } from "../i18n";
 
 export class SettingTab extends PluginSettingTab {
   plugin: OcrExtractorPlugin;
+  private readonly settingsByEngine = new Map<string, OcrEngineSettings>();
 
   constructor(app: App, plugin: OcrExtractorPlugin) {
     super(app, plugin);
     this.plugin = plugin;
-  }
 
-  display() {
-    const { containerEl } = this;
-    containerEl.empty();
-
-    const generalGroup = new SettingGroup(containerEl);
-    this.addEngineDropdown(generalGroup);
-    this.addGeneralSettings(generalGroup);
-
-    const EngineClass = OCR_ENGINES[this.plugin.settings.ocrEngine];
-    const EngineSettingsClass = EngineClass.getSettingsSection();
-
-    if (EngineSettingsClass) {
-      const engineGroup = new SettingGroup(containerEl).setHeading(
-        EngineClass.getLabel(),
-      );
-      new EngineSettingsClass(engineGroup, this.plugin).display();
+    for (const [name, Engine] of Object.entries(OCR_ENGINES)) {
+      const settings = Engine.getSettings(plugin);
+      if (settings) this.settingsByEngine.set(name, settings);
     }
   }
 
-  private addEngineDropdown(group: SettingGroup) {
+  getSettingDefinitions() {
+    const { ocrEngine } = this.plugin.settings;
+    const engineOptions = Object.fromEntries(
+      Object.entries(OCR_ENGINES).map(([name, Engine]) => [
+        name,
+        Engine.getLabel(),
+      ]),
+    );
+
     const description = createFragment();
     description.appendText(t("settings.ocrEngineDesc") + " ");
     description.createEl("a", {
@@ -39,66 +41,66 @@ export class SettingTab extends PluginSettingTab {
       href: "https://github.com/jritzi/ocr-extractor#ocr-engines",
     });
 
-    group.addSetting((setting) => {
-      setting
-        .setName(t("settings.ocrEngine"))
-        .setDesc(description)
-        .addDropdown((dropdown) => {
-          for (const [name, Engine] of Object.entries(OCR_ENGINES)) {
-            dropdown.addOption(name, Engine.getLabel());
-          }
+    const items: SettingDefinitionItem<keyof PluginSettings>[] = [
+      {
+        name: t("settings.ocrEngine"),
+        desc: description,
+        control: { type: "dropdown", key: "ocrEngine", options: engineOptions },
+      },
+    ];
 
-          dropdown
-            .setValue(this.plugin.settings.ocrEngine)
-            .onChange((value) => {
-              const newOcrEngine = value as PluginSettings["ocrEngine"];
-              if (
-                shouldUseMobileEngineFallback({
-                  ...this.plugin.settings,
-                  ocrEngine: newOcrEngine,
-                })
-              ) {
-                showNotice(
-                  t("notices.mobileEngineFallbackSetting", {
-                    pluginName: t("pluginName"),
-                  }),
-                );
-              }
+    const engineSettings = this.settingsByEngine.get(ocrEngine);
+    if (engineSettings) {
+      items.push({
+        type: "group",
+        heading: OCR_ENGINES[ocrEngine].getLabel(),
+        items: engineSettings.getSettingItems(),
+      });
+    }
 
-              void this.plugin.saveSetting("ocrEngine", newOcrEngine);
-              this.display(); // Re-render settings with new engine
-            });
-        });
+    items.push({
+      type: "group",
+      heading: t("settings.extraction"),
+      items: [
+        {
+          name: t("settings.preferEmbeddedText"),
+          desc: t("settings.preferEmbeddedTextDesc"),
+          control: { type: "toggle", key: "preferEmbeddedText" },
+        },
+        {
+          name: t("settings.autoExtractAttachments"),
+          desc: t("settings.autoExtractAttachmentsDesc"),
+          control: { type: "toggle", key: "autoExtractAttachments" },
+        },
+      ],
     });
+
+    return items;
   }
 
-  private addGeneralSettings(group: SettingGroup) {
-    group.addSetting((setting) => {
-      setting
-        .setName(t("settings.preferEmbeddedText"))
-        .setDesc(t("settings.preferEmbeddedTextDesc"))
-        .addToggle((toggle) =>
-          toggle
-            .setValue(this.plugin.settings.preferEmbeddedText)
-            .onChange(
-              (value) =>
-                void this.plugin.saveSetting("preferEmbeddedText", value),
-            ),
-        );
-    });
+  // Override default (which mutates settings) to keep settings immutable
+  async setControlValue(key: string, value: unknown) {
+    assertSettingKey(key);
+    await this.plugin.saveSetting(key, value as PluginSettings[typeof key]);
 
-    group.addSetting((setting) => {
-      setting
-        .setName(t("settings.autoExtractAttachments"))
-        .setDesc(t("settings.autoExtractAttachmentsDesc"))
-        .addToggle((toggle) =>
-          toggle
-            .setValue(this.plugin.settings.autoExtractAttachments)
-            .onChange(
-              (value) =>
-                void this.plugin.saveSetting("autoExtractAttachments", value),
-            ),
+    if (key === "ocrEngine") {
+      if (shouldUseMobileEngineFallback(this.plugin.settings)) {
+        showNotice(
+          t("notices.mobileEngineFallbackSetting", {
+            pluginName: t("pluginName"),
+          }),
         );
-    });
+      }
+
+      // Update to show only the selected engine's settings
+      this.update();
+    }
   }
+}
+
+function assertSettingKey(key: string): asserts key is keyof PluginSettings {
+  assert(
+    Object.hasOwn(DEFAULT_SETTINGS, key),
+    "Only PluginSettings keys reach setControlValue()",
+  );
 }

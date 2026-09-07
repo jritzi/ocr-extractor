@@ -1,12 +1,12 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
-  closeModal,
   createNote,
   openNote,
   seedNote,
   typeAtEndOfNote,
 } from "../helpers/obsidian";
 import {
+  closeSettings,
   expectCallout,
   expectNoCallout,
   extractAllNotes,
@@ -27,7 +27,7 @@ test("auto-extract setting", async ({ page }) => {
   await openNote(page, "Note 2");
   await openPluginSettings(page);
   await toggleSetting(page, "Auto-extract attachments");
-  await closeModal(page);
+  await closeSettings(page);
   await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
   await expectCallout(page, MOCK_OCR_OUTPUT);
 
