@@ -37,6 +37,7 @@
     "testTooltip": "Probar con una imagen de ejemplo",
     "convertPdfs": "Convertir archivos PDF a imágenes",
     "convertPdfsDesc": "Convertir las páginas del PDF a imágenes PNG antes de procesarlas",
+    "extraction": "Extracción",
     "preferEmbeddedText": "Preferir texto incrustado en PDF",
     "preferEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo; de lo contrario, extrae con OCR",
     "autoExtractAttachments": "Extraer archivos adjuntos automáticamente",
