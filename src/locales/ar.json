@@ -37,6 +37,7 @@
     "testTooltip": "اختبر باستخدام صورة نموذجية",
     "convertPdfs": "تحويل ملفات PDF إلى صور",
     "convertPdfsDesc": "تحويل صفحات PDF إلى صور PNG قبل المعالجة",
+    "extraction": "استخراج",
     "preferEmbeddedText": "تفضيل نص PDF المضمّن",
     "preferEmbeddedTextDesc": "عندما يحتوي ملف PDF على نص مضمّن، سيتم استخدامه؛ وإلا سيتم الاستخراج باستخدام OCR",
     "autoExtractAttachments": "استخراج المرفقات تلقائياً",

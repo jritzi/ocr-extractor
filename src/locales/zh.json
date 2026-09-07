@@ -37,6 +37,7 @@
     "testTooltip": "使用示例图片进行测试",
     "convertPdfs": "PDF 转图片",
     "convertPdfsDesc": "在处理前将 PDF 页面转换为 PNG 图片",
+    "extraction": "提取",
     "preferEmbeddedText": "优先使用嵌入的 PDF 文本",
     "preferEmbeddedTextDesc": "当 PDF 已包含嵌入文本时，优先使用该文本；否则，通过 OCR 提取",
     "autoExtractAttachments": "自动提取附件",
