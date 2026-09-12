@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ReportStore } from "../reporting/report-store";
-import { EmbedResult, recordResults } from "./record-results";
+import { ReferenceResult, recordResults } from "./record-results";
 
 const NOTE = "notes/receipts.md";
 
@@ -19,7 +19,7 @@ describe("record-results.ts", () => {
   describe("recordResults", () => {
     it("records skipped and failed results", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/blank.png",
           markup: "![[blank.png]]",
@@ -57,7 +57,7 @@ describe("record-results.ts", () => {
 
     it("records a skipped result even when the insert was canceled", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/blank.png",
           markup: "![[blank.png]]",
@@ -83,7 +83,7 @@ describe("record-results.ts", () => {
 
     it("records a result as extracted when none were orphaned", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/menu.png",
           markup: "![[menu.png]]",
@@ -109,7 +109,7 @@ describe("record-results.ts", () => {
 
     it("discards results a canceled insert never wrote", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/photo.png",
           markup: "![[photo.png]]",
@@ -141,7 +141,7 @@ describe("record-results.ts", () => {
 
     it("records an orphaned result as failed", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/receipt.png",
           markup: "![[receipt.png]]",
@@ -179,7 +179,7 @@ describe("record-results.ts", () => {
 
     it("records as failed results a timed-out insert never wrote", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/page-one.png",
           markup: "![[page-one.png]]",
@@ -217,7 +217,7 @@ describe("record-results.ts", () => {
 
     it("records embeds in note order even when results arrive out of order", () => {
       const store = startedStore();
-      const results: EmbedResult[] = [
+      const results: ReferenceResult[] = [
         {
           path: "attachments/blank.png",
           markup: "![[blank.png]]",

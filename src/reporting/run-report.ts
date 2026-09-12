@@ -4,7 +4,7 @@
  */
 
 import { FailureReason, SkipReason } from "../result-reason";
-import type { EmbedMarkup } from "../utils/file";
+import type { ReferenceMarkup } from "../utils/file";
 import type { AttachmentPath } from "../utils/path";
 
 export type AttachmentResult =
@@ -22,7 +22,7 @@ export type AttachmentResult =
 
 export interface AttachmentEntry {
   readonly path: AttachmentPath;
-  readonly markup: EmbedMarkup;
+  readonly markup: ReferenceMarkup;
   readonly order: number;
   readonly result: AttachmentResult;
 }

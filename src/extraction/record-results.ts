@@ -1,12 +1,12 @@
 import type { EngineResult } from "../engines/ocr-engine";
 import { type InsertResult, wasInserted } from "../editing/insert-result";
 import type { ReportStore } from "../reporting/report-store";
-import type { EmbedMarkup } from "../utils/file";
+import type { ReferenceMarkup } from "../utils/file";
 import type { AttachmentPath } from "../utils/path";
 
-export type EmbedResult = {
+export type ReferenceResult = {
   path: AttachmentPath;
-  markup: EmbedMarkup;
+  markup: ReferenceMarkup;
   order: number;
   engineResult: Exclude<EngineResult, { status: "canceled" }>;
 };
@@ -14,10 +14,10 @@ export type EmbedResult = {
 export function recordResults(
   store: ReportStore,
   notePath: string,
-  embedResults: readonly EmbedResult[],
+  referenceResults: readonly ReferenceResult[],
   insertResult: InsertResult,
 ) {
-  for (const { engineResult, ...entry } of embedResults) {
+  for (const { engineResult, ...entry } of referenceResults) {
     if (engineResult.status !== "extracted") {
       store.recordResult(notePath, { ...entry, result: engineResult });
     } else if (wasInserted(entry.markup, insertResult)) {

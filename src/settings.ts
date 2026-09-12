@@ -21,6 +21,7 @@ export interface PluginSettings {
 
   readonly preferEmbeddedText: boolean;
   readonly autoExtractAttachments: boolean;
+  readonly propertiesToExtractFrom: readonly string[];
 }
 
 /** Old settings from previous versions */
@@ -46,6 +47,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   customCommandConvertPdfs: false,
   preferEmbeddedText: false,
   autoExtractAttachments: false,
+  propertiesToExtractFrom: [],
 };
 
 /**
