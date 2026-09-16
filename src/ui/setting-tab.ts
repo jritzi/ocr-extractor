@@ -7,9 +7,15 @@ import {
   shouldUseMobileEngineFallback,
 } from "../settings";
 import type { OcrEngineSettings } from "../engines/ocr-engine-settings";
+import { AddPropertyModal } from "./add-property-modal";
 import { showNotice } from "../utils/notice";
 import { assert } from "../utils/assert";
 import { t } from "../i18n";
+
+const RERENDER_ON_CHANGE = new Set<keyof PluginSettings>([
+  "ocrEngine",
+  "propertiesToExtractFrom",
+]);
 
 export class SettingTab extends PluginSettingTab {
   plugin: OcrExtractorPlugin;
@@ -26,7 +32,7 @@ export class SettingTab extends PluginSettingTab {
   }
 
   getSettingDefinitions() {
-    const { ocrEngine } = this.plugin.settings;
+    const { ocrEngine, propertiesToExtractFrom } = this.plugin.settings;
     const engineOptions = Object.fromEntries(
       Object.entries(OCR_ENGINES).map(([name, Engine]) => [
         name,
@@ -72,6 +78,40 @@ export class SettingTab extends PluginSettingTab {
           desc: t("settings.autoExtractAttachmentsDesc"),
           control: { type: "toggle", key: "autoExtractAttachments" },
         },
+        {
+          type: "page",
+          name: t("settings.propertiesToExtractFrom"),
+          desc: t("settings.propertiesToExtractFromDesc"),
+          displayValue: () => {
+            const { propertiesToExtractFrom } = this.plugin.settings;
+            return propertiesToExtractFrom.length > 0
+              ? t("settings.propertiesToExtractFromCount", {
+                  count: propertiesToExtractFrom.length,
+                })
+              : "";
+          },
+          items: [
+            {
+              type: "list",
+              emptyState: t("settings.propertiesToExtractFromEmpty"),
+              addItem: {
+                name: t("settings.addProperty"),
+                action: () => {
+                  new AddPropertyModal(
+                    this.app,
+                    propertiesToExtractFrom,
+                    (name) => void this.addPropertyToExtractFrom(name),
+                  ).open();
+                },
+              },
+              onDelete: (index) => void this.deletePropertyToExtractFrom(index),
+              items: propertiesToExtractFrom.map((name) => ({
+                name: formatPropertyName(name),
+                searchable: false,
+              })),
+            },
+          ],
+        },
       ],
     });
 
@@ -83,19 +123,44 @@ export class SettingTab extends PluginSettingTab {
     assertSettingKey(key);
     await this.plugin.saveSetting(key, value as PluginSettings[typeof key]);
 
-    if (key === "ocrEngine") {
-      if (shouldUseMobileEngineFallback(this.plugin.settings)) {
-        showNotice(
-          t("notices.mobileEngineFallbackSetting", {
-            pluginName: t("pluginName"),
-          }),
-        );
-      }
-
-      // Update to show only the selected engine's settings
-      this.update();
+    if (
+      key === "ocrEngine" &&
+      shouldUseMobileEngineFallback(this.plugin.settings)
+    ) {
+      showNotice(
+        t("notices.mobileEngineFallbackSetting", {
+          pluginName: t("pluginName"),
+        }),
+      );
     }
+
+    if (RERENDER_ON_CHANGE.has(key)) this.update();
   }
+
+  private async addPropertyToExtractFrom(name: string) {
+    const { propertiesToExtractFrom } = this.plugin.settings;
+    await this.setControlValue("propertiesToExtractFrom", [
+      ...propertiesToExtractFrom,
+      name,
+    ]);
+  }
+
+  private async deletePropertyToExtractFrom(index: number) {
+    const { propertiesToExtractFrom } = this.plugin.settings;
+    await this.setControlValue(
+      "propertiesToExtractFrom",
+      propertiesToExtractFrom.filter((_, other) => other !== index),
+    );
+  }
+}
+
+/**
+ * Show a name with leading and/or trailing spaces in quotes with non-breaking
+ * spaces, to clearly distinguish it from the version without spaces.
+ */
+function formatPropertyName(name: string) {
+  if (name === name.trim()) return name;
+  return `"${name.replaceAll(" ", "\u00a0")}"`;
 }
 
 function assertSettingKey(key: string): asserts key is keyof PluginSettings {
