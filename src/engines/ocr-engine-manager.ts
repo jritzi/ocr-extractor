@@ -9,22 +9,24 @@ import {
 export class OcrEngineManager {
   usingMobileFallback = false;
 
-  // Initialized in buildEngine()
-  private engine!: OcrEngine;
-  private engineSettings!: PluginSettings;
+  private engine: OcrEngine;
+  private engineSettings: PluginSettings;
 
   private extractionsInFlight = 0;
 
   constructor(private plugin: OcrExtractorPlugin) {
-    this.buildEngine();
+    this.engine = this.buildEngine(plugin.settings);
+    this.engineSettings = plugin.settings;
   }
 
   async rebuildIfNeeded() {
-    const settingsChanged = this.plugin.settings !== this.engineSettings;
+    const settings = this.plugin.settings;
+    const settingsChanged = settings !== this.engineSettings;
     if (!settingsChanged || this.extractionsInFlight > 0) return;
 
     const previousEngine = this.engine;
-    this.buildEngine();
+    this.engine = this.buildEngine(settings);
+    this.engineSettings = settings;
     await previousEngine.terminate();
   }
 
@@ -46,15 +48,13 @@ export class OcrEngineManager {
     return this.engine.terminate();
   }
 
-  private buildEngine() {
-    const settings = this.plugin.settings;
+  private buildEngine(settings: PluginSettings) {
     this.usingMobileFallback = shouldUseMobileEngineFallback(settings);
     const engineName = this.usingMobileFallback
       ? "tesseract"
       : settings.ocrEngine;
 
     const EngineClass = OCR_ENGINES[engineName];
-    this.engine = new EngineClass(settings, this.plugin.app.secretStorage);
-    this.engineSettings = settings;
+    return new EngineClass(settings, this.plugin.app.secretStorage);
   }
 }
