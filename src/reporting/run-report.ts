@@ -4,7 +4,7 @@
  */
 
 import { FailureReason, SkipReason } from "../result-reason";
-import type { ReferenceMarkup } from "../utils/file";
+import type { ReferenceMarkup } from "../utils/metadata-cache";
 import type { AttachmentPath } from "../utils/path";
 
 export type AttachmentResult =

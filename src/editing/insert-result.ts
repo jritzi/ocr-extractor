@@ -1,4 +1,4 @@
-import type { ReferenceMarkup } from "../utils/file";
+import type { ReferenceMarkup } from "../utils/metadata-cache";
 
 export type InsertResult =
   | { status: "done"; orphanedResults: ReferenceMarkup[] }

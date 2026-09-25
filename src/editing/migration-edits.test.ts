@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildLink } from "../utils/file.test-utils";
+import { buildLink } from "../utils/metadata-cache.test-utils";
 import { applyEditPlanToString } from "./edit";
 import { buildMigrationEdits } from "./migration-edits";
 

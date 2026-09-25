@@ -1,15 +1,16 @@
 import { App, TFile } from "obsidian";
-import { getNoteReferences, isDeleted, NoteReferences } from "../utils/file";
+import { isDeleted } from "../utils/file";
+import { getNoteCache, NoteCache } from "../utils/metadata-cache";
 import { getMarkdownViews } from "../utils/workspace";
 import { StaleCache } from "./stale-cache";
 
 export interface NoteSnapshot {
   content: string;
-  references: NoteReferences;
+  cache: NoteCache;
 }
 
 /**
- * Returns a note's content paired with its cached references (first saving
+ * Return a note's content paired with its cached metadata (first saving
  * unsaved edits and letting the metadata cache catch up), or null if the note
  * was deleted or the run was canceled.
  */
@@ -40,7 +41,7 @@ export async function readNoteSnapshot(
 
   return {
     content: await app.vault.cachedRead(file),
-    references: getNoteReferences(app, file),
+    cache: getNoteCache(app, file),
   };
 }
 

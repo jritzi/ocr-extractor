@@ -1,7 +1,7 @@
 import type { EngineResult } from "../engines/ocr-engine";
 import { type InsertResult, wasInserted } from "../editing/insert-result";
 import type { ReportStore } from "../reporting/report-store";
-import type { ReferenceMarkup } from "../utils/file";
+import type { ReferenceMarkup } from "../utils/metadata-cache";
 import type { AttachmentPath } from "../utils/path";
 
 export type ReferenceResult = {
