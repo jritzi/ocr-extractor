@@ -1,6 +1,6 @@
 /**
  * Convert a Uint8Array to a base64 string (use instead of
- * Uint8Array.prototype.toBase64() for compatibility with older mobile devices)
+ * Uint8Array.prototype.toBase64() for compatibility with older mobile devices).
  */
 export function uint8ArrayToBase64(bytes: Uint8Array) {
   let binary = "";

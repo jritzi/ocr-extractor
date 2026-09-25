@@ -5,8 +5,7 @@ import { AttachmentEntry } from "../../../reporting/run-report";
 import { describeResult } from "../../../reporting/report-text";
 import { basename } from "../../../utils/path";
 import { useTruncationTooltip } from "../../hooks/use-truncation-tooltip";
-import { openNoteFromClick } from "../../../utils/workspace";
-import { findAttachmentLine } from "./find-attachment-line";
+import { findAttachmentLine, openNoteFromClick } from "./navigation";
 import "./attachment-row.css";
 
 interface AttachmentRowProps {

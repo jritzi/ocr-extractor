@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import clsx from "clsx";
 import { NoteEntry } from "../../../reporting/run-report";
 import { AttachmentRow } from "./attachment-row";
-import { openNoteFromClick } from "../../../utils/workspace";
+import { openNoteFromClick } from "./navigation";
 import { useIcon } from "../../hooks/use-icon";
 import { useTruncationTooltip } from "../../hooks/use-truncation-tooltip";
 import { noteName, parentFolder } from "../../../utils/path";

@@ -2,7 +2,7 @@ import type { FrontmatterLinkCache } from "obsidian";
 
 /**
  * Normalize a property name in the same way Obsidian does (case-insensitive
- * but without trimming whitespace)
+ * but without trimming whitespace).
  */
 export function normalizePropertyName(name: string) {
   return name.toLowerCase();
