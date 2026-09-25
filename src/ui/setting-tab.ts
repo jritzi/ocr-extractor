@@ -100,11 +100,21 @@ export class SettingTab extends PluginSettingTab {
                   new AddPropertyModal(
                     this.app,
                     propertiesToExtractFrom,
-                    (name) => void this.addPropertyToExtractFrom(name),
+                    (name) =>
+                      void this.setControlValue("propertiesToExtractFrom", [
+                        ...this.plugin.settings.propertiesToExtractFrom,
+                        name,
+                      ]),
                   ).open();
                 },
               },
-              onDelete: (index) => void this.deletePropertyToExtractFrom(index),
+              onDelete: (index) =>
+                void this.setControlValue(
+                  "propertiesToExtractFrom",
+                  this.plugin.settings.propertiesToExtractFrom.filter(
+                    (_, other) => other !== index,
+                  ),
+                ),
               items: propertiesToExtractFrom.map((name) => ({
                 name: formatPropertyName(name),
                 searchable: false,
@@ -135,22 +145,6 @@ export class SettingTab extends PluginSettingTab {
     }
 
     if (RERENDER_ON_CHANGE.has(key)) this.update();
-  }
-
-  private async addPropertyToExtractFrom(name: string) {
-    const { propertiesToExtractFrom } = this.plugin.settings;
-    await this.setControlValue("propertiesToExtractFrom", [
-      ...propertiesToExtractFrom,
-      name,
-    ]);
-  }
-
-  private async deletePropertyToExtractFrom(index: number) {
-    const { propertiesToExtractFrom } = this.plugin.settings;
-    await this.setControlValue(
-      "propertiesToExtractFrom",
-      propertiesToExtractFrom.filter((_, other) => other !== index),
-    );
   }
 }
 
