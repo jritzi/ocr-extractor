@@ -1,4 +1,4 @@
-import type { ReferenceCache } from "obsidian";
+import type { LinkCache } from "obsidian";
 import { t } from "../i18n";
 import { assert } from "../utils/assert";
 import {
@@ -8,19 +8,19 @@ import {
   findCalloutHeaderLinks,
   formatTitleWithLink,
   LEGACY_CALLOUT_HEADER_REGEX,
-  parseLinkFromTitle,
-} from "../callouts";
+  titlesWithLinkInAllLanguages,
+} from "../utils/callout";
 import type { PlannedEdit } from "./edit";
 
 /**
  * Build edits updating callout headers written by an old plugin version or in
  * another language.
  */
-export function buildMigrationEdits(content: string, links: ReferenceCache[]) {
+export function buildMigrationEdits(content: string, links: LinkCache[]) {
   const edits: PlannedEdit[] = [];
   const currentTitle = t("callouts.title");
   const headerLinks = findCalloutHeaderLinks(content, links);
-  const headerLinkMarkups = new Set(headerLinks.map((link) => link.original));
+  const headerLinkMarkups = headerLinks.map((link) => link.original);
 
   for (const match of content.matchAll(LEGACY_CALLOUT_HEADER_REGEX)) {
     const [line, prefix] = match;
@@ -56,13 +56,15 @@ export function buildMigrationEdits(content: string, links: ReferenceCache[]) {
 function buildMigratedTitle(
   title: string,
   currentTitle: string,
-  headerLinkMarkups: ReadonlySet<string>,
+  headerLinkMarkups: readonly string[],
 ) {
   if (title === currentTitle) return null;
   if (CALLOUT_TITLES.has(title)) return currentTitle;
 
-  const link = parseLinkFromTitle(title, headerLinkMarkups);
-  if (link === null) return null;
+  const link = headerLinkMarkups.find((markup) =>
+    titlesWithLinkInAllLanguages(markup).has(title),
+  );
+  if (link === undefined) return null;
   const titleWithLink = formatTitleWithLink(link);
   return titleWithLink === title ? null : titleWithLink;
 }

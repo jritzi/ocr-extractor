@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildEmbed } from "../utils/metadata-cache.test-utils";
+import { buildEmbed, buildLink } from "../utils/metadata-cache.test-utils";
 import { embedsToExtract } from "./embeds";
 
 const EMBED = "![[file.pdf]]";
@@ -14,7 +14,7 @@ describe("embeds.ts", () => {
         buildEmbed(content, "![[other.png]]"),
       ];
 
-      expect(embedsToExtract(content, embeds)).toEqual(embeds);
+      expect(embedsToExtract(content, embeds, [])).toEqual(embeds);
     });
 
     it("skips embeds already followed by a managed callout", () => {
@@ -24,7 +24,17 @@ describe("embeds.ts", () => {
         buildEmbed(content, "![[other.png]]"),
       ];
 
-      expect(embedsToExtract(content, embeds)).toEqual([embeds[1]]);
+      expect(embedsToExtract(content, embeds, [])).toEqual([embeds[1]]);
+    });
+
+    it("returns an embed followed by a callout with a header link", () => {
+      const link = "[[other.pdf]]";
+      const content = `${EMBED}\n\n> [!ocr-extractor]- Extracted text from ${link}\n> Extracted`;
+      const embeds = [buildEmbed(content, EMBED)];
+
+      expect(
+        embedsToExtract(content, embeds, [buildLink(content, link)]),
+      ).toEqual(embeds);
     });
 
     it("deduplicates repeated embeds, keeping the first occurrence", () => {
@@ -34,7 +44,7 @@ describe("embeds.ts", () => {
         buildEmbed(content, EMBED, 1),
       ];
 
-      expect(embedsToExtract(content, embeds)).toEqual([embeds[0]]);
+      expect(embedsToExtract(content, embeds, [])).toEqual([embeds[0]]);
     });
 
     it("keeps a later occurrence when the first already has a callout", () => {
@@ -44,7 +54,7 @@ describe("embeds.ts", () => {
         buildEmbed(content, EMBED, 1),
       ];
 
-      expect(embedsToExtract(content, embeds)).toEqual([embeds[1]]);
+      expect(embedsToExtract(content, embeds, [])).toEqual([embeds[1]]);
     });
 
     it("keeps an embed with a size separate from a plain embed of the same file", () => {
@@ -52,7 +62,7 @@ describe("embeds.ts", () => {
       const content = `${EMBED}\n\n${sized}`;
       const embeds = [buildEmbed(content, EMBED), buildEmbed(content, sized)];
 
-      expect(embedsToExtract(content, embeds)).toEqual(embeds);
+      expect(embedsToExtract(content, embeds, [])).toEqual(embeds);
     });
   });
 });

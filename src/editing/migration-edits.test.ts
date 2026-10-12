@@ -45,14 +45,14 @@ describe("migration-edits.ts", () => {
       expect(buildMigrationEdits(content, [])).toEqual([]);
     });
 
-    it("doesn't update a header with an attachment link in the current language", () => {
+    it("doesn't update a header with a link in the current language", () => {
       const content = `${CALLOUT_WITH_LINK}\n`;
       expect(buildMigrationEdits(content, [buildLink(content, LINK)])).toEqual(
         [],
       );
     });
 
-    it("updates a header with an attachment link to the current language", () => {
+    it("updates a header with a link to the current language", () => {
       const content = `> [!ocr-extractor]- Texto extraído de ${LINK}\n> content`;
       const migrated = applyEditPlanToString(
         content,

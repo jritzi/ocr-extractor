@@ -1,6 +1,6 @@
 import type { App, FrontmatterLinkCache } from "obsidian";
 import type { NoteSnapshot } from "../reading/note-snapshot";
-import { findCalloutHeaderLinks } from "../callouts";
+import { findCalloutHeaderLinks } from "../utils/callout";
 import {
   attachmentPath,
   isObsidianNative,

@@ -1,6 +1,6 @@
 import type { Reference } from "obsidian";
 import { App, Keymap } from "obsidian";
-import { findCalloutHeaderLinks } from "../../../callouts";
+import { findCalloutHeaderLinks } from "../../../utils/callout";
 import type { AttachmentEntry } from "../../../reporting/run-report";
 import { attachmentPath, resolveLinkedFile } from "../../../utils/file";
 import { getNoteCache } from "../../../utils/metadata-cache";
