@@ -14,7 +14,7 @@ export class OcrEngineManager {
 
   private extractionsInFlight = 0;
 
-  constructor(private plugin: OcrExtractorPlugin) {
+  constructor(private readonly plugin: OcrExtractorPlugin) {
     this.engine = this.buildEngine(plugin.settings);
     this.engineSettings = plugin.settings;
   }

@@ -24,7 +24,7 @@ export class TesseractEngine extends OcrEngine {
 
   // Workers can't safely run multiple recognize calls in parallel, so
   // serialize them
-  private limit = limitAsync(<T>(task: () => Promise<T>) => task(), 1);
+  private readonly limit = limitAsync(<T>(task: () => Promise<T>) => task(), 1);
 
   static getLabel() {
     return t("engines.tesseract");

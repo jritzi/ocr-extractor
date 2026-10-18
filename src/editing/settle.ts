@@ -54,11 +54,11 @@ class SettleController {
   );
 
   constructor(
-    private app: App,
-    private file: TFile,
-    private propertiesToExtractFrom: readonly string[],
-    private results: PendingResults,
-    private signal: AbortSignal,
+    private readonly app: App,
+    private readonly file: TFile,
+    private readonly propertiesToExtractFrom: readonly string[],
+    private readonly results: PendingResults,
+    private readonly signal: AbortSignal,
   ) {}
 
   run() {

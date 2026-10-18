@@ -21,8 +21,8 @@ export class AddPropertyModal extends ConfirmationModal {
 
   constructor(
     app: App,
-    private existing: readonly string[],
-    private onSubmit: (name: string) => void,
+    private readonly existing: readonly string[],
+    private readonly onSubmit: (name: string) => void,
   ) {
     super(app);
     this.setTitle(t("modals.addProperty.title"));

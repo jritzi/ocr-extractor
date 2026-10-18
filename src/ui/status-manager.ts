@@ -30,7 +30,7 @@ export class StatusManager {
   private loadingNotice: Notice | null = null;
   private unloading = false;
 
-  constructor(private plugin: OcrExtractorPlugin) {
+  constructor(private readonly plugin: OcrExtractorPlugin) {
     this.store = plugin.reportStore;
     this.statusBarItem = new StatusBarItem(plugin, {
       onCancel: () => this.setCanceling(),
