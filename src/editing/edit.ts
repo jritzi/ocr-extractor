@@ -1,4 +1,4 @@
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 
 export interface PlannedEdit {
   from: number;
@@ -70,7 +70,7 @@ export function toMinimalChange(edit: PlannedEdit) {
 
 /**
  * Assert edits are sorted ascending by offset and don't overlap (required to
- * apply edits safely)
+ * apply edits safely).
  */
 export function assertEditsSortedAndDisjoint(edits: PlannedEdit[]) {
   for (let index = 1; index < edits.length; index++) {
