@@ -91,7 +91,9 @@ export function buildEditPlan(
     staleBodyLinks,
     results,
   );
-  if (propertyCallouts.edit) {
+  // Append only in an attempt that finishes, since a retry can't recognize a
+  // header link the cache hasn't indexed yet
+  if (propertyCallouts.edit && staleEmbeds.length === 0) {
     edits.push(propertyCallouts.edit);
     resultsToInsert.push(...propertyCallouts.resultsToInsert);
   }

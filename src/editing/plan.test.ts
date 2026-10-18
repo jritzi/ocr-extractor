@@ -533,6 +533,28 @@ describe("plan.ts", () => {
       ]);
     });
 
+    it("appends no property callouts while an embed is stale", () => {
+      const other = "![[other.png]]";
+      const cachedContent = `${FRONTMATTER}\n\n${other}\n\n${EMBED}`;
+      const content = `${FRONTMATTER}\n\n${other}\n\nabove\n${EMBED}`;
+      const stale = buildEmbed(cachedContent, EMBED);
+      const plan = buildEditPlan(
+        content,
+        buildPropertyContext(content, {
+          embeds: [buildEmbed(content, other), stale],
+        }),
+        new Map<string, PendingResult>([
+          ...buildEmbedResults(),
+          [other, { kind: "embed", markdown: "Extracted" }],
+          ...buildPropertyResults(),
+        ]),
+      );
+
+      expect(plan.edits).toHaveLength(1);
+      expect(plan.resultsToInsert).toEqual([other]);
+      expect(plan.staleEmbeds).toEqual([stale]);
+    });
+
     it("ignores stale body links when there are no property link results", () => {
       const cachedContent = `${LINK}\n${EMBED}`;
       const content = `above\n${LINK}\n${EMBED}`;
