@@ -1,52 +1,30 @@
 import OcrExtractorPlugin from "../../main";
-import {
-  App,
-  EmbedCache,
-  MarkdownView,
-  Platform,
-  TFile,
-  TFolder,
-} from "obsidian";
+import { App, MarkdownView, Platform, TFile, TFolder } from "obsidian";
 import { FatalError } from "../engines/ocr-engine";
 import { OcrEngineManager } from "../engines/ocr-engine-manager";
 import { StatusManager } from "../ui/status-manager";
 import { ReportStore } from "../reporting/report-store";
-import { EmbedsToMarkdown, selectEmbedsToProcess } from "../editing/plan";
-import { insertWhenSettled } from "../editing/settle";
-import type { InsertResult } from "../editing/insert-result";
-import { readNoteSnapshot } from "../reading/note-snapshot";
-import type { NoteSnapshot } from "../reading/note-snapshot";
-import { StaleCache } from "../reading/stale-cache";
-import pLimit from "p-limit";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import { debugLog, logError, logWarning } from "../utils/logging";
 import { showNotice } from "../utils/notice";
-import {
-  attachmentPath,
-  isDeleted,
-  isObsidianNative,
-  markdownFilesInFolder,
-  resolveEmbedFile,
-} from "../utils/file";
+import { markdownFilesInFolder } from "../utils/file";
 import { RunScope } from "../reporting/run-report";
-import { EmbedResult, recordResults } from "./record-results";
+import { NoteExtractor } from "./note-extractor";
 import { ConfirmExtractAllModal } from "../ui/confirm-extract-all-modal";
 import { SelectFolderModal } from "../ui/select-folder-modal";
 import { t } from "../i18n";
 
 export class TextExtractor {
-  private app: App;
-  private store: ReportStore;
-  private statusManager: StatusManager;
-  private engineManager: OcrEngineManager;
-  private staleCache: StaleCache;
+  private readonly app: App;
+  private readonly store: ReportStore;
+  private readonly statusManager: StatusManager;
+  private readonly engineManager: OcrEngineManager;
 
-  constructor(plugin: OcrExtractorPlugin) {
+  constructor(private readonly plugin: OcrExtractorPlugin) {
     this.app = plugin.app;
     this.store = plugin.reportStore;
     this.statusManager = plugin.statusManager;
     this.engineManager = plugin.engineManager;
-    this.staleCache = plugin.staleCache;
   }
 
   canProcessActiveNote() {
@@ -130,12 +108,14 @@ export class TextExtractor {
         );
       }
 
+      const noteExtractor = new NoteExtractor(this.plugin);
+
       for (const noteFile of files) {
         if (this.statusManager.getSignal().aborted) break;
 
         debugLog(`Processing file ${noteFile.path}`);
         this.store.noteStarted();
-        await this.processNote(noteFile);
+        await noteExtractor.process(noteFile);
 
         if (this.statusManager.getSignal().aborted) break;
 
@@ -161,123 +141,6 @@ export class TextExtractor {
         logError("Extraction stopped by an unexpected error", error);
         this.statusManager.setFatal(t("errors.extractionFailed"));
       }
-    }
-  }
-
-  private async processNote(noteFile: TFile) {
-    if (isDeleted(this.app, noteFile)) return;
-
-    let snapshot: NoteSnapshot | null;
-    try {
-      snapshot = await readNoteSnapshot(
-        this.app,
-        this.staleCache,
-        noteFile,
-        this.statusManager.getSignal(),
-      );
-    } catch (error) {
-      if (isDeleted(this.app, noteFile)) return;
-      throw error;
-    }
-    if (!snapshot) return;
-
-    const { embedResults, embedsToMarkdown } = await this.extractTextFromEmbeds(
-      noteFile,
-      snapshot.content,
-      snapshot.embeds,
-    );
-
-    let insertResult: InsertResult;
-    try {
-      insertResult = await insertWhenSettled(
-        this.app,
-        noteFile,
-        embedsToMarkdown,
-        this.statusManager.getSignal(),
-      );
-    } catch (error) {
-      if (isDeleted(this.app, noteFile)) return;
-      throw error;
-    }
-
-    recordResults(this.store, noteFile.path, embedResults, insertResult);
-  }
-
-  private async extractTextFromEmbeds(
-    noteFile: TFile,
-    fileContent: string,
-    embeds: EmbedCache[],
-  ) {
-    const embedsToProcess = selectEmbedsToProcess(fileContent, embeds);
-
-    // Limit concurrency
-    const limit = pLimit(5);
-
-    const processed = await Promise.all(
-      embedsToProcess.map((embed) =>
-        limit(() => this.processEmbed(noteFile, embed)),
-      ),
-    );
-
-    // Embeds finish in arbitrary order, so get order from the note, not the
-    // results
-    const embedResults: EmbedResult[] = [];
-    processed.forEach((result, index) => {
-      if (result) {
-        embedResults.push({ ...result, order: index });
-      }
-    });
-
-    const embedsToMarkdown: EmbedsToMarkdown = new Map();
-    for (const { markup, engineResult } of embedResults) {
-      if (engineResult.status === "extracted") {
-        embedsToMarkdown.set(markup, engineResult.markdown);
-      }
-    }
-
-    return { embedResults, embedsToMarkdown };
-  }
-
-  private async processEmbed(
-    noteFile: TFile,
-    embed: EmbedCache,
-  ): Promise<Omit<EmbedResult, "order"> | null> {
-    const signal = this.statusManager.getSignal();
-    if (signal.aborted) return null;
-
-    let embedFile: TFile | null = null;
-
-    try {
-      embedFile = resolveEmbedFile(this.app, embed.link, noteFile.path);
-      if (!embedFile) {
-        return {
-          path: attachmentPath(null, embed.link),
-          markup: embed.original,
-          engineResult: { status: "failed", reason: "fileNotFound" },
-        };
-      }
-
-      if (isObsidianNative(embedFile)) {
-        return null;
-      }
-
-      const engineResult = await this.engineManager.extract(embedFile, signal);
-      if (engineResult.status === "canceled" || signal.aborted) {
-        return null;
-      }
-
-      return { path: embedFile.path, markup: embed.original, engineResult };
-    } catch (error) {
-      if (error instanceof FatalError || signal.aborted) {
-        throw error;
-      }
-
-      logError("Unexpected error extracting an attachment:", error);
-      return {
-        path: attachmentPath(embedFile, embed.link),
-        markup: embed.original,
-        engineResult: { status: "failed", reason: "unexpected" },
-      };
     }
   }
 }

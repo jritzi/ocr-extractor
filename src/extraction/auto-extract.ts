@@ -1,53 +1,78 @@
 import { TFile } from "obsidian";
 import OcrExtractorPlugin from "../../main";
 import { showNotice } from "../utils/notice";
-import {
-  getEmbeds,
-  isMarkdown,
-  isObsidianNative,
-  resolveEmbedFile,
-} from "../utils/file";
+import { isMarkdown, isObsidianNative, resolveLinkedFile } from "../utils/file";
+import { getNoteCache } from "../utils/metadata-cache";
+import { filterLinksByProperties } from "../utils/property";
 import { t } from "../i18n";
+
+interface TrackedNote {
+  count: number;
+
+  /** The setting's value when the references were counted */
+  propertiesToExtractFrom: readonly string[];
+}
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
   /**
-   * Map of note paths to number of valid embeds in that file. Set when note
-   * opened and updated on note change (if the count increases, auto-extract
-   * if configured).
+   * Map of note paths to the number of valid references in that file. Set when
+   * the note is opened and updated on note change (if the count increases,
+   * auto-extract if configured).
    */
-  const embedCounts = new Map<string, number>();
+  const trackedNotes = new Map<string, TrackedNote>();
 
   /**
-   * Gets the embed count for a file. Only counts valid (resolving to a real
-   * file) embeds to prevent triggering extraction on invalid embeds while the
-   * user is typing.
+   * Count the references in a note to extract text from. Only counts valid
+   * (resolving to a real file) ones, to prevent triggering extraction on an
+   * incomplete link while the user is typing.
    */
-  function getEmbedCount(file: TFile) {
-    return getEmbeds(plugin.app, file).filter((embed) => {
-      const embedFile = resolveEmbedFile(plugin.app, embed.link, file.path);
-      return embedFile && !isObsidianNative(embedFile);
+  function countReferencesToExtract(
+    file: TFile,
+    properties: readonly string[],
+  ) {
+    const cache = getNoteCache(plugin.app, file);
+    const propertyLinks = filterLinksByProperties(
+      cache.frontmatterLinks,
+      properties,
+    );
+
+    return [...cache.embeds, ...propertyLinks].filter((reference) => {
+      const referencedFile = resolveLinkedFile(
+        plugin.app,
+        reference.link,
+        file.path,
+      );
+      return referencedFile && !isObsidianNative(referencedFile);
     }).length;
+  }
+
+  function track(file: TFile) {
+    const { propertiesToExtractFrom } = plugin.settings;
+    return {
+      count: countReferencesToExtract(file, propertiesToExtractFrom),
+      propertiesToExtractFrom,
+    };
   }
 
   plugin.registerEvent(
     plugin.app.workspace.on("file-open", (file) => {
-      if (!file || !isMarkdown(file) || embedCounts.has(file.path)) return;
-      embedCounts.set(file.path, getEmbedCount(file));
+      if (!file || !isMarkdown(file) || trackedNotes.has(file.path)) return;
+      trackedNotes.set(file.path, track(file));
     }),
   );
 
   plugin.registerEvent(
     plugin.app.vault.on("rename", (file, oldPath) => {
-      const count = embedCounts.get(oldPath);
-      if (count === undefined) return;
-      embedCounts.set(file.path, count);
-      embedCounts.delete(oldPath);
+      const tracked = trackedNotes.get(oldPath);
+      if (tracked === undefined) return;
+      trackedNotes.set(file.path, tracked);
+      trackedNotes.delete(oldPath);
     }),
   );
 
   plugin.registerEvent(
     plugin.app.metadataCache.on("deleted", (file) => {
-      embedCounts.delete(file.path);
+      trackedNotes.delete(file.path);
     }),
   );
 
@@ -55,19 +80,24 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
     plugin.app.metadataCache.on("changed", (file) => {
       if (!isMarkdown(file)) return;
 
-      const prevCount = embedCounts.get(file.path);
+      const previous = trackedNotes.get(file.path);
 
       // Ignore if note has never been opened
-      if (prevCount === undefined) return;
+      if (previous === undefined) return;
 
-      const newCount = getEmbedCount(file);
-      embedCounts.set(file.path, newCount);
+      trackedNotes.set(file.path, track(file));
 
       // Check only at the last minute to ensure we keep tracking (but not
       // extracting) even if the setting is off
       if (!plugin.settings.autoExtractAttachments) return;
 
-      if (newCount > prevCount) {
+      // Count with the same properties as the previous count, so editing the
+      // list doesn't read as the user adding an attachment
+      const count = countReferencesToExtract(
+        file,
+        previous.propertiesToExtractFrom,
+      );
+      if (count > previous.count) {
         if (!plugin.extractor.canProcessSingleNote()) {
           showNotice(
             t("notices.autoExtractSkippedWhileBusy", {
