@@ -8,7 +8,7 @@ import {
 import type OcrExtractorPlugin from "../main";
 import { EngineResult, FatalError } from "./engines/ocr-engine";
 import { describeReason } from "./result-reason";
-import { assert } from "./utils/assert";
+import { assert } from "es-toolkit";
 import { t } from "./i18n";
 
 export function createApi(plugin: OcrExtractorPlugin): OcrExtractorApi {

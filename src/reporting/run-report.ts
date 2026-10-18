@@ -3,6 +3,7 @@
  * store can never mutate a report (breaking React's assumptions).
  */
 
+import { sum } from "es-toolkit";
 import { FailureReason, SkipReason } from "../result-reason";
 import type { ReferenceMarkup } from "../utils/metadata-cache";
 import type { AttachmentPath } from "../utils/path";
@@ -85,7 +86,7 @@ export function countResults(report: RunReport): ResultCounts {
 }
 
 export function totalResults(counts: ResultCounts) {
-  return Object.values(counts).reduce((total, count) => total + count, 0);
+  return sum(Object.values(counts));
 }
 
 export function firstFailure(report: RunReport) {

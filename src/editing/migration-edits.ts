@@ -1,6 +1,6 @@
 import type { LinkCache } from "obsidian";
 import { t } from "../i18n";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import {
   CALLOUT_HEADER_REGEX,
   CALLOUT_MARKER,

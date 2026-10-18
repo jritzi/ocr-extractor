@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildLink } from "./metadata-cache.test-utils";
 import {
   findCalloutHeaderLinks,
-  formatCalloutsToAppend,
-  formatCalloutToInsert,
+  formatEmbedCallout,
+  formatPropertyCallouts,
   formatTitleWithLink,
   hasManagedEmbedCalloutAfter,
   padWithBlankLines,
@@ -122,10 +122,10 @@ describe("callout.ts", () => {
     });
   });
 
-  describe("formatCalloutToInsert", () => {
+  describe("formatEmbedCallout", () => {
     it("formats a callout and trims trailing whitespace", () => {
       const content = "![[file.pdf]]";
-      const inserted = formatCalloutToInsert(
+      const inserted = formatEmbedCallout(
         "Line 1\n\nLine 2",
         content,
         0,
@@ -140,7 +140,7 @@ describe("callout.ts", () => {
     it("prefixes every line for a callout nested inside another callout", () => {
       const content = "> [!info]\n> Text\n> ![[file.pdf]]";
       const embedStart = content.indexOf("![[");
-      const inserted = formatCalloutToInsert(
+      const inserted = formatEmbedCallout(
         "Line 1\n\nLine 2",
         content,
         embedStart,
@@ -154,12 +154,7 @@ describe("callout.ts", () => {
 
     it("matches \\r\\n line endings in the note", () => {
       const content = "![[file.pdf]]\r\n";
-      const inserted = formatCalloutToInsert(
-        "Line 1\n\nLine 2",
-        content,
-        0,
-        13,
-      );
+      const inserted = formatEmbedCallout("Line 1\n\nLine 2", content, 0, 13);
 
       expect(inserted).toBe(
         "\r\n\r\n> [!ocr-extractor]- Extracted text\r\n> Line 1\r\n>\r\n> Line 2\r\n",
@@ -169,38 +164,38 @@ describe("callout.ts", () => {
     it("throws when the markdown is not normalized to \\n", () => {
       const content = "![[file.pdf]]";
       expect(() =>
-        formatCalloutToInsert("Line 1\r\nLine 2", content, 0, content.length),
+        formatEmbedCallout("Line 1\r\nLine 2", content, 0, content.length),
       ).toThrow();
     });
   });
 
-  describe("formatCalloutsToAppend", () => {
+  describe("formatPropertyCallouts", () => {
     const buildCallouts = () => [
       { markdown: "Line 1\n\nLine 2", title: "Title" },
     ];
     const callout = "> [!ocr-extractor]- Title\n> Line 1\n>\n> Line 2";
 
     it("adds a blank line before and after", () => {
-      expect(formatCalloutsToAppend(buildCallouts(), "text")).toBe(
+      expect(formatPropertyCallouts(buildCallouts(), "text")).toBe(
         `\n\n${callout}\n\n`,
       );
     });
 
     it("adds only one newline before when the content ends with a newline", () => {
-      expect(formatCalloutsToAppend(buildCallouts(), "text\n")).toBe(
+      expect(formatPropertyCallouts(buildCallouts(), "text\n")).toBe(
         `\n${callout}\n\n`,
       );
     });
 
     it("adds no blank line before when the content already ends with one", () => {
-      expect(formatCalloutsToAppend(buildCallouts(), "text\n\n")).toBe(
+      expect(formatPropertyCallouts(buildCallouts(), "text\n\n")).toBe(
         `${callout}\n\n`,
       );
     });
 
     it("adds a blank line below the frontmatter of a note with no body", () => {
       const frontmatter = "---\nimage: 1\n---\n";
-      expect(formatCalloutsToAppend(buildCallouts(), frontmatter)).toBe(
+      expect(formatPropertyCallouts(buildCallouts(), frontmatter)).toBe(
         `\n${callout}\n\n`,
       );
     });
@@ -208,12 +203,12 @@ describe("callout.ts", () => {
     it("separates callouts with a blank line", () => {
       const second = { markdown: "More", title: "Second" };
       expect(
-        formatCalloutsToAppend([...buildCallouts(), second], "text\n\n"),
+        formatPropertyCallouts([...buildCallouts(), second], "text\n\n"),
       ).toBe(`${callout}\n\n> [!ocr-extractor]- Second\n> More\n\n`);
     });
 
     it("matches \\r\\n line endings in the note", () => {
-      expect(formatCalloutsToAppend(buildCallouts(), "text\r\n")).toBe(
+      expect(formatPropertyCallouts(buildCallouts(), "text\r\n")).toBe(
         "\r\n> [!ocr-extractor]- Title\r\n> Line 1\r\n>\r\n> Line 2\r\n\r\n",
       );
     });

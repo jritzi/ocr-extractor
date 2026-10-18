@@ -1,5 +1,5 @@
 import { createWorker, Worker } from "tesseract.js";
-import pLimit from "p-limit";
+import { limitAsync } from "es-toolkit";
 import {
   AttachmentFailedError,
   type ExtractPagesOptions,
@@ -24,7 +24,7 @@ export class TesseractEngine extends OcrEngine {
 
   // Workers can't safely run multiple recognize calls in parallel, so
   // serialize them
-  private limit = pLimit(1);
+  private limit = limitAsync(<T>(task: () => Promise<T>) => task(), 1);
 
   static getLabel() {
     return t("engines.tesseract");

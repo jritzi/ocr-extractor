@@ -1,6 +1,6 @@
 import type { LinkCache } from "obsidian";
 import { resources, t } from "../i18n";
-import { assert } from "./assert";
+import { assert } from "es-toolkit";
 
 /** Stable marker used for callouts managed by this plugin */
 export const CALLOUT_MARKER = "[!ocr-extractor]-";
@@ -70,7 +70,7 @@ export function padWithBlankLines(
   return newlinesBefore + toInsert + newlinesAfter;
 }
 
-export function formatCalloutToInsert(
+export function formatEmbedCallout(
   markdown: string,
   content: string,
   embedStart: number,
@@ -93,7 +93,7 @@ export function formatCalloutToInsert(
   return padWithBlankLines(content, text, embedEnd, linePrefix, newline);
 }
 
-export function formatCalloutsToAppend(
+export function formatPropertyCallouts(
   callouts: readonly { markdown: string; title: string }[],
   content: string,
 ) {

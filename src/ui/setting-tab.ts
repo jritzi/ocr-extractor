@@ -1,3 +1,4 @@
+import { assert, mapValues } from "es-toolkit";
 import type { SettingDefinitionItem } from "obsidian";
 import { App, PluginSettingTab } from "obsidian";
 import OcrExtractorPlugin, { OCR_ENGINES } from "../../main";
@@ -9,7 +10,6 @@ import {
 import type { OcrEngineSettings } from "../engines/ocr-engine-settings";
 import { AddPropertyModal } from "./add-property-modal";
 import { showNotice } from "../utils/notice";
-import { assert } from "../utils/assert";
 import { t } from "../i18n";
 
 const RERENDER_ON_CHANGE = new Set<keyof PluginSettings>([
@@ -33,12 +33,7 @@ export class SettingTab extends PluginSettingTab {
 
   getSettingDefinitions() {
     const { ocrEngine, propertiesToExtractFrom } = this.plugin.settings;
-    const engineOptions = Object.fromEntries(
-      Object.entries(OCR_ENGINES).map(([name, Engine]) => [
-        name,
-        Engine.getLabel(),
-      ]),
-    );
+    const engineOptions = mapValues(OCR_ENGINES, (Engine) => Engine.getLabel());
 
     const description = createFragment();
     description.appendText(t("settings.ocrEngineDesc") + " ");

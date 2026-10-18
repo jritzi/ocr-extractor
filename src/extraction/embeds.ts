@@ -1,3 +1,4 @@
+import { uniqBy } from "es-toolkit";
 import type { EmbedCache, LinkCache } from "obsidian";
 import { hasManagedEmbedCalloutAfter } from "../utils/callout";
 
@@ -6,15 +7,11 @@ export function embedsToExtract(
   embeds: readonly EmbedCache[],
   links: readonly LinkCache[],
 ) {
-  const seen = new Set<string>();
-  return embeds.filter((embed) => {
-    if (
-      hasManagedEmbedCalloutAfter(content, embed.position.end.offset, links)
-    ) {
-      return false;
-    }
-    if (seen.has(embed.original)) return false;
-    seen.add(embed.original);
-    return true;
-  });
+  return uniqBy(
+    embeds.filter(
+      (embed) =>
+        !hasManagedEmbedCalloutAfter(content, embed.position.end.offset, links),
+    ),
+    (embed) => embed.original,
+  );
 }

@@ -11,7 +11,7 @@ import {
   RunScope,
   totalResults,
 } from "../reporting/run-report";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import {
   describeCompletion,
   describeCount,

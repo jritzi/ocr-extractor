@@ -1,5 +1,5 @@
 import { t } from "../i18n";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import { warnFailed, warnSkipped } from "../utils/logging";
 import { AttachmentEntry, NoteEntry, RunReport, RunScope } from "./run-report";
 

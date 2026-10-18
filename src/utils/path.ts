@@ -1,4 +1,4 @@
-import { assert } from "./assert";
+import { assert } from "es-toolkit";
 
 /**
  * The path that identifies an attachment (its vault path if the file exists,

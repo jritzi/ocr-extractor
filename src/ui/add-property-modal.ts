@@ -6,7 +6,7 @@ import {
   TextComponent,
 } from "obsidian";
 import { normalizePropertyName } from "../utils/property";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import { PropertySuggest } from "./property-suggest";
 import { t } from "../i18n";
 

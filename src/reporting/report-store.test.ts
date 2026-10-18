@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setLanguage } from "../i18n";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import { ReportStore } from "./report-store";
 
 function currentReport(store: ReportStore) {
