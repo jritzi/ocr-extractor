@@ -24,7 +24,7 @@ import {
   setupPlugin,
 } from "./setup/vault";
 import { expectNoUnexpectedRequests } from "./helpers/http";
-import { closeSettings } from "./helpers/plugin";
+import { closeSettings } from "./helpers/settings";
 import { LATEST_VERSION } from "./versions";
 
 export const MOCK_OCR_OUTPUT = "Mock extracted text";

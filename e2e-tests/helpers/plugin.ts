@@ -37,32 +37,6 @@ export function extractionStatusBar(page: Page) {
   return page.locator(".ocr-extractor-status-bar");
 }
 
-export async function openPluginSettings(page: Page) {
-  await page.locator(".clickable-icon:has(.lucide-settings)").click();
-  await page
-    .locator(".vertical-tab-nav-item")
-    .getByText("OCR Extractor")
-    .click();
-}
-
-export async function closeSettings(page: Page) {
-  const settings = page.locator(".modal.mod-settings");
-  await settings.locator(".modal-header-button").click();
-  await expect(settings).not.toBeVisible();
-}
-
-export function settingItem(page: Page, label: string) {
-  return page.locator(".setting-item").filter({ hasText: label });
-}
-
-export function settingDropdown(page: Page, label: string) {
-  return settingItem(page, label).getByRole("combobox");
-}
-
-export async function toggleSetting(page: Page, label: string) {
-  await settingItem(page, label).getByRole("checkbox").click();
-}
-
 export async function expectCallout(page: Page, expectedText: string | RegExp) {
   const pluginCallout = callout(page, "ocr-extractor");
   await pluginCallout.click();

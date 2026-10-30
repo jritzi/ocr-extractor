@@ -6,14 +6,16 @@ import {
   typeAtEndOfNote,
 } from "../helpers/obsidian";
 import {
-  closeSettings,
   expectCallout,
   expectNoCallout,
   extractAllNotes,
-  openPluginSettings,
-  toggleSetting,
   extractionStatusBar,
 } from "../helpers/plugin";
+import {
+  closeSettings,
+  openPluginSettings,
+  toggleSetting,
+} from "../helpers/settings";
 
 test("auto-extract setting", async ({ page }) => {
   await seedNote(page, "Note 1");

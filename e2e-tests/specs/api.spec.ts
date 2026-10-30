@@ -2,7 +2,7 @@ import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import type { Page } from "@playwright/test";
 import { mockHttp } from "../helpers/http";
 import { MISTRAL_URL, mistralSuccessResponse } from "../helpers/mistral";
-import { openPluginSettings, settingDropdown } from "../helpers/plugin";
+import { openPluginSettings, settingDropdown } from "../helpers/settings";
 import type {
   OcrError,
   OcrExtractionResult,

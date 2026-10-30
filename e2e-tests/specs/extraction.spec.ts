@@ -68,7 +68,7 @@ test("empty folder", async ({ page }) => {
   await expectNotice(page, "Nothing to extract");
 });
 
-test.describe(() => {
+test.describe("with 'Prefer embedded PDF text' enabled", () => {
   // Open PDF so password protection is detected
   test.use({ settings: { preferEmbeddedText: true } });
 
@@ -95,7 +95,7 @@ test.describe(() => {
   });
 });
 
-test.describe(() => {
+test.describe("with 'Prefer embedded PDF text' enabled", () => {
   // Open PDF so corrupt file is detected
   test.use({ settings: { preferEmbeddedText: true } });
 
