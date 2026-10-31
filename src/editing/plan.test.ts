@@ -20,7 +20,7 @@ function buildContext(overrides: Partial<PlanContext> = {}) {
     frontmatterLinks: [],
     propertiesToExtractFrom: [],
     linkPaths: new Map(),
-    frontmatterStrings: new Set<string>(),
+    frontmatterStrings: new Map<string, string>(),
     ...overrides,
   };
 }
@@ -29,7 +29,7 @@ function buildPropertyContext(overrides: Partial<PlanContext> = {}) {
   return buildContext({
     frontmatterLinks: [buildPropertyLink(LINK, "attachment")],
     propertiesToExtractFrom: ["attachment"],
-    frontmatterStrings: new Set([LINK]),
+    frontmatterStrings: new Map([["attachment", LINK]]),
     ...overrides,
   });
 }
@@ -344,7 +344,10 @@ describe("plan.ts", () => {
             buildPropertyLink(LINK, "attachment.0"),
             buildPropertyLink(other, "attachment.1"),
           ],
-          frontmatterStrings: new Set([LINK, other]),
+          frontmatterStrings: new Map([
+            ["attachment.0", LINK],
+            ["attachment.1", other],
+          ]),
         }),
         new Map([
           ...buildPropertyResults(),
@@ -467,7 +470,22 @@ describe("plan.ts", () => {
       const plan = buildEditPlan(
         content,
         buildPropertyContext({
-          frontmatterStrings: new Set(["[[renamed.pdf]]"]),
+          frontmatterStrings: new Map([["attachment", "[[renamed.pdf]]"]]),
+        }),
+        buildPropertyResults(),
+      );
+
+      expect(plan.edits).toEqual([]);
+      expect(plan.staleLinks).toEqual([buildPropertyLink(LINK, "attachment")]);
+      expect(plan.orphanedResults).toEqual([]);
+    });
+
+    it("reports a stale link when only another property contains it", () => {
+      const content = `---\ncover: "${LINK}"\n---\n`;
+      const plan = buildEditPlan(
+        content,
+        buildPropertyContext({
+          frontmatterStrings: new Map([["cover", LINK]]),
         }),
         buildPropertyResults(),
       );
@@ -514,7 +532,10 @@ describe("plan.ts", () => {
             buildPropertyLink(LINK, "attachment.0"),
             buildPropertyLink(other, "attachment.1"),
           ],
-          frontmatterStrings: new Set([LINK, "[[renamed.png]]"]),
+          frontmatterStrings: new Map([
+            ["attachment.0", LINK],
+            ["attachment.1", "[[renamed.png]]"],
+          ]),
         }),
         new Map([
           ...buildPropertyResults(),
@@ -597,7 +618,7 @@ describe("plan.ts", () => {
       const plan = buildEditPlan(
         content,
         buildPropertyContext({
-          frontmatterStrings: new Set(["[[renamed.pdf]]"]),
+          frontmatterStrings: new Map([["attachment", "[[renamed.pdf]]"]]),
         }),
         new Map([
           ...buildPropertyResults(),

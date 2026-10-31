@@ -263,4 +263,22 @@ test.describe("auto-extract", () => {
     await openNote(page, "Existing link note");
     await expectNoCallout(page);
   });
+
+  test("auto-extraction of a link added after its property is added to the list", async ({
+    page,
+  }) => {
+    await seedNote(page, "Existing link note", {
+      content: `---\ncover: "${LINK}"\n---\n`,
+    });
+    await seedNote(page, "Empty note");
+    await openNote(page, "Empty note");
+
+    await openPluginSettings(page);
+    await openPropertyList(page);
+    await addPropertyFromSuggestion(page, "cover");
+    await closeSettings(page);
+
+    await addFrontmatter(page, { cover: LINK });
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+  });
 });

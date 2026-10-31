@@ -201,7 +201,7 @@ function toEditorPos({ start, end }: Pos, editor: Editor) {
  */
 function readFrontmatterStrings(content: string) {
   const { exists, frontmatter } = getFrontMatterInfo(content);
-  if (!exists) return new Set<string>();
+  if (!exists) return new Map<string, string>();
 
   let parsed: unknown;
   try {
@@ -209,14 +209,22 @@ function readFrontmatterStrings(content: string) {
   } catch {
     return null;
   }
-  return new Set(collectStrings(parsed));
+  return new Map(collectStrings(parsed, ""));
 }
 
-function collectStrings(value: unknown): string[] {
-  if (typeof value === "string") return [value];
-  if (Array.isArray(value)) return value.flatMap(collectStrings);
-  if (isPlainObject(value)) return Object.values(value).flatMap(collectStrings);
-  return [];
+/** Strings paired with their key path (`attachments.0` for a list item) */
+function collectStrings(value: unknown, path: string): [string, string][] {
+  if (typeof value === "string") return [[path, value]];
+
+  let entries: [string, unknown][] = [];
+  if (Array.isArray(value)) {
+    entries = value.map((item, i) => [String(i), item]);
+  } else if (isPlainObject(value)) {
+    entries = Object.entries(value);
+  }
+  return entries.flatMap(([key, item]) =>
+    collectStrings(item, path ? `${path}.${key}` : key),
+  );
 }
 
 function resultFromPlan(plan: EditPlan): AttemptResult {

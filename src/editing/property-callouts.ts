@@ -45,7 +45,7 @@ export function buildPropertyCallouts(
 
   const [inFrontmatter, missing] = partition(
     pending,
-    ({ link }) => context.frontmatterStrings?.has(link.original) ?? false,
+    ({ link }) => context.frontmatterStrings?.get(link.key) === link.original,
   );
   staleLinks.push(...missing.map(({ link }) => link));
   const toInsert = inFrontmatter.filter(
