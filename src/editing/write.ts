@@ -1,4 +1,12 @@
-import { App, Editor, Pos, TFile } from "obsidian";
+import { isPlainObject } from "es-toolkit";
+import {
+  App,
+  Editor,
+  getFrontMatterInfo,
+  parseYaml,
+  Pos,
+  TFile,
+} from "obsidian";
 import { resolveLinkedFile } from "../utils/file";
 import {
   getNoteCache,
@@ -74,7 +82,7 @@ function applyViaEditor(
   const cache = withEditorOffsets(getNoteCache(app, file), editor);
   const plan = buildEditPlan(
     data,
-    planContext(app, file, cache, propertiesToExtractFrom),
+    planContext(app, file, data, cache, propertiesToExtractFrom),
     results,
   );
 
@@ -113,7 +121,13 @@ async function applyViaDisk(
 
     const plan = buildEditPlan(
       data,
-      planContext(app, file, getNoteCache(app, file), propertiesToExtractFrom),
+      planContext(
+        app,
+        file,
+        data,
+        getNoteCache(app, file),
+        propertiesToExtractFrom,
+      ),
       results,
     );
     attemptResult = resultFromPlan(plan);
@@ -131,6 +145,7 @@ async function applyViaDisk(
 function planContext(
   app: App,
   file: TFile,
+  content: string,
   cache: NoteCache,
   propertiesToExtractFrom: readonly string[],
 ) {
@@ -139,7 +154,12 @@ function planContext(
     const linkedFile = resolveLinkedFile(app, link, file.path);
     if (linkedFile) linkPaths.set(link, linkedFile.path);
   }
-  return { ...cache, propertiesToExtractFrom, linkPaths };
+  return {
+    ...cache,
+    propertiesToExtractFrom,
+    linkPaths,
+    frontmatterStrings: readFrontmatterStrings(content),
+  };
 }
 
 /**
@@ -159,9 +179,6 @@ function withEditorOffsets(cache: NoteCache, editor: Editor) {
       position: toEditorPos(link.position, editor),
     })),
     frontmatterLinks: cache.frontmatterLinks,
-    frontmatterPosition:
-      cache.frontmatterPosition &&
-      toEditorPos(cache.frontmatterPosition, editor),
   };
 }
 
@@ -176,6 +193,30 @@ function toEditorPos({ start, end }: Pos, editor: Editor) {
       offset: editor.posToOffset({ line: end.line, ch: end.col }),
     },
   };
+}
+
+/**
+ * Parse the current frontmatter rather than searching its raw text, since YAML
+ * quoting and escapes mean a cached link's `original` may not appear verbatim.
+ */
+function readFrontmatterStrings(content: string) {
+  const { exists, frontmatter } = getFrontMatterInfo(content);
+  if (!exists) return new Set<string>();
+
+  let parsed: unknown;
+  try {
+    parsed = parseYaml(frontmatter);
+  } catch {
+    return null;
+  }
+  return new Set(collectStrings(parsed));
+}
+
+function collectStrings(value: unknown): string[] {
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) return value.flatMap(collectStrings);
+  if (isPlainObject(value)) return Object.values(value).flatMap(collectStrings);
+  return [];
 }
 
 function resultFromPlan(plan: EditPlan): AttemptResult {

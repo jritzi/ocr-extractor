@@ -32,6 +32,8 @@ export interface PlanContext extends NoteCache {
   propertiesToExtractFrom: readonly string[];
   /** Path of the file each resolved body link points to, keyed by link text */
   linkPaths: ReadonlyMap<string, string>;
+  /** Every string inside the note's current property values (null if the frontmatter doesn't parse) */
+  frontmatterStrings: ReadonlySet<string> | null;
 }
 
 export interface EditPlan {

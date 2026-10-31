@@ -163,6 +163,39 @@ test.describe("editing during extraction", () => {
       },
     });
 
+    test("removing the property link", async ({ page, releaseGatedOcr }) => {
+      await seedNote(page, "Removed link test", {
+        content: '---\nattachments: "[[attachments/sample.pdf]]"\n---\n',
+      });
+      await openNote(page, "Removed link test");
+      await extractActiveNote(page);
+
+      await addFrontmatter(page, { attachments: null });
+      releaseGatedOcr();
+
+      await expectNotice(page, [
+        "Text extraction complete",
+        "Failed: sample.pdf (note changed during extraction)",
+      ]);
+      await expectNoCallout(page);
+    });
+
+    test("editing another property", async ({ page, releaseGatedOcr }) => {
+      await seedNote(page, "Other property test", {
+        content: '---\nattachments: "[[attachments/sample.pdf]]"\n---\n',
+      });
+      await openNote(page, "Other property test");
+      await extractActiveNote(page);
+
+      await addFrontmatter(page, { tags: ["scanned"] });
+      releaseGatedOcr();
+
+      await expectCallout(page, MOCK_OCR_OUTPUT);
+      const content = await getActiveNoteContent(page);
+      expect(content).toContain("scanned");
+      expect(content).toContain(CALLOUT_WITH_LINK);
+    });
+
     test("continuous typing at the end of a note with a property link", async ({
       page,
       releaseGatedOcr,

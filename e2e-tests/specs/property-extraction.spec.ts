@@ -114,6 +114,30 @@ test.describe("with configured properties to extract from", () => {
     );
   });
 
+  test("extraction from handwritten YAML with quoting and escapes", async ({
+    page,
+  }) => {
+    await copyFile(
+      page,
+      "attachments/sample.pdf",
+      "attachments/Bob's scan.pdf",
+    );
+    const frontmatter =
+      "---\nattachments:\n  - '[[attachments/Bob''s scan.pdf]]'\n  - \"[[attachments/sampl\\u0065.pdf]]\"\n---";
+    await seedNote(page, "Handwritten note", { content: `${frontmatter}\n` });
+    await openNote(page, "Handwritten note");
+    await extractActiveNote(page);
+
+    await expectNotice(page, [
+      "Text extraction complete",
+      "2 attachments extracted",
+    ]);
+    const content = await getActiveNoteContent(page);
+    expect(content).toBe(
+      `${frontmatter}\n\n${calloutWithLink("Bob's scan.pdf")}\n\n${calloutWithLink("sample.pdf")}\n\n`,
+    );
+  });
+
   test("no extraction from a bare path or a link to a note", async ({
     page,
   }) => {

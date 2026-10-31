@@ -3,7 +3,6 @@ import {
   buildEmbed,
   buildLink,
   buildPropertyLink,
-  positionOf,
 } from "../utils/metadata-cache.test-utils";
 import { applyEditPlanToString } from "./edit";
 import { buildEditPlan, PendingResult, PlanContext } from "./plan";
@@ -14,34 +13,23 @@ const LINK = "[[file.pdf]]";
 const FRONTMATTER = `---\nattachment: "${LINK}"\n---`;
 const CALLOUT_WITH_LINK = `> [!ocr-extractor]- Extracted text from ${LINK}\n> Extracted`;
 
-function frontmatterPosition(content: string) {
-  const end = content.indexOf("\n---", 3);
-  if (!content.startsWith("---\n") || end === -1) {
-    throw new Error("Content has no frontmatter");
-  }
-  return positionOf(content, content.slice(0, end + "\n---".length));
-}
-
 function buildContext(overrides: Partial<PlanContext> = {}) {
   return {
     embeds: [],
     links: [],
     frontmatterLinks: [],
-    frontmatterPosition: undefined,
     propertiesToExtractFrom: [],
     linkPaths: new Map(),
+    frontmatterStrings: new Set<string>(),
     ...overrides,
   };
 }
 
-function buildPropertyContext(
-  content: string,
-  overrides: Partial<PlanContext> = {},
-) {
+function buildPropertyContext(overrides: Partial<PlanContext> = {}) {
   return buildContext({
     frontmatterLinks: [buildPropertyLink(LINK, "attachment")],
-    frontmatterPosition: frontmatterPosition(content),
     propertiesToExtractFrom: ["attachment"],
+    frontmatterStrings: new Set([LINK]),
     ...overrides,
   });
 }
@@ -319,7 +307,7 @@ describe("plan.ts", () => {
       const content = `${FRONTMATTER}\n\nNotes\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content),
+        buildPropertyContext(),
         buildPropertyResults(),
       );
 
@@ -338,7 +326,7 @@ describe("plan.ts", () => {
       const content = `${FRONTMATTER}\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content),
+        buildPropertyContext(),
         buildPropertyResults(),
       );
 
@@ -351,11 +339,12 @@ describe("plan.ts", () => {
       const content = `---\nattachment:\n  - "${LINK}"\n  - "${other}"\n---\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           frontmatterLinks: [
             buildPropertyLink(LINK, "attachment.0"),
             buildPropertyLink(other, "attachment.1"),
           ],
+          frontmatterStrings: new Set([LINK, other]),
         }),
         new Map([
           ...buildPropertyResults(),
@@ -377,7 +366,7 @@ describe("plan.ts", () => {
       const content = `${FRONTMATTER}\n\n${other}\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           embeds: [buildEmbed(content, other)],
         }),
         new Map([
@@ -397,14 +386,7 @@ describe("plan.ts", () => {
       const content = `---\r\nattachment: "${LINK}"\r\n---\r\n`;
       const plan = buildEditPlan(
         content,
-        buildContext({
-          frontmatterLinks: [buildPropertyLink(LINK, "attachment")],
-          frontmatterPosition: positionOf(
-            content,
-            `---\r\nattachment: "${LINK}"\r\n---`,
-          ),
-          propertiesToExtractFrom: ["attachment"],
-        }),
+        buildPropertyContext(),
         buildPropertyResults(),
       );
 
@@ -419,7 +401,7 @@ describe("plan.ts", () => {
       const path = "attachments/file.pdf";
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           // The first occurrence is the property link
           links: [buildLink(content, LINK, 1)],
           linkPaths: new Map([["file.pdf", path]]),
@@ -438,7 +420,7 @@ describe("plan.ts", () => {
       const path = "attachments/file.pdf";
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           links: [buildLink(content, headerLink)],
           linkPaths: new Map([["docs/file.pdf", path]]),
         }),
@@ -454,7 +436,7 @@ describe("plan.ts", () => {
       const path = "attachments/file.pdf";
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           links: [buildLink(content, headerLink)],
           linkPaths: new Map([["file.pdf", path]]),
         }),
@@ -469,7 +451,7 @@ describe("plan.ts", () => {
       const path = "attachments/file.pdf";
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           links: [buildLink(content, LINK, 1)],
           linkPaths: new Map([["file.pdf", path]]),
         }),
@@ -481,11 +463,25 @@ describe("plan.ts", () => {
     });
 
     it("reports a stale link when the frontmatter no longer contains it", () => {
-      const cachedContent = `${FRONTMATTER}\n`;
       const content = `---\nattachment: "[[renamed.pdf]]"\n---\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(cachedContent),
+        buildPropertyContext({
+          frontmatterStrings: new Set(["[[renamed.pdf]]"]),
+        }),
+        buildPropertyResults(),
+      );
+
+      expect(plan.edits).toEqual([]);
+      expect(plan.staleLinks).toEqual([buildPropertyLink(LINK, "attachment")]);
+      expect(plan.orphanedResults).toEqual([]);
+    });
+
+    it("reports a stale link when the frontmatter doesn't parse", () => {
+      const content = `---\nattachment: "${LINK}\n---\n`;
+      const plan = buildEditPlan(
+        content,
+        buildPropertyContext({ frontmatterStrings: null }),
         buildPropertyResults(),
       );
 
@@ -500,7 +496,7 @@ describe("plan.ts", () => {
       const staleLink = buildLink(cachedContent, LINK, 1);
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, { links: [staleLink] }),
+        buildPropertyContext({ links: [staleLink] }),
         buildPropertyResults(),
       );
 
@@ -510,15 +506,15 @@ describe("plan.ts", () => {
 
     it("appends nothing while another property link is stale", () => {
       const other = "[[other.png]]";
-      const cachedContent = `---\nattachment:\n  - "${LINK}"\n  - "${other}"\n---\n`;
       const content = `---\nattachment:\n  - "${LINK}"\n  - "[[renamed.png]]"\n---\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(cachedContent, {
+        buildPropertyContext({
           frontmatterLinks: [
             buildPropertyLink(LINK, "attachment.0"),
             buildPropertyLink(other, "attachment.1"),
           ],
+          frontmatterStrings: new Set([LINK, "[[renamed.png]]"]),
         }),
         new Map([
           ...buildPropertyResults(),
@@ -540,7 +536,7 @@ describe("plan.ts", () => {
       const stale = buildEmbed(cachedContent, EMBED);
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           embeds: [buildEmbed(content, other), stale],
         }),
         new Map<string, PendingResult>([
@@ -575,7 +571,7 @@ describe("plan.ts", () => {
       const content = `---\ncover: "${LINK}"\n---\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(content, {
+        buildPropertyContext({
           frontmatterLinks: [buildPropertyLink(LINK, "cover")],
         }),
         buildPropertyResults(),
@@ -597,11 +593,12 @@ describe("plan.ts", () => {
     });
 
     it("does not report an orphaned result while a link is stale", () => {
-      const cachedContent = `${FRONTMATTER}\n`;
       const content = `---\nattachment: "[[renamed.pdf]]"\n---\n`;
       const plan = buildEditPlan(
         content,
-        buildPropertyContext(cachedContent),
+        buildPropertyContext({
+          frontmatterStrings: new Set(["[[renamed.pdf]]"]),
+        }),
         new Map([
           ...buildPropertyResults(),
           ...buildPropertyResults("[[missing.png]]", "missing.png"),

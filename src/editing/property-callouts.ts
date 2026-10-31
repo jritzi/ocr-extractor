@@ -43,16 +43,9 @@ export function buildPropertyCallouts(
     if (path !== undefined) extractedPaths.add(path);
   }
 
-  const { frontmatterPosition } = context;
-  const frontmatterText = frontmatterPosition
-    ? content.slice(
-        frontmatterPosition.start.offset,
-        frontmatterPosition.end.offset,
-      )
-    : "";
-
-  const [inFrontmatter, missing] = partition(pending, ({ link }) =>
-    frontmatterText.includes(link.original),
+  const [inFrontmatter, missing] = partition(
+    pending,
+    ({ link }) => context.frontmatterStrings?.has(link.original) ?? false,
   );
   staleLinks.push(...missing.map(({ link }) => link));
   const toInsert = inFrontmatter.filter(

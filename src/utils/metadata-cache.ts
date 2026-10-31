@@ -3,7 +3,6 @@ import type {
   EmbedCache,
   FrontmatterLinkCache,
   LinkCache,
-  Pos,
   ReferenceCache,
 } from "obsidian";
 
@@ -14,7 +13,6 @@ export interface NoteCache {
   embeds: EmbedCache[];
   links: LinkCache[];
   frontmatterLinks: FrontmatterLinkCache[];
-  frontmatterPosition: Pos | undefined;
 }
 
 export function getNoteCache(app: App, file: TFile): NoteCache {
@@ -23,7 +21,6 @@ export function getNoteCache(app: App, file: TFile): NoteCache {
     embeds: cache?.embeds ?? [],
     links: cache?.links ?? [],
     frontmatterLinks: cache?.frontmatterLinks ?? [],
-    frontmatterPosition: cache?.frontmatterPosition,
   };
 }
 
