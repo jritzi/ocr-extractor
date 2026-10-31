@@ -1,5 +1,6 @@
+import type { LinkCache } from "obsidian";
 import { resources, t } from "../i18n";
-import { assert } from "./assert";
+import { assert } from "es-toolkit";
 
 /** Stable marker used for callouts managed by this plugin */
 export const CALLOUT_MARKER = "[!ocr-extractor]-";
@@ -7,25 +8,17 @@ export const CALLOUT_MARKER = "[!ocr-extractor]-";
 /** Matches a full callout header line */
 export const CALLOUT_HEADER_REGEX = /^([ \t>]*\[!ocr-extractor]-) (.*)$/gm;
 
-/** Callout titles in all supported languages */
-export const CALLOUT_TITLES: ReadonlySet<string> = new Set(
-  Object.values(resources).map((locale) => locale.translation.callouts.title),
-);
-
-/** Header before the custom callout type was added */
-export const LEGACY_CALLOUT_HEADER = "[!summary]- Extracted text";
-
 /** Matches a full legacy callout header (used by old plugin versions) */
 export const LEGACY_CALLOUT_HEADER_REGEX =
   /^([ \t>]*)\[!summary]- Extracted text$/gm;
 
-export function hasManagedCalloutAfter(content: string, offset: number) {
-  const header = content.slice(offset).replace(/^[\s>]*/, "");
-  return (
-    header.startsWith(CALLOUT_MARKER) ||
-    header.startsWith(LEGACY_CALLOUT_HEADER)
-  );
-}
+/** Header before the custom callout type was added */
+const LEGACY_CALLOUT_HEADER = "[!summary]- Extracted text";
+
+/** Callout titles in all supported languages */
+export const CALLOUT_TITLES: ReadonlySet<string> = new Set(
+  Object.values(resources).map((locale) => locale.translation.callouts.title),
+);
 
 /**
  * Pad the text to insert before the given index, ensuring there are blank
@@ -45,6 +38,7 @@ export function padWithBlankLines(
   const beforePosition = original.slice(0, index);
   const afterPosition = original.slice(index);
   const prefix = blankLinePrefix.trimEnd();
+  const trailingWhitespace = /^[ \t]*/.exec(afterPosition)?.[0] ?? "";
 
   let newlinesBefore: string;
   if (beforePosition.endsWith(`${newline}${prefix}${newline}`)) {
@@ -58,7 +52,12 @@ export function padWithBlankLines(
   }
 
   let newlinesAfter: string;
-  if (afterPosition.startsWith(`${newline}${prefix}${newline}`)) {
+  if (
+    trailingWhitespace &&
+    afterPosition.startsWith(newline, trailingWhitespace.length)
+  ) {
+    newlinesAfter = `${newline}${prefix}`;
+  } else if (afterPosition.startsWith(`${newline}${prefix}${newline}`)) {
     newlinesAfter = "";
   } else if (afterPosition.startsWith(newline)) {
     newlinesAfter = `${newline}${prefix}`;
@@ -71,44 +70,110 @@ export function padWithBlankLines(
   return newlinesBefore + toInsert + newlinesAfter;
 }
 
-/**
- * Format extracted Markdown as a callout (with relevant prefix and padding).
- * `markdown` must use \n line endings (the formatted callout's line endings
- * will be normalized to match the line endings of `content`).
- */
-export function formatCalloutToInsert(
+export function formatEmbedCallout(
   markdown: string,
   content: string,
   embedStart: number,
   embedEnd: number,
 ) {
-  assert(!markdown.includes("\r"), "Markdown must use \\n line endings");
-
   // Get contents of line before embed
-  const lastNewline = content.lastIndexOf("\n", embedStart);
-  const startOfLine = lastNewline === -1 ? 0 : lastNewline + 1;
+  const startOfLine = content.lastIndexOf("\n", embedStart - 1) + 1;
   const lineBeforeEmbed = content.slice(startOfLine, embedStart);
 
   // Find initial whitespace and `>` characters
   const linePrefix = lineBeforeEmbed.match(/^[\s>]*/)?.[0] ?? "";
 
-  let text = [
-    `> ${CALLOUT_MARKER} ${t("callouts.title")}`,
+  const newline = detectNewline(content);
+  const text = formatCallout(
+    markdown,
+    t("callouts.title"),
+    linePrefix,
+  ).replaceAll("\n", newline);
+
+  return padWithBlankLines(content, text, embedEnd, linePrefix, newline);
+}
+
+export function formatPropertyCallouts(
+  callouts: readonly { markdown: string; title: string }[],
+  content: string,
+) {
+  const newline = detectNewline(content);
+  const text = callouts
+    .map(({ markdown, title }) => formatCallout(markdown, title))
+    .join("\n\n")
+    .replaceAll("\n", newline);
+
+  return padWithBlankLines(content, text, content.length, "", newline);
+}
+
+export function formatTitleWithLink(link: string) {
+  return t("callouts.titleWithLink", { link });
+}
+
+export function titlesWithLinkInAllLanguages(link: string) {
+  return new Set(
+    Object.keys(resources).map((lng) =>
+      t("callouts.titleWithLink", { link, lng }),
+    ),
+  );
+}
+
+export function findCalloutHeaderLinks(
+  content: string,
+  links: readonly LinkCache[],
+) {
+  return links.filter((link) => {
+    const { start } = link.position;
+    const lineStart = content.lastIndexOf("\n", start.offset - 1) + 1;
+    const lineBeforeLink = content.slice(lineStart, start.offset);
+    return lineBeforeLink
+      .replace(/^[ \t>]*/, "")
+      .startsWith(`${CALLOUT_MARKER} `);
+  });
+}
+
+export function hasManagedEmbedCalloutAfter(
+  content: string,
+  offset: number,
+  links: readonly LinkCache[],
+) {
+  const headerOffset = content.slice(offset).search(/[^\s>]/);
+  if (headerOffset === -1) return false;
+
+  const headerStart = offset + headerOffset;
+  const header = content.slice(headerStart);
+  if (
+    !header.startsWith(CALLOUT_MARKER) &&
+    !header.startsWith(LEGACY_CALLOUT_HEADER)
+  ) {
+    return false;
+  }
+
+  // A callout with a header link belongs to the link, not an embed above it
+  const lineEnd = content.indexOf("\n", headerStart);
+  const headerEnd = lineEnd === -1 ? content.length : lineEnd;
+  return !links.some(({ position }) => {
+    const { offset: linkStart } = position.start;
+    return linkStart > headerStart && linkStart < headerEnd;
+  });
+}
+
+function formatCallout(markdown: string, title: string, linePrefix = "") {
+  assert(!markdown.includes("\r"), "Markdown must use \\n line endings");
+
+  const text = [
+    `> ${CALLOUT_MARKER} ${title}`,
     markdown.replace(/^/gm, `> `),
   ].join("\n");
 
   // Add existing prefix to all lines. This will properly format the new
   // Markdown, even when used within nested callouts.
-  text = text.replace(/^/gm, linePrefix);
+  const prefixed = text.replace(/^/gm, linePrefix);
 
   // Remove trailing spaces and tabs from each line
-  text = text.replace(/[ \t]+$/gm, "");
+  return prefixed.replace(/[ \t]+$/gm, "");
+}
 
-  // Match the note's existing line endings
-  const newline = content.includes("\r\n") ? "\r\n" : "\n";
-  if (newline !== "\n") {
-    text = text.replaceAll("\n", newline);
-  }
-
-  return padWithBlankLines(content, text, embedEnd, linePrefix, newline);
+function detectNewline(content: string) {
+  return content.includes("\r\n") ? "\r\n" : "\n";
 }

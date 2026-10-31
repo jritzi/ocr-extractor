@@ -21,7 +21,7 @@ export function isPdf(mimeType: string) {
 }
 
 /**
- * Returns text from a PDF's text layer as an array of one string per page.
+ * Return text from a PDF's text layer as an array of one string per page.
  */
 export async function getPdfTextContent(data: Uint8Array, signal: AbortSignal) {
   return mapPdfPages(data, signal, async (page) => {
@@ -34,7 +34,7 @@ export async function getPdfTextContent(data: Uint8Array, signal: AbortSignal) {
 }
 
 /**
- * Renders each PDF page to a PNG, scaling so the longest side fits within
+ * Render each PDF page to a PNG, scaling so the longest side fits within
  * `maxDimension`.
  */
 export async function convertPdfToImages(
@@ -62,7 +62,7 @@ export async function convertPdfToImages(
 }
 
 /**
- * Runs `callback` on each page and returns the collected results (stopping
+ * Run `callback` on each page and return the collected results (stopping
  * early if `signal` is aborted). Any failure is wrapped in a `PdfReadError`.
  */
 async function mapPdfPages<T>(

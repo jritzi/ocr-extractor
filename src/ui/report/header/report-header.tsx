@@ -11,7 +11,7 @@ import {
   describeResultStatus,
 } from "../../../reporting/report-text";
 import { isFiltering, StatusFilter } from "../../../reporting/status-filter";
-import { assert } from "../../../utils/assert";
+import { assert } from "es-toolkit";
 import { logWarning } from "../../../utils/logging";
 import { showNotice } from "../../../utils/notice";
 import { t } from "../../../i18n";

@@ -8,7 +8,7 @@ import {
 import { createTestImage, TEST_IMAGE_TEXT } from "../../utils/image";
 import { toDataUrl } from "../../utils/encoding";
 import { showLoadingNotice, showNotice } from "../../utils/notice";
-import { assert } from "../../utils/assert";
+import { assert } from "es-toolkit";
 import { t } from "../../i18n";
 
 export class OpenAiCompatibleSettings extends OcrEngineSettings {

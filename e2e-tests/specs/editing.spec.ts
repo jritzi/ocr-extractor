@@ -25,6 +25,7 @@ import {
 
 const EMBED = "![[attachments/sample.pdf]]";
 const CALLOUT = `> [!ocr-extractor]- Extracted text\n> ${MOCK_OCR_OUTPUT}`;
+const CALLOUT_WITH_LINK = `> [!ocr-extractor]- Extracted text from [[sample.pdf]]\n> ${MOCK_OCR_OUTPUT}`;
 
 test.use({ settings: { customCommand: MOCK_OCR_COMMANDS.gated } });
 
@@ -152,6 +153,71 @@ test.describe("editing during extraction", () => {
     expect(content).toBe(
       `${EMBED}\n\n${CALLOUT}\n\n${EMBED}\n\n${CALLOUT}\n\n`,
     );
+  });
+
+  test.describe("with a configured property to extract from", () => {
+    test.use({
+      settings: {
+        customCommand: MOCK_OCR_COMMANDS.gated,
+        propertiesToExtractFrom: ["attachments"],
+      },
+    });
+
+    test("removing the property link", async ({ page, releaseGatedOcr }) => {
+      await seedNote(page, "Removed link test", {
+        content: '---\nattachments: "[[attachments/sample.pdf]]"\n---\n',
+      });
+      await openNote(page, "Removed link test");
+      await extractActiveNote(page);
+
+      await addFrontmatter(page, { attachments: null });
+      releaseGatedOcr();
+
+      await expectNotice(page, [
+        "Text extraction complete",
+        "Failed: sample.pdf (note changed during extraction)",
+      ]);
+      await expectNoCallout(page);
+    });
+
+    test("editing another property", async ({ page, releaseGatedOcr }) => {
+      await seedNote(page, "Other property test", {
+        content: '---\nattachments: "[[attachments/sample.pdf]]"\n---\n',
+      });
+      await openNote(page, "Other property test");
+      await extractActiveNote(page);
+
+      await addFrontmatter(page, { tags: ["scanned"] });
+      releaseGatedOcr();
+
+      await expectCallout(page, MOCK_OCR_OUTPUT);
+      const content = await getActiveNoteContent(page);
+      expect(content).toContain("scanned");
+      expect(content).toContain(CALLOUT_WITH_LINK);
+    });
+
+    test("continuous typing at the end of a note with a property link", async ({
+      page,
+      releaseGatedOcr,
+    }) => {
+      const frontmatter = '---\nattachments: "[[attachments/sample.pdf]]"\n---';
+      const typed = "The quick brown fox jumps";
+      await seedNote(page, "Property typing test", {
+        content: `${frontmatter}\n`,
+      });
+      await openNote(page, "Property typing test");
+      await extractActiveNote(page);
+
+      releaseGatedOcr();
+      // Type slowly to overlap the insert
+      await typeAtEndOfNote(page, typed, 120);
+
+      await expectCallout(page, MOCK_OCR_OUTPUT);
+      const content = await getActiveNoteContent(page);
+      expect(content).toBe(
+        `${frontmatter}\n${typed}\n\n${CALLOUT_WITH_LINK}\n\n`,
+      );
+    });
   });
 });
 

@@ -11,7 +11,7 @@ import {
   RunScope,
   totalResults,
 } from "../reporting/run-report";
-import { assert } from "../utils/assert";
+import { assert } from "es-toolkit";
 import {
   describeCompletion,
   describeCount,
@@ -30,7 +30,7 @@ export class StatusManager {
   private loadingNotice: Notice | null = null;
   private unloading = false;
 
-  constructor(private plugin: OcrExtractorPlugin) {
+  constructor(private readonly plugin: OcrExtractorPlugin) {
     this.store = plugin.reportStore;
     this.statusBarItem = new StatusBarItem(plugin, {
       onCancel: () => this.setCanceling(),

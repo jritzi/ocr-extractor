@@ -1,8 +1,8 @@
-import { assert } from "./assert";
+import { assert } from "es-toolkit";
 
 /**
  * The path that identifies an attachment (its vault path if the file exists,
- * or the embed's link text for a broken embed)
+ * or the reference's link text when it doesn't resolve)
  */
 export type AttachmentPath = string;
 

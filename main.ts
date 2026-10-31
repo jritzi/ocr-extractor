@@ -23,7 +23,7 @@ import { OcrEngineManager } from "./src/engines/ocr-engine-manager";
 import { ReportStore } from "./src/reporting/report-store";
 import { StaleCache } from "./src/reading/stale-cache";
 import { registerReportView } from "./src/ui/report/report-view";
-import { assert } from "./src/utils/assert";
+import { assert } from "es-toolkit";
 import type { OcrExtractorApi } from "ocr-extractor-api";
 
 import "./src/styles/index.css";

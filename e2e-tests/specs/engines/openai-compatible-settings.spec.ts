@@ -4,12 +4,12 @@ import {
   OPENAI_COMPATIBLE_URL,
   openAiCompatibleSuccessResponse,
 } from "../../helpers/openai-compatible";
+import { expectNotice } from "../../helpers/plugin";
 import {
-  expectNotice,
   openPluginSettings,
   settingDropdown,
   settingItem,
-} from "../../helpers/plugin";
+} from "../../helpers/settings";
 
 const MODELS_URL = "http://localhost:11434/v1/models";
 

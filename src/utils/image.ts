@@ -7,8 +7,8 @@ export const TEST_IMAGE_TEXT = "OCR test";
 const PASSTHROUGH_MIME_TYPES = new Set(["image/png", "image/jpeg"]);
 
 /**
- * Resizes an image so its longest side falls within the given dimensions,
- * preserving aspect ratio, and returns it as a PNG data URL. Images with an
+ * Resize an image so its longest side falls within the given dimensions,
+ * preserving aspect ratio, and return it as a PNG data URL. Images with an
  * acceptable size and file type are returned as-is.
  */
 export async function resizeImage(

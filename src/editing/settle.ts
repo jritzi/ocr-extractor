@@ -1,8 +1,8 @@
 import { App, debounce, EventRef, TFile } from "obsidian";
 import { attemptInsert } from "./write";
 import type { InsertResult } from "./insert-result";
-import { EmbedsToMarkdown } from "./plan";
-import type { EmbedMarkup } from "../utils/file";
+import { PendingResults } from "./plan";
+import type { ReferenceMarkup } from "../utils/metadata-cache";
 import { debugLog } from "../utils/logging";
 
 const SETTLE_TIMEOUT_MS = 60_000;
@@ -15,10 +15,17 @@ const EDITOR_CHANGE_DEBOUNCE_MS = 2_000;
 export function insertWhenSettled(
   app: App,
   file: TFile,
-  embedsToMarkdown: EmbedsToMarkdown,
+  propertiesToExtractFrom: readonly string[],
+  results: PendingResults,
   signal: AbortSignal,
 ): Promise<InsertResult> {
-  return new SettleController(app, file, embedsToMarkdown, signal).run();
+  return new SettleController(
+    app,
+    file,
+    propertiesToExtractFrom,
+    results,
+    signal,
+  ).run();
 }
 
 class SettleController {
@@ -28,7 +35,7 @@ class SettleController {
   private timedOut = false;
 
   /** Markup (`original`) of results inserted by the attempts so far */
-  private readonly inserted = new Set<EmbedMarkup>();
+  private readonly inserted = new Set<ReferenceMarkup>();
 
   // Initialized in run()
   private resolve!: (result: InsertResult) => void;
@@ -47,10 +54,11 @@ class SettleController {
   );
 
   constructor(
-    private app: App,
-    private file: TFile,
-    private embedsToMarkdown: EmbedsToMarkdown,
-    private signal: AbortSignal,
+    private readonly app: App,
+    private readonly file: TFile,
+    private readonly propertiesToExtractFrom: readonly string[],
+    private readonly results: PendingResults,
+    private readonly signal: AbortSignal,
   ) {}
 
   run() {
@@ -147,7 +155,8 @@ class SettleController {
       const attemptResult = await attemptInsert(
         this.app,
         this.file,
-        this.embedsToMarkdown,
+        this.propertiesToExtractFrom,
+        this.results,
         this.signal,
       );
       for (const markup of attemptResult.insertedResults) {

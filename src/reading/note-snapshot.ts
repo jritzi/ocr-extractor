@@ -1,17 +1,18 @@
-import { App, EmbedCache, TFile } from "obsidian";
-import { getEmbeds, isDeleted } from "../utils/file";
+import { App, TFile } from "obsidian";
+import { isDeleted } from "../utils/file";
+import { getNoteCache, NoteCache } from "../utils/metadata-cache";
 import { getMarkdownViews } from "../utils/workspace";
 import { StaleCache } from "./stale-cache";
 
 export interface NoteSnapshot {
   content: string;
-  embeds: EmbedCache[];
+  cache: NoteCache;
 }
 
 /**
- * Returns a note's content paired with its embeds (first saving unsaved edits
- * and letting the metadata cache catch up), or null if the note was deleted
- * or the run was canceled.
+ * Return a note's content paired with its cached metadata (first saving
+ * unsaved edits and letting the metadata cache catch up), or null if the note
+ * was deleted or the run was canceled.
  */
 export async function readNoteSnapshot(
   app: App,
@@ -40,7 +41,7 @@ export async function readNoteSnapshot(
 
   return {
     content: await app.vault.cachedRead(file),
-    embeds: getEmbeds(app, file),
+    cache: getNoteCache(app, file),
   };
 }
 

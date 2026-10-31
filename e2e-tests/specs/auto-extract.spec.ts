@@ -1,19 +1,24 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
+  copyFile,
   createNote,
+  getActiveNoteContent,
   openNote,
+  renameLinkedFile,
   seedNote,
   typeAtEndOfNote,
 } from "../helpers/obsidian";
 import {
-  closeSettings,
   expectCallout,
   expectNoCallout,
   extractAllNotes,
-  openPluginSettings,
-  toggleSetting,
   extractionStatusBar,
 } from "../helpers/plugin";
+import {
+  closeSettings,
+  openPluginSettings,
+  toggleSetting,
+} from "../helpers/settings";
 
 test("auto-extract setting", async ({ page }) => {
   await seedNote(page, "Note 1");
@@ -34,6 +39,29 @@ test("auto-extract setting", async ({ page }) => {
   // Note 1 would have extracted by now
   await openNote(page, "Note 1");
   await expectNoCallout(page);
+});
+
+test.describe("attachment renames", () => {
+  test.use({ settings: { autoExtractAttachments: true } });
+
+  test("no auto-extraction after renaming an attachment", async ({ page }) => {
+    await copyFile(page, "attachments/sample.pdf", "attachments/old.pdf");
+    await seedNote(page, "Renamed attachment note", {
+      content: "![[attachments/old.pdf]]",
+    });
+    await seedNote(page, "New embed note");
+    await openNote(page, "Renamed attachment note");
+
+    await renameLinkedFile(page, "attachments/old.pdf", "attachments/new.pdf");
+
+    await openNote(page, "New embed note");
+    await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
+    await expectCallout(page, MOCK_OCR_OUTPUT);
+
+    // The renamed attachment note would have extracted by now
+    await openNote(page, "Renamed attachment note");
+    expect(await getActiveNoteContent(page)).toBe("![[new.pdf]]");
+  });
 });
 
 test.describe("busy notice", () => {

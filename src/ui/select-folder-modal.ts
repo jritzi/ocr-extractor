@@ -4,7 +4,7 @@ import { t } from "../i18n";
 export class SelectFolderModal extends FuzzySuggestModal<TFolder> {
   constructor(
     app: App,
-    private onSubmit: (folder: TFolder) => void,
+    private readonly onSubmit: (folder: TFolder) => void,
   ) {
     super(app);
     this.setPlaceholder(t("modals.selectFolder.placeholder"));

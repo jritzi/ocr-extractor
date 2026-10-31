@@ -5,8 +5,7 @@ import { AttachmentEntry } from "../../../reporting/run-report";
 import { describeResult } from "../../../reporting/report-text";
 import { basename } from "../../../utils/path";
 import { useTruncationTooltip } from "../../hooks/use-truncation-tooltip";
-import { openNoteFromClick } from "../../../utils/workspace";
-import { findEmbedLine } from "../../../utils/file";
+import { findAttachmentLine, openNoteFromClick } from "./navigation";
 import "./attachment-row.css";
 
 interface AttachmentRowProps {
@@ -30,13 +29,9 @@ export function AttachmentRow({
       : describeResult(result, { style: "compact" });
   const resultRef = useTruncationTooltip<HTMLDivElement>(resultText);
 
-  function open(event: MouseEvent) {
-    void openNoteFromClick(
-      app,
-      notePath,
-      event.nativeEvent,
-      findEmbedLine(app, notePath, attachment),
-    );
+  async function open(event: MouseEvent) {
+    const line = await findAttachmentLine(app, notePath, attachment);
+    await openNoteFromClick(app, notePath, event.nativeEvent, line);
   }
 
   return (
@@ -46,8 +41,8 @@ export function AttachmentRow({
           "tree-item-self is-clickable",
           result.status === "failed" && "ocr-extractor-report-result-failed",
         )}
-        onClick={open}
-        onAuxClick={open}
+        onClick={(event) => void open(event)}
+        onAuxClick={(event) => void open(event)}
       >
         <div className="tree-item-inner">
           <div ref={nameRef} className="ocr-extractor-report-attachment-name">

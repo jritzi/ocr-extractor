@@ -31,6 +31,34 @@ export async function deleteNote(page: Page, path: string) {
   }, path);
 }
 
+export async function copyFile(page: Page, path: string, newPath: string) {
+  await page.evaluate(
+    async ({ path, newPath }) => {
+      const file = app.vault.getFileByPath(path);
+      if (!file) throw new Error(`File not found: ${path}`);
+      await app.vault.copy(file, newPath);
+    },
+    { path, newPath },
+  );
+}
+
+export async function renameLinkedFile(
+  page: Page,
+  path: string,
+  newPath: string,
+) {
+  const rename = page.evaluate(
+    async ({ path, newPath }) => {
+      const file = app.vault.getFileByPath(path);
+      if (!file) throw new Error(`File not found: ${path}`);
+      await app.fileManager.renameFile(file, newPath);
+    },
+    { path, newPath },
+  );
+  await clickModalButton(page, "Just once");
+  await rename;
+}
+
 export async function renameActiveNote(page: Page, newTitle: string) {
   await activeNoteTitle(page).click();
   await page.keyboard.press("ControlOrMeta+a");
@@ -63,9 +91,13 @@ export async function typeAtStartOfNote(
   await page.keyboard.type(text, { delay });
 }
 
-export async function typeAtEndOfNote(page: Page, text: string) {
+export async function typeAtEndOfNote(
+  page: Page,
+  text: string,
+  delay?: number,
+) {
   await editorTextbox(page).press("ControlOrMeta+End");
-  await page.keyboard.type(text);
+  await page.keyboard.type(text, { delay });
 }
 
 export async function clearNoteText(page: Page) {
@@ -156,5 +188,5 @@ export function calloutIcon(page: Page, type: string) {
 }
 
 function editorTextbox(page: Page) {
-  return page.locator(".cm-editor").getByRole("textbox");
+  return page.locator(".cm-content");
 }

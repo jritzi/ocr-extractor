@@ -16,7 +16,7 @@ import {
 const EMBED = "![[attachments/sample.pdf]]";
 const CALLOUT = `> [!ocr-extractor]- Extracted text\n> ${MOCK_OCR_OUTPUT}`;
 
-test.describe("unsaved edits", () => {
+test.describe("with unsaved edits", () => {
   test("an embed added right before extraction", async ({ page }) => {
     await seedNote(page, "Added embed test");
     await openNote(page, "Added embed test");
@@ -45,7 +45,7 @@ test.describe("unsaved edits", () => {
   });
 });
 
-test.describe("no unsaved edits", () => {
+test.describe("without unsaved edits", () => {
   test("a note with \\r\\n line endings", async ({ page }) => {
     const original = "first line\r\nsecond line\r\n";
     await seedNote(page, "Line ending test", { content: original });

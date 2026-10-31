@@ -35,6 +35,7 @@ export default defineConfig([
     },
     rules: {
       "@typescript-eslint/member-ordering": "error",
+      "@typescript-eslint/prefer-readonly": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", ignoreRestSiblings: true },

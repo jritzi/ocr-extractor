@@ -1,3 +1,4 @@
+import { assert, mapValues } from "es-toolkit";
 import type { SettingDefinitionItem } from "obsidian";
 import { App, PluginSettingTab } from "obsidian";
 import OcrExtractorPlugin, { OCR_ENGINES } from "../../main";
@@ -7,9 +8,14 @@ import {
   shouldUseMobileEngineFallback,
 } from "../settings";
 import type { OcrEngineSettings } from "../engines/ocr-engine-settings";
+import { AddPropertyModal } from "./add-property-modal";
 import { showNotice } from "../utils/notice";
-import { assert } from "../utils/assert";
 import { t } from "../i18n";
+
+const RERENDER_ON_CHANGE = new Set<keyof PluginSettings>([
+  "ocrEngine",
+  "propertiesToExtractFrom",
+]);
 
 export class SettingTab extends PluginSettingTab {
   plugin: OcrExtractorPlugin;
@@ -26,13 +32,8 @@ export class SettingTab extends PluginSettingTab {
   }
 
   getSettingDefinitions() {
-    const { ocrEngine } = this.plugin.settings;
-    const engineOptions = Object.fromEntries(
-      Object.entries(OCR_ENGINES).map(([name, Engine]) => [
-        name,
-        Engine.getLabel(),
-      ]),
-    );
+    const { ocrEngine, propertiesToExtractFrom } = this.plugin.settings;
+    const engineOptions = mapValues(OCR_ENGINES, (Engine) => Engine.getLabel());
 
     const description = createFragment();
     description.appendText(t("settings.ocrEngineDesc") + " ");
@@ -72,6 +73,50 @@ export class SettingTab extends PluginSettingTab {
           desc: t("settings.autoExtractAttachmentsDesc"),
           control: { type: "toggle", key: "autoExtractAttachments" },
         },
+        {
+          type: "page",
+          name: t("settings.propertiesToExtractFrom"),
+          desc: t("settings.propertiesToExtractFromDesc"),
+          displayValue: () => {
+            const { propertiesToExtractFrom } = this.plugin.settings;
+            return propertiesToExtractFrom.length > 0
+              ? t("settings.propertiesToExtractFromCount", {
+                  count: propertiesToExtractFrom.length,
+                })
+              : "";
+          },
+          items: [
+            {
+              type: "list",
+              emptyState: t("settings.propertiesToExtractFromEmpty"),
+              addItem: {
+                name: t("settings.addProperty"),
+                action: () => {
+                  new AddPropertyModal(
+                    this.app,
+                    propertiesToExtractFrom,
+                    (name) =>
+                      void this.setControlValue("propertiesToExtractFrom", [
+                        ...this.plugin.settings.propertiesToExtractFrom,
+                        name,
+                      ]),
+                  ).open();
+                },
+              },
+              onDelete: (index) =>
+                void this.setControlValue(
+                  "propertiesToExtractFrom",
+                  this.plugin.settings.propertiesToExtractFrom.filter(
+                    (_, other) => other !== index,
+                  ),
+                ),
+              items: propertiesToExtractFrom.map((name) => ({
+                name: formatPropertyName(name),
+                searchable: false,
+              })),
+            },
+          ],
+        },
       ],
     });
 
@@ -83,19 +128,28 @@ export class SettingTab extends PluginSettingTab {
     assertSettingKey(key);
     await this.plugin.saveSetting(key, value as PluginSettings[typeof key]);
 
-    if (key === "ocrEngine") {
-      if (shouldUseMobileEngineFallback(this.plugin.settings)) {
-        showNotice(
-          t("notices.mobileEngineFallbackSetting", {
-            pluginName: t("pluginName"),
-          }),
-        );
-      }
-
-      // Update to show only the selected engine's settings
-      this.update();
+    if (
+      key === "ocrEngine" &&
+      shouldUseMobileEngineFallback(this.plugin.settings)
+    ) {
+      showNotice(
+        t("notices.mobileEngineFallbackSetting", {
+          pluginName: t("pluginName"),
+        }),
+      );
     }
+
+    if (RERENDER_ON_CHANGE.has(key)) this.update();
   }
+}
+
+/**
+ * Show a name with leading and/or trailing spaces in quotes with non-breaking
+ * spaces, to clearly distinguish it from the version without spaces.
+ */
+function formatPropertyName(name: string) {
+  if (name === name.trim()) return name;
+  return `"${name.replaceAll(" ", "\u00a0")}"`;
 }
 
 function assertSettingKey(key: string): asserts key is keyof PluginSettings {

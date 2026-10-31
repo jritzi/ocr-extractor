@@ -12,7 +12,7 @@ test("setting off by default (OCR used even when PDF has embedded text)", async 
   await expectCallout(page, MOCK_OCR_OUTPUT);
 });
 
-test.describe("setting on", () => {
+test.describe("with the setting enabled", () => {
   test.use({ settings: { preferEmbeddedText: true } });
 
   test("using embedded text from PDF when available", async ({ page }) => {

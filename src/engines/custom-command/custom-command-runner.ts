@@ -1,6 +1,5 @@
 import { Platform } from "obsidian";
 import { AttachmentFailedError } from "../ocr-engine";
-import { assert } from "../../utils/assert";
 import { debugLog } from "../../utils/logging";
 
 const COMMAND_TIMEOUT = 120_000; // 2 minutes
@@ -25,7 +24,10 @@ export class CustomCommandRunner {
   ) => Promise<{ stdout: string; stderr: string }>;
 
   constructor() {
-    assert(Platform.isDesktop, "The engine falls back to Tesseract on mobile");
+    if (!Platform.isDesktop) {
+      // Not assert() (which isn't recognized by obsidianmd/no-nodejs-modules)
+      throw new Error("The engine falls back to Tesseract on mobile");
+    }
 
     this.fs = require("fs/promises") as typeof this.fs;
     this.os = require("os") as typeof this.os;

@@ -16,7 +16,7 @@ export class ReportView extends ItemView {
 
   constructor(
     leaf: WorkspaceLeaf,
-    private store: ReportStore,
+    private readonly store: ReportStore,
   ) {
     super(leaf);
   }

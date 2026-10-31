@@ -5,7 +5,8 @@
     "dismiss": "Descartar"
   },
   "callouts": {
-    "title": "Texto extraído"
+    "title": "Texto extraído",
+    "titleWithLink": "Texto extraído de {{link}}"
   },
   "commands": {
     "extractActiveNote": "Extraer texto en la nota activa",
