@@ -39,7 +39,7 @@ export function extractionStatusBar(page: Page) {
 
 export async function expectCallout(page: Page, expectedText: string | RegExp) {
   const pluginCallout = callout(page, "ocr-extractor");
-  await pluginCallout.click();
+  await pluginCallout.locator(".callout-fold").click();
   await expect(pluginCallout.locator(".callout-content")).toHaveText(
     expectedText,
   );
