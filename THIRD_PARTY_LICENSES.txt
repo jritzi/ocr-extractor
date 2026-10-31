@@ -2013,7 +2013,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - undici@8.10.0
+ - undici@8.12.3
 
 This package contains the following license:
 
