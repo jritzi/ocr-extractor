@@ -5,7 +5,8 @@
     "dismiss": "关闭"
   },
   "callouts": {
-    "title": "提取的文本"
+    "title": "提取的文本",
+    "titleWithLink": "从 {{link}} 提取的文本"
   },
   "commands": {
     "extractActiveNote": "在活动笔记中提取文本",
@@ -41,7 +42,12 @@
     "preferEmbeddedText": "优先使用嵌入的 PDF 文本",
     "preferEmbeddedTextDesc": "当 PDF 已包含嵌入文本时，优先使用该文本；否则，通过 OCR 提取",
     "autoExtractAttachments": "自动提取附件",
-    "autoExtractAttachmentsDesc": "当新附件添加到笔记时自动提取文本"
+    "autoExtractAttachmentsDesc": "当新附件添加到笔记时自动提取文本",
+    "propertiesToExtractFrom": "要从中提取的属性",
+    "propertiesToExtractFromDesc": "从所选属性所链接的附件中提取文本",
+    "propertiesToExtractFromEmpty": "未添加任何属性。",
+    "addProperty": "添加属性",
+    "propertiesToExtractFromCount_other": "{{count, number}} 个属性"
   },
   "engines": {
     "tesseract": "Tesseract",
@@ -63,6 +69,12 @@
       "title": "是否从所有笔记中提取文本？",
       "warning": "在从所有笔记的附件中提取文本之前，请确保您的仓库已经备份。",
       "extract": "提取"
+    },
+    "addProperty": {
+      "title": "添加属性",
+      "name": "属性名称",
+      "add": "添加",
+      "exists": "该属性已添加"
     }
   },
   "status": {

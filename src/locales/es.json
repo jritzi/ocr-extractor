@@ -42,7 +42,13 @@
     "preferEmbeddedText": "Preferir texto incrustado en PDF",
     "preferEmbeddedTextDesc": "Cuando un PDF ya contiene texto incrustado, utilízalo; de lo contrario, extrae con OCR",
     "autoExtractAttachments": "Extraer archivos adjuntos automáticamente",
-    "autoExtractAttachmentsDesc": "Extrae texto automáticamente cuando se agrega un nuevo archivo adjunto a una nota"
+    "autoExtractAttachmentsDesc": "Extrae texto automáticamente cuando se agrega un nuevo archivo adjunto a una nota",
+    "propertiesToExtractFrom": "Propiedades desde las que extraer",
+    "propertiesToExtractFromDesc": "Extrae texto de los archivos adjuntos enlazados en las propiedades seleccionadas",
+    "propertiesToExtractFromEmpty": "No hay propiedades agregadas.",
+    "addProperty": "Agregar propiedad",
+    "propertiesToExtractFromCount_one": "{{count, number}} propiedad",
+    "propertiesToExtractFromCount_other": "{{count, number}} propiedades"
   },
   "engines": {
     "tesseract": "Tesseract",
@@ -64,6 +70,12 @@
       "title": "¿Extraer texto de todas las notas?",
       "warning": "Asegúrate de tener una copia de seguridad de tu bóveda antes de extraer texto de los archivos adjuntos en todas las notas.",
       "extract": "Extraer"
+    },
+    "addProperty": {
+      "title": "Agregar propiedad",
+      "name": "Nombre de la propiedad",
+      "add": "Agregar",
+      "exists": "La propiedad ya está agregada"
     }
   },
   "status": {

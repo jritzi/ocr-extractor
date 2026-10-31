@@ -5,7 +5,8 @@
     "dismiss": "تجاهل"
   },
   "callouts": {
-    "title": "النص المستخرج"
+    "title": "النص المستخرج",
+    "titleWithLink": "النص المستخرج من {{link}}"
   },
   "commands": {
     "extractActiveNote": "استخراج النص في الملاحظة النشطة",
@@ -41,7 +42,17 @@
     "preferEmbeddedText": "تفضيل نص PDF المضمّن",
     "preferEmbeddedTextDesc": "عندما يحتوي ملف PDF على نص مضمّن، سيتم استخدامه؛ وإلا سيتم الاستخراج باستخدام OCR",
     "autoExtractAttachments": "استخراج المرفقات تلقائياً",
-    "autoExtractAttachmentsDesc": "استخراج النص تلقائياً عند إضافة مرفق جديد للملاحظة"
+    "autoExtractAttachmentsDesc": "استخراج النص تلقائياً عند إضافة مرفق جديد للملاحظة",
+    "propertiesToExtractFrom": "الخصائص التي سيتم الاستخراج منها",
+    "propertiesToExtractFromDesc": "استخراج النص من المرفقات المرتبطة في الخصائص المحددة",
+    "propertiesToExtractFromEmpty": "لم تتم إضافة أي خصائص.",
+    "addProperty": "إضافة خاصية",
+    "propertiesToExtractFromCount_zero": "{{count, number}} خاصية",
+    "propertiesToExtractFromCount_one": "{{count, number}} خاصية",
+    "propertiesToExtractFromCount_two": "{{count, number}} خاصيتان",
+    "propertiesToExtractFromCount_few": "{{count, number}} خصائص",
+    "propertiesToExtractFromCount_many": "{{count, number}} خاصية",
+    "propertiesToExtractFromCount_other": "{{count, number}} خاصية"
   },
   "engines": {
     "tesseract": "Tesseract",
@@ -63,6 +74,12 @@
       "title": "هل تريد استخراج النص من جميع الملاحظات؟",
       "warning": "تأكد من وجود نسخة احتياطية من خزنتك قبل استخراج النص من المرفقات في جميع الملاحظات.",
       "extract": "استخراج"
+    },
+    "addProperty": {
+      "title": "إضافة خاصية",
+      "name": "اسم الخاصية",
+      "add": "إضافة",
+      "exists": "الخاصية مُضافة بالفعل"
     }
   },
   "status": {
