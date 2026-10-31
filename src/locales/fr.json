@@ -5,7 +5,8 @@
     "dismiss": "Fermer"
   },
   "callouts": {
-    "title": "Texte extrait"
+    "title": "Texte extrait",
+    "titleWithLink": "Texte extrait de {{link}}"
   },
   "commands": {
     "extractActiveNote": "Extraire le texte dans la note active",
@@ -41,7 +42,13 @@
     "preferEmbeddedText": "Préférer le texte intégré du PDF",
     "preferEmbeddedTextDesc": "Lorsqu'un PDF contient déjà du texte intégré, utilisez-le ; sinon, extrayez-le avec l'OCR",
     "autoExtractAttachments": "Extraction automatique des pièces jointes",
-    "autoExtractAttachmentsDesc": "Extraire automatiquement le texte lorsqu’une nouvelle pièce jointe est ajoutée à une note"
+    "autoExtractAttachmentsDesc": "Extraire automatiquement le texte lorsqu’une nouvelle pièce jointe est ajoutée à une note",
+    "propertiesToExtractFrom": "Propriétés à partir desquelles extraire",
+    "propertiesToExtractFromDesc": "Extraire le texte des pièces jointes liées dans les propriétés sélectionnées",
+    "propertiesToExtractFromEmpty": "Aucune propriété ajoutée.",
+    "addProperty": "Ajouter une propriété",
+    "propertiesToExtractFromCount_one": "{{count, number}} propriété",
+    "propertiesToExtractFromCount_other": "{{count, number}} propriétés"
   },
   "engines": {
     "tesseract": "Tesseract",
@@ -63,6 +70,12 @@
       "title": "Extraire le texte de toutes les notes ?",
       "warning": "Assurez-vous de disposer d’une sauvegarde de votre coffre avant d’extraire le texte des pièces jointes dans toutes les notes.",
       "extract": "Extraire"
+    },
+    "addProperty": {
+      "title": "Ajouter une propriété",
+      "name": "Nom de la propriété",
+      "add": "Ajouter",
+      "exists": "Propriété déjà ajoutée"
     }
   },
   "status": {
