@@ -1,10 +1,15 @@
-import { TFile } from "obsidian";
+import { type FrontmatterLinkCache, type Reference, TFile } from "obsidian";
 import OcrExtractorPlugin from "../../main";
 import { showNotice } from "../utils/notice";
 import { isMarkdown, isObsidianNative, resolveLinkedFile } from "../utils/file";
-import { getNoteCache, type NoteCache } from "../utils/metadata-cache";
+import { getNoteCache } from "../utils/metadata-cache";
 import { filterLinksByProperties } from "../utils/property";
 import { t } from "../i18n";
+
+interface TrackedNote {
+  embedCount: number;
+  propertyLinks: FrontmatterLinkCache[];
+}
 
 export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
   /**
@@ -12,33 +17,41 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
    * opened and updated on note change (if the count of references to extract
    * from increases, auto-extract if configured).
    */
-  const trackedNotes = new Map<string, NoteCache>();
+  const trackedNotes = new Map<string, TrackedNote>();
 
   /**
-   * Count the references in a note to extract text from. Only counts valid
-   * (resolving to a real file) ones, to prevent triggering extraction on an
-   * incomplete link while the user is typing.
+   * Resolve references now, so a later rename can't change a tracked note.
+   * Unresolved ones (often a link still being typed) don't count.
    */
-  function countReferencesToExtract(file: TFile, cache: NoteCache) {
-    const propertyLinks = filterLinksByProperties(
-      cache.frontmatterLinks,
-      plugin.settings.propertiesToExtractFrom,
-    );
-
-    return [...cache.embeds, ...propertyLinks].filter((reference) => {
+  function track(file: TFile) {
+    const cache = getNoteCache(plugin.app, file);
+    const isValid = (reference: Reference) => {
       const referencedFile = resolveLinkedFile(
         plugin.app,
         reference.link,
         file.path,
       );
-      return referencedFile && !isObsidianNative(referencedFile);
-    }).length;
+      return referencedFile !== null && !isObsidianNative(referencedFile);
+    };
+
+    return {
+      embedCount: cache.embeds.filter(isValid).length,
+      propertyLinks: cache.frontmatterLinks.filter(isValid),
+    };
+  }
+
+  function countReferencesToExtract(note: TrackedNote) {
+    const propertyLinks = filterLinksByProperties(
+      note.propertyLinks,
+      plugin.settings.propertiesToExtractFrom,
+    );
+    return note.embedCount + propertyLinks.length;
   }
 
   plugin.registerEvent(
     plugin.app.workspace.on("file-open", (file) => {
       if (!file || !isMarkdown(file) || trackedNotes.has(file.path)) return;
-      trackedNotes.set(file.path, getNoteCache(plugin.app, file));
+      trackedNotes.set(file.path, track(file));
     }),
   );
 
@@ -66,7 +79,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       // Ignore if note has never been opened
       if (previous === undefined) return;
 
-      const current = getNoteCache(plugin.app, file);
+      const current = track(file);
       trackedNotes.set(file.path, current);
 
       // Check only at the last minute to ensure we keep tracking (but not
@@ -76,8 +89,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       // Count both with the current properties, so editing the list doesn't
       // read as the user adding an attachment
       if (
-        countReferencesToExtract(file, current) >
-        countReferencesToExtract(file, previous)
+        countReferencesToExtract(current) > countReferencesToExtract(previous)
       ) {
         if (!plugin.extractor.canProcessSingleNote()) {
           showNotice(

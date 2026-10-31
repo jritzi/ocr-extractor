@@ -42,6 +42,23 @@ export async function copyFile(page: Page, path: string, newPath: string) {
   );
 }
 
+export async function renameLinkedFile(
+  page: Page,
+  path: string,
+  newPath: string,
+) {
+  const rename = page.evaluate(
+    async ({ path, newPath }) => {
+      const file = app.vault.getFileByPath(path);
+      if (!file) throw new Error(`File not found: ${path}`);
+      await app.fileManager.renameFile(file, newPath);
+    },
+    { path, newPath },
+  );
+  await clickModalButton(page, "Just once");
+  await rename;
+}
+
 export async function renameActiveNote(page: Page, newTitle: string) {
   await activeNoteTitle(page).click();
   await page.keyboard.press("ControlOrMeta+a");
