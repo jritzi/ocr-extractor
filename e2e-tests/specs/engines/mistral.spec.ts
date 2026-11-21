@@ -103,3 +103,16 @@ test("unauthorized error on 401", async ({ page }) => {
   await expectNotice(page, "Unauthorized. Check your API key.");
   await expectNoCallout(page);
 });
+
+test.describe(() => {
+  test.use({ settings: { ocrEngine: "mistral", mistralSecret: null } });
+
+  test("unauthorized error if no API key", async ({ page }) => {
+    await seedNote(page, "Note", { content: "![[attachments/sample.pdf]]" });
+    await openNote(page, "Note");
+    await extractActiveNote(page);
+
+    await expectNotice(page, "Unauthorized. Check your API key.");
+    await expectNoCallout(page);
+  });
+});

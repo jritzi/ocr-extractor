@@ -1,5 +1,5 @@
 import { Menu, Platform, TFile, TFolder } from "obsidian";
-import { isMarkdown } from "../utils/file";
+import { isVaultNote } from "../utils/file";
 import OcrExtractorPlugin from "../../main";
 import { t } from "../i18n";
 import { showReportView } from "./report/report-view";
@@ -104,8 +104,8 @@ function addShowReportCommand(plugin: OcrExtractorPlugin) {
 function addExtractNoteMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("file-menu", (menu, file) => {
-      if (!(file instanceof TFile) || !isMarkdown(file)) return;
-      if (!plugin.extractor.canProcessSingleNote()) return;
+      if (!(file instanceof TFile)) return;
+      if (!plugin.extractor.canProcessSingleNote(file)) return;
 
       menu.addItem((item) =>
         item
@@ -120,8 +120,7 @@ function addExtractNoteMenuItem(plugin: OcrExtractorPlugin) {
 function addExtractEditorMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("editor-menu", (menu, _editor, { file }) => {
-      if (!file || !isMarkdown(file)) return;
-      if (!plugin.extractor.canProcessSingleNote()) return;
+      if (!file || !plugin.extractor.canProcessSingleNote(file)) return;
 
       menu.addItem((item) =>
         item
@@ -152,17 +151,17 @@ function addExtractFolderMenuItem(plugin: OcrExtractorPlugin) {
 function addExtractSelectionMenuItem(plugin: OcrExtractorPlugin) {
   plugin.registerEvent(
     plugin.app.workspace.on("files-menu", (menu, files) => {
-      const markdownFiles = files.filter(
-        (file): file is TFile => file instanceof TFile && isMarkdown(file),
+      const notes = files.filter(
+        (file): file is TFile => file instanceof TFile && isVaultNote(file),
       );
-      if (markdownFiles.length === 0) return;
+      if (notes.length === 0) return;
       if (!plugin.extractor.canProcessMultipleNotes()) return;
 
       menu.addItem((item) =>
         item
           .setTitle(t("commands.extractSelection"))
           .setIcon(PLUGIN_ICON)
-          .onClick(() => plugin.extractor.processSelection(markdownFiles)),
+          .onClick(() => plugin.extractor.processSelection(notes)),
       );
     }),
   );

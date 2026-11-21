@@ -22,7 +22,7 @@ const PLACEHOLDER_API_KEY = "no-key";
 interface OpenAiCompatibleClientConfig {
   baseUrl: string;
   model: string;
-  apiKey: string;
+  apiKey: string | null;
   prompt: string;
 }
 

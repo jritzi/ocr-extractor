@@ -7,7 +7,7 @@ import {
 } from "@playwright/test";
 import { execFileSync } from "child_process";
 import { randomUUID } from "crypto";
-import { mkdtempSync, rmSync, writeFileSync } from "fs";
+import { copyFileSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import type { StoredSettings } from "../src/settings";
@@ -28,6 +28,8 @@ import { closeSettings } from "./helpers/settings";
 import { LATEST_VERSION } from "./versions";
 
 export const MOCK_OCR_OUTPUT = "Mock extracted text";
+
+const MISTRAL_SECRET_ID = "e2e-mistral-key";
 
 export const MOCK_OCR_COMMANDS = {
   fast: `node "${join(E2E, "mock-ocr", "fast.mjs")}" {input} {output}`,
@@ -56,6 +58,7 @@ export interface ObsidianFixtures {
   settings: StoredSettings;
   gatedOcrReleaseFile: string;
   releaseGatedOcr: () => void;
+  externalDir: string;
   electronApp: ElectronApplication;
   page: Page;
 }
@@ -75,6 +78,20 @@ export const test = base.extend<ObsidianFixtures>({
 
   releaseGatedOcr: async ({ gatedOcrReleaseFile }, use) => {
     await use(() => writeGatedOcrRelease(gatedOcrReleaseFile));
+  },
+
+  // eslint-disable-next-line no-empty-pattern -- Required by Playwright
+  externalDir: async ({}, use) => {
+    const dir = mkdtempSync(join(tmpdir(), "obsidian-e2e-external-"));
+    copyFileSync(
+      join(E2E, "test-vault", "attachments", "sample.pdf"),
+      join(dir, "external.pdf"),
+    );
+    try {
+      await use(dir);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   },
 
   electronApp: async (
@@ -98,6 +115,7 @@ export const test = base.extend<ObsidianFixtures>({
       setupPlugin(tmpVault, {
         ocrEngine: "customCommand",
         customCommand: MOCK_OCR_COMMANDS.fast,
+        mistralSecret: MISTRAL_SECRET_ID,
         ...settings,
       });
 
@@ -187,6 +205,10 @@ export const test = base.extend<ObsidianFixtures>({
     await closeSettings(page);
 
     await injectHttpInterceptor(page);
+    await page.evaluate((secretId) => {
+      app.secretStorage.setSecret(secretId, "fake-api-key");
+    }, MISTRAL_SECRET_ID);
+
     await use(page);
 
     await expectNoUnexpectedRequests(page);

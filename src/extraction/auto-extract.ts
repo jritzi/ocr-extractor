@@ -1,7 +1,11 @@
 import { type FrontmatterLinkCache, type Reference, TFile } from "obsidian";
 import OcrExtractorPlugin from "../../main";
 import { showNotice } from "../utils/notice";
-import { isMarkdown, isObsidianNative, resolveLinkedFile } from "../utils/file";
+import {
+  isObsidianNative,
+  isVaultNote,
+  resolveLinkedFile,
+} from "../utils/file";
 import { getNoteCache } from "../utils/metadata-cache";
 import { filterLinksByProperties } from "../utils/property";
 import { t } from "../i18n";
@@ -50,7 +54,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
 
   plugin.registerEvent(
     plugin.app.workspace.on("file-open", (file) => {
-      if (!file || !isMarkdown(file) || trackedNotes.has(file.path)) return;
+      if (!file || !isVaultNote(file) || trackedNotes.has(file.path)) return;
       trackedNotes.set(file.path, track(file));
     }),
   );
@@ -72,7 +76,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
 
   plugin.registerEvent(
     plugin.app.metadataCache.on("changed", (file) => {
-      if (!isMarkdown(file)) return;
+      if (!isVaultNote(file)) return;
 
       const previous = trackedNotes.get(file.path);
 
@@ -91,7 +95,7 @@ export function registerAutoExtractEvents(plugin: OcrExtractorPlugin) {
       if (
         countReferencesToExtract(current) > countReferencesToExtract(previous)
       ) {
-        if (!plugin.extractor.canProcessSingleNote()) {
+        if (!plugin.statusManager.isIdle()) {
           showNotice(
             t("notices.autoExtractSkippedWhileBusy", {
               pluginName: t("pluginName"),

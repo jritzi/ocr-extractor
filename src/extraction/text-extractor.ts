@@ -7,7 +7,7 @@ import { ReportStore } from "../reporting/report-store";
 import { assert } from "es-toolkit";
 import { debugLog, logError, logWarning } from "../utils/logging";
 import { showNotice } from "../utils/notice";
-import { markdownFilesInFolder } from "../utils/file";
+import { isVaultNote, markdownFilesInFolder } from "../utils/file";
 import { RunScope } from "../reporting/run-report";
 import { NoteExtractor } from "./note-extractor";
 import { ConfirmExtractAllModal } from "../ui/confirm-extract-all-modal";
@@ -28,23 +28,22 @@ export class TextExtractor {
   }
 
   canProcessActiveNote() {
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    return !!view?.file && this.canProcessSingleNote();
+    const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
+    return !!file && this.canProcessSingleNote(file);
   }
 
   processActiveNote() {
-    assert(this.canProcessActiveNote(), "Callers check before processing");
-
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView)!;
-    this.processSingleNote(view.file!);
+    const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
+    assert(file, "Callers check that the note exists before processing");
+    this.processSingleNote(file);
   }
 
-  canProcessSingleNote() {
-    return this.statusManager.isIdle();
+  canProcessSingleNote(note: TFile) {
+    return isVaultNote(note) && this.statusManager.isIdle();
   }
 
   processSingleNote(note: TFile) {
-    assert(this.canProcessSingleNote(), "Callers check before processing");
+    assert(this.canProcessSingleNote(note), "Callers check before processing");
     this.startExtractingFiles([note], { type: "note", path: note.path });
   }
 

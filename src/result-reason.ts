@@ -4,7 +4,8 @@ export type SkipReason =
   | "unsupportedFileType"
   | "noTextFound"
   | "unsupportedByEngine"
-  | "passwordProtectedPdf";
+  | "passwordProtectedPdf"
+  | "externalFile";
 
 export type FailureReason =
   | "fileNotFound"

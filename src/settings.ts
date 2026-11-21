@@ -9,11 +9,11 @@ import type { OCR_ENGINES } from "../main";
 export interface PluginSettings {
   readonly ocrEngine: keyof typeof OCR_ENGINES;
 
-  readonly mistralSecret: string;
+  readonly mistralSecret: string | null;
 
   readonly openAiCompatibleBaseUrl: string;
   readonly openAiCompatibleModel: string;
-  readonly openAiCompatibleSecret: string;
+  readonly openAiCompatibleSecret: string | null;
   readonly openAiCompatiblePrompt: string;
 
   readonly customCommand: string;
@@ -38,10 +38,10 @@ export type StoredSettings = Partial<PluginSettings> & DeprecatedSettings;
 
 export const DEFAULT_SETTINGS: PluginSettings = {
   ocrEngine: "tesseract",
-  mistralSecret: "",
+  mistralSecret: null,
   openAiCompatibleBaseUrl: "",
   openAiCompatibleModel: "",
-  openAiCompatibleSecret: "",
+  openAiCompatibleSecret: null,
   openAiCompatiblePrompt: "",
   customCommand: "",
   customCommandConvertPdfs: false,

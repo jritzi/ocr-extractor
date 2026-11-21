@@ -16,6 +16,7 @@ import { throwIfFatalHttpStatus } from "../http-error";
 import type OcrExtractorPlugin from "../../../main";
 import { MistralSettings } from "./mistral-settings";
 import { toDataUrl } from "../../utils/encoding";
+import { getSecret } from "../../utils/secret";
 import { t } from "../../i18n";
 
 const REQUEST_TIMEOUT = 60_000; // 1 minute
@@ -44,8 +45,8 @@ export class MistralEngine extends OcrEngine {
     data: Uint8Array,
     { mimeType, signal }: ExtractPagesOptions,
   ) {
-    const apiKey =
-      this.secretStorage.getSecret(this.settings.mistralSecret) ?? "";
+    const apiKey = getSecret(this.secretStorage, this.settings.mistralSecret);
+    if (!apiKey) throw new FatalError(t("errors.unauthorized"));
     const mistral = new Mistral({ apiKey });
 
     const isImage = mimeType.startsWith("image/");

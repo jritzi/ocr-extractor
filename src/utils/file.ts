@@ -1,4 +1,4 @@
-import { App, getLinkpath, TFile, TFolder } from "obsidian";
+import { App, getLinkpath, TExternalFile, TFile, TFolder } from "obsidian";
 import type { AttachmentPath } from "./path";
 
 // Obsidian-native file types that should not have text extracted if embedded
@@ -10,6 +10,14 @@ export function isObsidianNative(file: TFile) {
 
 export function isMarkdown(file: TFile) {
   return file.extension === "md";
+}
+
+export function isExternalFile(file: TFile) {
+  return file instanceof TExternalFile;
+}
+
+export function isVaultNote(file: TFile) {
+  return isMarkdown(file) && !isExternalFile(file);
 }
 
 export function isDeleted(app: App, file: TFile) {

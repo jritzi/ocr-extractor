@@ -1,6 +1,7 @@
 import OcrExtractorPlugin, { OCR_ENGINES } from "../../main";
 import { TFile } from "obsidian";
-import { OcrEngine } from "./ocr-engine";
+import { EngineResult, OcrEngine } from "./ocr-engine";
+import { isExternalFile } from "../utils/file";
 import {
   type PluginSettings,
   shouldUseMobileEngineFallback,
@@ -30,7 +31,11 @@ export class OcrEngineManager {
     await previousEngine.terminate();
   }
 
-  async extract(attachment: TFile, signal: AbortSignal) {
+  async extract(attachment: TFile, signal: AbortSignal): Promise<EngineResult> {
+    if (isExternalFile(attachment)) {
+      return { status: "skipped", reason: "externalFile" };
+    }
+
     this.extractionsInFlight++;
     try {
       const binary = await this.plugin.app.vault.readBinary(attachment);

@@ -1,4 +1,11 @@
-import { expect, Page } from "@playwright/test";
+import { ElectronApplication, expect, Page } from "@playwright/test";
+import { basename } from "path";
+
+interface ElectronDialogModule {
+  dialog: {
+    showOpenDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;
+  };
+}
 
 export async function seedFolder(page: Page, folder: string) {
   await page.evaluate(
@@ -67,7 +74,7 @@ export async function renameActiveNote(page: Page, newTitle: string) {
 }
 
 export async function createNote(page: Page, name: string) {
-  await page.getByLabel("New note").click();
+  await page.keyboard.press("ControlOrMeta+n");
   await page.locator(".inline-title").fill(name);
 }
 
@@ -167,9 +174,27 @@ export async function addFrontmatter(
   }, properties);
 }
 
-export async function runCommand(page: Page, command: string) {
+export async function openExternalNote(
+  electronApp: ElectronApplication,
+  page: Page,
+  path: string,
+) {
+  await electronApp.evaluate(({ dialog }: ElectronDialogModule, filePath) => {
+    dialog.showOpenDialog = () =>
+      Promise.resolve({ canceled: false, filePaths: [filePath] });
+  }, path);
+  await runCommand(page, "Open file from outside the vault");
+  await expect(activeNoteTitle(page)).toHaveText(basename(path, ".md"));
+}
+
+export async function searchCommands(page: Page, query: string) {
   await page.getByLabel("Open command palette").click();
-  await page.getByPlaceholder("Select a command...").fill(command);
+  await page.getByPlaceholder("Select a command...").fill(query);
+  return page.locator(".prompt .suggestion-item");
+}
+
+export async function runCommand(page: Page, command: string) {
+  await searchCommands(page, command);
   await page.keyboard.press("Enter");
 }
 
