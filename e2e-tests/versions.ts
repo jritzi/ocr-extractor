@@ -9,7 +9,11 @@ interface E2EVersions {
   electron?: string;
 }
 
-export const LATEST_VERSION = { name: "latest", obsidian: "1.15.1" };
+// DEBUG (revert): lets CI run the latest project against another version
+export const LATEST_VERSION = {
+  name: "latest",
+  obsidian: process.env.E2E_DEBUG_LATEST ?? "1.15.1",
+};
 
 export const versions: E2EVersions[] = [
   LATEST_VERSION,

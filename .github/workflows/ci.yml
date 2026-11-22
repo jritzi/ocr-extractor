@@ -102,15 +102,48 @@ jobs:
           path: e2e-tests/cache
           key: e2e-cache-${{ runner.os }}-${{ hashFiles('e2e-tests/global-setup.ts', 'e2e-tests/setup/**', 'e2e-tests/versions.ts') }}
 
+      # DEBUG (revert): isolate the Linux external-note failure and the new flakes
+      - name: "Debug: external notes, 1.14.4, keyboard helpers"
+        continue-on-error: true
+        env:
+          E2E_DEBUG_LATEST: "1.14.4"
+        run: xvfb-run --auto-servernum pnpm test:e2e e2e-tests/specs/external-files.spec.ts --repeat-each=3 --retries=0 --output=e2e-tests/debug-results/1.14.4-keyboard
+
+      - name: "Debug: external notes, 1.14.4, ribbon helpers"
+        continue-on-error: true
+        env:
+          E2E_DEBUG_LATEST: "1.14.4"
+          E2E_DEBUG_RIBBON: "1"
+        run: xvfb-run --auto-servernum pnpm test:e2e e2e-tests/specs/external-files.spec.ts --repeat-each=3 --retries=0 --output=e2e-tests/debug-results/1.14.4-ribbon
+
+      - name: "Debug: full latest suite, 1.14.4, keyboard helpers"
+        continue-on-error: true
+        env:
+          E2E_DEBUG_LATEST: "1.14.4"
+        run: xvfb-run --auto-servernum pnpm test:e2e --output=e2e-tests/debug-results/1.14.4-suite
+
+      - name: "Debug: external notes, 1.15.1, ribbon helpers"
+        continue-on-error: true
+        env:
+          E2E_DEBUG_RIBBON: "1"
+        run: xvfb-run --auto-servernum pnpm test:e2e e2e-tests/specs/external-files.spec.ts --repeat-each=3 --retries=0 --output=e2e-tests/debug-results/1.15.1-ribbon
+
+      - name: "Debug: external notes, 1.15.1, keyboard helpers"
+        continue-on-error: true
+        run: xvfb-run --auto-servernum pnpm test:e2e e2e-tests/specs/external-files.spec.ts --repeat-each=3 --retries=0 --output=e2e-tests/debug-results/1.15.1-keyboard
+
       - name: Run E2E tests
         run: xvfb-run --auto-servernum pnpm test:e2e
 
       - name: Upload E2E test results
-        if: failure()
+        # DEBUG (revert): back to if: failure() and only e2e-tests/test-results
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: e2e-test-results-${{ github.job }}
-          path: e2e-tests/test-results
+          path: |
+            e2e-tests/test-results
+            e2e-tests/debug-results
           retention-days: 7
 
   e2e-linux-all:
