@@ -105,6 +105,14 @@ jobs:
       - name: Run E2E tests
         run: xvfb-run --auto-servernum pnpm test:e2e
 
+      - name: Upload E2E test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-results-${{ github.job }}
+          path: e2e-tests/test-results
+          retention-days: 7
+
   e2e-linux-all:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/hotfix/'))
     needs: checks
@@ -143,6 +151,14 @@ jobs:
       - name: Run E2E tests (all versions)
         run: xvfb-run --auto-servernum pnpm test:e2e:all
 
+      - name: Upload E2E test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-results-${{ github.job }}
+          path: e2e-tests/test-results
+          retention-days: 7
+
   e2e-macos:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/hotfix/'))
     needs: checks
@@ -176,6 +192,14 @@ jobs:
       - name: Run E2E tests
         run: pnpm test:e2e
 
+      - name: Upload E2E test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-results-${{ github.job }}
+          path: e2e-tests/test-results
+          retention-days: 7
+
   e2e-windows:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/hotfix/'))
     needs: checks
@@ -208,3 +232,11 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm test:e2e
+
+      - name: Upload E2E test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-test-results-${{ github.job }}
+          path: e2e-tests/test-results
+          retention-days: 7
