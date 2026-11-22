@@ -70,7 +70,10 @@ export function NoteGroup({ note, collapsed, onToggle, app }: NoteGroupProps) {
         className="tree-item-children"
         initial={false}
         animate={{ height: collapsed ? 0 : "auto" }}
-        transition={{ duration: 0.1, ease: [0.02, 0.01, 0.47, 1] }}
+        transition={{
+          duration: 0.1,
+          ease: collapsed ? [0.02, 0.01, 0.47, 1] : [0.3, 0.2, 0.5, 1],
+        }}
       >
         {note.attachments.map((attachment) => (
           <AttachmentRow

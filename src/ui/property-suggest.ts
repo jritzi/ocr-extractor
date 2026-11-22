@@ -1,4 +1,4 @@
-import { AbstractInputSuggest, App } from "obsidian";
+import { AbstractInputSuggest, App, prepareSimpleSearch } from "obsidian";
 import { normalizePropertyName } from "../utils/property";
 
 export class PropertySuggest extends AbstractInputSuggest<string> {
@@ -24,10 +24,8 @@ export class PropertySuggest extends AbstractInputSuggest<string> {
   }
 
   protected getSuggestions(query: string) {
-    const normalized = normalizePropertyName(query);
-    return this.properties.filter((name) =>
-      normalizePropertyName(name).includes(normalized),
-    );
+    const search = prepareSimpleSearch(query);
+    return this.properties.filter((name) => search(name) !== null);
   }
 }
 
