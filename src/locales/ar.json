@@ -167,6 +167,7 @@
     "unsupportedByEngine": "غير مدعوم من محرك OCR",
     "fileNotFound": "الملف غير موجود",
     "passwordProtectedPdf": "PDF محميّ بكلمة مرور",
+    "externalFile": "خارج الخزنة",
     "pdfUnreadable": "تعذر قراءة PDF",
     "imageUnreadable": "تعذر قراءة الصورة",
     "rejectedByEngine": "تم رفضه من قبل محرك OCR",

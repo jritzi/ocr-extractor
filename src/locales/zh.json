@@ -127,6 +127,7 @@
     "unsupportedByEngine": "OCR 引擎不支持",
     "fileNotFound": "未找到文件",
     "passwordProtectedPdf": "受密码保护的 PDF",
+    "externalFile": "在仓库之外",
     "pdfUnreadable": "无法读取 PDF",
     "imageUnreadable": "无法读取图片",
     "rejectedByEngine": "已被 OCR 引擎拒绝",
