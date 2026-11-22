@@ -10,6 +10,7 @@ import {
 } from "../helpers/obsidian";
 import {
   cancelExtraction,
+  dismissNotice,
   expectNotice,
   extractActiveNote,
   extractAllNotes,
@@ -109,6 +110,7 @@ test("collapsing and expanding", async ({ page }) => {
   await seedNote(page, "Note 1", { content: "![[attachments/sample.pdf]]" });
   await seedNote(page, "Note 2", { content: "![[attachments/sample.png]]" });
   await extractAllNotes(page);
+  await dismissNotice(page, "Text extraction complete");
 
   await showReportView(page);
   await expectNoteExpanded(page, "Note 1");
@@ -135,7 +137,7 @@ test("copied report text", async ({ page }) => {
   });
   await openNote(page, "Copy note");
   await extractActiveNote(page);
-  await expectNotice(page, "Text extraction complete");
+  await dismissNotice(page, "Text extraction complete");
 
   await showReportView(page);
   await reportView(page).getByRole("button", { name: "Copy report" }).click();

@@ -33,6 +33,11 @@ export async function expectNotice(page: Page, text: string | string[]) {
   await expect(noticeLines(page)).toHaveText(text);
 }
 
+export async function dismissNotice(page: Page, text: string) {
+  await notice(page).getByText(text).click();
+  await expect(notice(page).getByText(text)).not.toBeVisible();
+}
+
 export function extractionStatusBar(page: Page) {
   return page.locator(".ocr-extractor-status-bar");
 }
