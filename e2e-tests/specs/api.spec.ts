@@ -1,5 +1,6 @@
 import { expect, MOCK_OCR_COMMANDS, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import type { Page } from "@playwright/test";
+import { join } from "path";
 import { mockHttp } from "../helpers/http";
 import { MISTRAL_URL, mistralSuccessResponse } from "../helpers/mistral";
 import { openPluginSettings, settingDropdown } from "../helpers/settings";
@@ -110,6 +111,24 @@ test.describe("unsupported file type", () => {
 
   test("extractText: unsupported-file error", async ({ page }) => {
     expect(await extractText(page, "attachments/unsupported.xml")).toEqual({
+      success: false,
+      error: { name: "OcrError", code: "unsupported-file" },
+    });
+  });
+});
+
+test.describe("file outside the vault", () => {
+  test("extract: unsupported result", async ({ page, externalDir }) => {
+    const path = `file:${join(externalDir, "external.pdf")}`;
+    expect(await extract(page, path)).toEqual({
+      success: true,
+      result: { status: "unsupported" },
+    });
+  });
+
+  test("extractText: unsupported-file error", async ({ page, externalDir }) => {
+    const path = `file:${join(externalDir, "external.pdf")}`;
+    expect(await extractText(page, path)).toEqual({
       success: false,
       error: { name: "OcrError", code: "unsupported-file" },
     });

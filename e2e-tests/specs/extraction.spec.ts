@@ -157,7 +157,7 @@ test.describe(() => {
     await extractActiveNote(page);
 
     await notice(page).getByText("Extracting text…").click();
-    await expect(notice(page)).toHaveCount(0);
+    await expect(notice(page)).not.toBeVisible();
     await expect(
       extractionStatusBar(page).getByText("Extracting text"),
     ).toBeVisible();

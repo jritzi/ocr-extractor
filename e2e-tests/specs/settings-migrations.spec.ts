@@ -36,6 +36,7 @@ test.describe("<2.0.0: Migrate mistralApiKey to mistralSecret (SecretStorage)", 
       ocrEngine: undefined,
       ocrService: "mistral",
       mistralApiKey: "fake-api-key",
+      mistralSecret: undefined,
     },
   });
 
@@ -59,7 +60,6 @@ test.describe("<2.3.2: Rename ocrService to ocrEngine", () => {
     settings: {
       ocrEngine: undefined,
       ocrService: "mistral",
-      mistralSecret: "mistral-key",
     },
   });
 

@@ -9,7 +9,7 @@ interface E2EVersions {
   electron?: string;
 }
 
-export const LATEST_VERSION = { name: "latest", obsidian: "1.13.7" };
+export const LATEST_VERSION = { name: "latest", obsidian: "1.14.4" };
 
 export const versions: E2EVersions[] = [
   LATEST_VERSION,

@@ -44,7 +44,7 @@ export function reportNoteCollapseIcon(page: Page, noteName: string) {
 }
 
 export async function expectNoteCollapsed(page: Page, noteName: string) {
-  await expect(noteAttachments(page, noteName)).toBeHidden();
+  await expect(noteAttachments(page, noteName)).not.toBeVisible();
 }
 
 export async function expectNoteExpanded(page: Page, noteName: string) {

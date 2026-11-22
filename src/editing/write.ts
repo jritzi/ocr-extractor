@@ -1,4 +1,4 @@
-import { isPlainObject } from "es-toolkit";
+import { assert, isPlainObject } from "es-toolkit";
 import {
   App,
   Editor,
@@ -7,7 +7,7 @@ import {
   Pos,
   TFile,
 } from "obsidian";
-import { resolveLinkedFile } from "../utils/file";
+import { isExternalFile, resolveLinkedFile } from "../utils/file";
 import {
   getNoteCache,
   NoteCache,
@@ -49,6 +49,7 @@ export async function attemptInsert(
   results: PendingResults,
   signal: AbortSignal,
 ): Promise<AttemptResult> {
+  assert(!isExternalFile(file), "Extraction never runs on external notes");
   if (signal.aborted) return { done: false, insertedResults: [] };
 
   const editor = findSourceModeEditor(app, file);

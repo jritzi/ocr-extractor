@@ -1,5 +1,5 @@
 import type { ButtonComponent, DropdownComponent } from "obsidian";
-import { debounce, SecretComponent } from "obsidian";
+import { debounce } from "obsidian";
 import { EngineSettingItem, OcrEngineSettings } from "../ocr-engine-settings";
 import {
   DEFAULT_PROMPT,
@@ -8,6 +8,7 @@ import {
 import { createTestImage, TEST_IMAGE_TEXT } from "../../utils/image";
 import { toDataUrl } from "../../utils/encoding";
 import { showLoadingNotice, showNotice } from "../../utils/notice";
+import { getSecret } from "../../utils/secret";
 import { assert } from "es-toolkit";
 import { t } from "../../i18n";
 
@@ -70,16 +71,7 @@ export class OpenAiCompatibleSettings extends OcrEngineSettings {
       {
         name: t("settings.apiKey"),
         desc: t("settings.openAiCompatibleApiKeyDesc"),
-        render: (setting) => {
-          setting.addComponent((el) =>
-            new SecretComponent(this.plugin.app, el)
-              .setValue(this.plugin.settings.openAiCompatibleSecret)
-              .onChange(
-                (value) =>
-                  void this.plugin.saveSetting("openAiCompatibleSecret", value),
-              ),
-          );
-        },
+        control: { type: "secret", key: "openAiCompatibleSecret" },
       },
       {
         name: t("settings.openAiCompatiblePrompt"),
@@ -182,10 +174,10 @@ export class OpenAiCompatibleSettings extends OcrEngineSettings {
     return new OpenAiCompatibleClient({
       baseUrl: settings.openAiCompatibleBaseUrl,
       model: settings.openAiCompatibleModel,
-      apiKey:
-        this.plugin.app.secretStorage.getSecret(
-          settings.openAiCompatibleSecret,
-        ) ?? "",
+      apiKey: getSecret(
+        this.plugin.app.secretStorage,
+        settings.openAiCompatibleSecret,
+      ),
       prompt: settings.openAiCompatiblePrompt,
     });
   }

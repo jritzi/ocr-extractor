@@ -94,7 +94,7 @@ test("full run with note and attachment results", async ({ page }) => {
   await expectAttachmentNotFailed(page, "First note", "unsupported.xml");
 
   await closeActiveTab(page);
-  await expect(reportView(page)).toHaveCount(0);
+  await expect(reportView(page)).not.toBeVisible();
   await showReportView(page);
 
   await openNote(page, "Third note");

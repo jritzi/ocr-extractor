@@ -1,8 +1,8 @@
 /**
  * Identifies which kind of {@link OcrError} occurred.
  *
- * - `"unsupported-file"`: The OCR engine can't process this file (e.g. an
- *   unsupported file type). Only thrown by the deprecated
+ * - `"unsupported-file"`: The file can't be processed (e.g. an unsupported
+ *   file type). Only thrown by the deprecated
  *   {@link OcrExtractorApi.extractText}.
  * - `"extraction-failed"`: Extracting text from a supported file failed
  *   (network, auth, corrupt file, etc.).

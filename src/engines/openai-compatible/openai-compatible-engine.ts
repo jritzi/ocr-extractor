@@ -9,6 +9,7 @@ import { OpenAiCompatibleSettings } from "./openai-compatible-settings";
 import { convertPdfToImages, isPdf } from "../../utils/pdf";
 import { resizeImage } from "../../utils/image";
 import { toDataUrl } from "../../utils/encoding";
+import { getSecret } from "../../utils/secret";
 import { t } from "../../i18n";
 
 // Max of common local OCR models (larger is slower without improving accuracy)
@@ -34,9 +35,10 @@ export class OpenAiCompatibleEngine extends OcrEngine {
     const client = new OpenAiCompatibleClient({
       baseUrl: this.settings.openAiCompatibleBaseUrl,
       model: this.settings.openAiCompatibleModel,
-      apiKey:
-        this.secretStorage.getSecret(this.settings.openAiCompatibleSecret) ??
-        "",
+      apiKey: getSecret(
+        this.secretStorage,
+        this.settings.openAiCompatibleSecret,
+      ),
       prompt: this.settings.openAiCompatiblePrompt,
     });
 

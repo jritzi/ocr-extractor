@@ -135,6 +135,7 @@
     "unsupportedByEngine": "not supported by the OCR engine",
     "fileNotFound": "file not found",
     "passwordProtectedPdf": "password-protected PDF",
+    "externalFile": "outside the vault",
     "pdfUnreadable": "could not read PDF",
     "imageUnreadable": "could not read image",
     "rejectedByEngine": "rejected by the OCR engine",
