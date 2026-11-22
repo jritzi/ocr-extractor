@@ -135,6 +135,7 @@
     "unsupportedByEngine": "no es compatible con el motor de OCR",
     "fileNotFound": "archivo no encontrado",
     "passwordProtectedPdf": "PDF protegido por contraseña",
+    "externalFile": "fuera de la bóveda",
     "pdfUnreadable": "no se pudo leer el PDF",
     "imageUnreadable": "no se pudo leer la imagen",
     "rejectedByEngine": "rechazado por el motor de OCR",
