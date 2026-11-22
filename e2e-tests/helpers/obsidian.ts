@@ -82,7 +82,7 @@ export async function openNote(page: Page, name: string) {
   await page.keyboard.press("ControlOrMeta+o");
   await page.getByPlaceholder("Find or create a note").fill(name);
   await page.keyboard.press("Enter");
-  await expect(page.locator(".inline-title").getByText(name)).toBeVisible();
+  await expect(activeNoteTitle(page)).toHaveText(name);
 }
 
 export function activeNoteTitle(page: Page) {

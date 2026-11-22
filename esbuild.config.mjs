@@ -128,7 +128,8 @@ const context = await esbuild.context({
     "process.env.NODE_ENV": prod ? '"production"' : '"development"',
   },
   format: "cjs",
-  target: "es2021",
+  // Support Obsidian's minimum iOS version
+  target: ["es2021", "safari15.6"],
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,
