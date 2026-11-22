@@ -79,12 +79,7 @@ export async function createNote(page: Page, name: string) {
 }
 
 export async function openNote(page: Page, name: string) {
-  // DEBUG (revert): E2E_DEBUG_RIBBON restores the old ribbon-click helpers
-  if (process.env.E2E_DEBUG_RIBBON) {
-    await page.getByLabel("Open quick switcher").click();
-  } else {
-    await page.keyboard.press("ControlOrMeta+o");
-  }
+  await page.keyboard.press("ControlOrMeta+o");
   await page.getByPlaceholder("Find or create a note").fill(name);
   await page.keyboard.press("Enter");
   await expect(page.locator(".inline-title").getByText(name)).toBeVisible();
@@ -193,11 +188,7 @@ export async function openExternalNote(
 }
 
 export async function searchCommands(page: Page, query: string) {
-  if (process.env.E2E_DEBUG_RIBBON) {
-    await page.getByLabel("Open command palette").click();
-  } else {
-    await page.keyboard.press("ControlOrMeta+p");
-  }
+  await page.keyboard.press("ControlOrMeta+p");
   await page.getByPlaceholder("Select a command...").fill(query);
   return page.locator(".prompt .suggestion-item");
 }
