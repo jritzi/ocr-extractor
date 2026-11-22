@@ -2,7 +2,7 @@ import { writeFileSync } from "fs";
 import { join } from "path";
 import { expect, MOCK_OCR_OUTPUT, test } from "../fixtures";
 import {
-  getActiveNoteContent,
+  getNoteContentOnDisk,
   openExternalNote,
   openNote,
   searchCommands,
@@ -49,7 +49,8 @@ test.describe(() => {
     await expectCallout(page, MOCK_OCR_OUTPUT);
 
     // The external note would have extracted by now
-    await openExternalNote(electronApp, page, notePath);
-    expect(await getActiveNoteContent(page)).toBe("![[external.pdf]]");
+    expect(await getNoteContentOnDisk(page, `file:${notePath}`)).toBe(
+      "![[external.pdf]]",
+    );
   });
 });

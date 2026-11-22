@@ -16,8 +16,8 @@ export function useTruncationTooltip<T extends HTMLElement>(text: string) {
       setTooltip(element, truncated ? text : "", PLACEMENT);
     };
 
-    element.addEventListener("pointerenter", show);
-    return () => element.removeEventListener("pointerenter", show);
+    element.addEventListener("pointerover", show);
+    return () => element.removeEventListener("pointerover", show);
   }, [text]);
 
   return ref;

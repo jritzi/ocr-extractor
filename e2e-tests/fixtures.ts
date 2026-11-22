@@ -7,7 +7,13 @@ import {
 } from "@playwright/test";
 import { execFileSync } from "child_process";
 import { randomUUID } from "crypto";
-import { copyFileSync, mkdtempSync, rmSync, writeFileSync } from "fs";
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import type { StoredSettings } from "../src/settings";
@@ -58,6 +64,7 @@ export interface ObsidianFixtures {
   settings: StoredSettings;
   gatedOcrReleaseFile: string;
   releaseGatedOcr: () => void;
+  tmpBase: string;
   externalDir: string;
   electronApp: ElectronApplication;
   page: Page;
@@ -81,17 +88,24 @@ export const test = base.extend<ObsidianFixtures>({
   },
 
   // eslint-disable-next-line no-empty-pattern -- Required by Playwright
-  externalDir: async ({}, use) => {
-    const dir = mkdtempSync(join(tmpdir(), "obsidian-e2e-external-"));
+  tmpBase: async ({}, use) => {
+    const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
+    try {
+      await use(tmpBase);
+    } finally {
+      // Remove tmp directory, retrying if the app is still flushing files
+      rmSync(tmpBase, { recursive: true, force: true, maxRetries: 5 });
+    }
+  },
+
+  externalDir: async ({ tmpBase }, use) => {
+    const dir = join(tmpBase, "external");
+    mkdirSync(dir);
     copyFileSync(
       join(E2E, "test-vault", "attachments", "sample.pdf"),
       join(dir, "external.pdf"),
     );
-    try {
-      await use(dir);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
+    await use(dir);
   },
 
   electronApp: async (
@@ -101,10 +115,10 @@ export const test = base.extend<ObsidianFixtures>({
       mockOcrOutput,
       settings,
       gatedOcrReleaseFile,
+      tmpBase,
     },
     use,
   ) => {
-    const tmpBase = mkdtempSync(join(tmpdir(), "obsidian-e2e-"));
     const tmpVault = join(tmpBase, "vault");
     const tmpUserData = join(tmpBase, "user-data");
 
@@ -174,8 +188,6 @@ export const test = base.extend<ObsidianFixtures>({
           }
         }
       }
-      // Remove tmp directory, retrying if the app is still flushing files
-      rmSync(tmpBase, { recursive: true, force: true, maxRetries: 5 });
     }
   },
 
