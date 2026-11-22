@@ -41,28 +41,26 @@ test.describe(() => {
     const notePath = join(externalDir, "External note.md");
     writeFileSync(notePath, "");
 
-    // DEBUG (revert): everything marked debug below is temporary CI logging
+    // DEBUG (revert): records in the background and dumps once at the end, so
+    // it adds no pauses between steps
     const debug = await startDebugLog(page, externalDir, notePath);
 
-    await openExternalNote(electronApp, page, notePath);
-    await debug("opened external note");
+    try {
+      await openExternalNote(electronApp, page, notePath);
 
-    await typeAtEndOfNote(page, "![[external.pdf]]");
-    await debug("typed into external note");
+      await typeAtEndOfNote(page, "![[external.pdf]]");
 
-    await seedNote(page, "Vault note");
-    await openNote(page, "Vault note");
-    await debug("opened vault note");
-    await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
-    await expectCallout(page, MOCK_OCR_OUTPUT);
-    await debug("vault note extracted");
+      await seedNote(page, "Vault note");
+      await openNote(page, "Vault note");
+      await typeAtEndOfNote(page, "![[attachments/sample.pdf]]");
+      await expectCallout(page, MOCK_OCR_OUTPUT);
 
-    // The external note would have extracted by now
-    await openExternalNote(electronApp, page, notePath);
-    await debug("reopened external note");
-    await page.waitForTimeout(2000);
-    await debug("2s after reopening");
-    expect(await getActiveNoteContent(page)).toBe("![[external.pdf]]");
+      // The external note would have extracted by now
+      await openExternalNote(electronApp, page, notePath);
+      expect(await getActiveNoteContent(page)).toBe("![[external.pdf]]");
+    } finally {
+      await debug("end of test");
+    }
   });
 });
 
@@ -108,6 +106,24 @@ async function startDebugLog(page: Page, directory: string, notePath: string) {
     workspace.on("file-open", (file) =>
       record(`file-open ${file?.path ?? "null"}`),
     );
+    workspace.on("active-leaf-change", (leaf) => {
+      const view = leaf?.view as { file?: { path: string } } | undefined;
+      record(
+        `active-leaf-change ${leaf?.view.getViewType() ?? "null"}:${
+          view?.file?.path ?? "no file"
+        }`,
+      );
+    });
+    workspace.on("layout-change", () => {
+      const leaves: string[] = [];
+      workspace.iterateRootLeaves((leaf) => {
+        const view = leaf.view as { file?: { path: string } };
+        leaves.push(
+          `${leaf.view.getViewType()}:${view.file?.path ?? "no file"}`,
+        );
+      });
+      record(`layout-change ${leaves.join(" | ")}`);
+    });
     (globalThis as unknown as { __debugEvents: string[] }).__debugEvents =
       events;
   });
